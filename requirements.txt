@@ -1,2 +1,6 @@
 fastapi
 tortoise-orm==0.20.0
+uvicorn==0.23.2
+asyncpg==0.28.0
+email_validator==2.0.0
+slowapi==0.1.8

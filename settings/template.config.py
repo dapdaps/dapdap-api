@@ -5,18 +5,25 @@
 import os
 
 
+DATABASE_HOST = os.getenv('DATABASE_HOST') or "127.0.0.1"
+DATABASE_NAME = os.getenv('DATABASE_NAME') or "dapdap"
+DATABASE_USERNAME = os.getenv('DATABASE_USERNAME') or "postgres"
+DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD') or "postgres"
+
+REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379")
+
 class Settings:
     VERSION = '0.1.0'
-    APP_TITLE = 'Template Application'
-    PROJECT_NAME = 'Template Application'
-    APP_DESCRIPTION = 'APP_DESCRIPTION'
+    APP_TITLE = 'dapdap-api'
+    PROJECT_NAME = 'dapdap'
+    APP_DESCRIPTION = 'dapdap-api'
 
     SERVER_HOST = 'localhost'
 
     DEBUG = True
 
     APPLICATIONS = [
-        'users'
+        'invite'
     ]
 
     PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
@@ -24,20 +31,20 @@ class Settings:
     LOGS_ROOT = os.path.join(BASE_DIR, "logs")
     # EMAIL_TEMPLATES_DIR = os.path.join(BASE_DIR, "app/templates/emails/build/")
 
-    DB_URL = 'sqlite://./test.db'
+    DB_URL = f"postgres://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_HOST}:5432/{DATABASE_NAME}"
     DB_CONNECTIONS = {
-            'default': {
-                'engine': 'tortoise.backends.sqlite',
-                'db_url': DB_URL,
-                'credentials': {
-                    'host': '',
-                    'port': '',
-                    'user': '',
-                    'password': '',
-                    'database': '',
-                }
-            },
-        }
+        'default': {
+            'engine': 'tortoise.backends.asyncpg',
+            'db_url': DB_URL,
+            'credentials': {
+                'host': DATABASE_HOST,
+                'port': 5432,
+                'user': DATABASE_USERNAME,
+                'password': DATABASE_PASSWORD,
+                'database': DATABASE_NAME,
+            }
+        },
+    }
 
     # SECRET_KEY = '3488a63e1765035d386f05409663f55c83bfae3b3c61a932744b20ad14244dcf'  # openssl rand -hex 32
     JWT_ALGORITHM = 'HS25'
@@ -58,15 +65,17 @@ class Settings:
     RABBIT_PASSWORD = ''
     RABBIT_HOST = 'localhost'
 
-    REDIS_URL = ''
+    REDIS_URL = REDIS_URL
 
-    APPLICATIONS_MODULE = 'app.applications'
+    # APPLICATIONS_MODULE = 'apps'
+    APPLICATIONS_MODULE = 'apps'
 
     CORS_ORIGINS = [
-        "http://localhost",
-        "http://localhost:8080",
-        "http://localhost:5000",
-        "http://localhost:3000",
+        # "http://localhost",
+        # "http://localhost:8080",
+        # "http://localhost:5000",
+        # "http://localhost:3000",
+        "*"
     ]
     CORS_ALLOW_CREDENTIALS = True
     CORS_ALLOW_METHODS = ["*"]

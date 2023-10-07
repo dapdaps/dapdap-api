@@ -11,8 +11,10 @@ from tortoise.contrib.fastapi import register_tortoise
 from core.exceptions import APIException, on_api_exception
 from settings.config import settings
 from settings.log import DEFAULT_LOGGING
-# from core.auth.routers.login import router as login_router
-# from applications.users.routes import router as users_router
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from apps.invite.routes import router as invite_router
 
 
 def configure_logging(log_settings: dict = None):
@@ -65,12 +67,19 @@ def register_db(app: FastAPI, db_url: str = None):
         add_exception_handlers=True,
     )
 
-
 def register_exceptions(app: FastAPI):
     app.add_exception_handler(APIException, on_api_exception)
 
+def get_limiter():
+    limiter = Limiter(key_func=get_remote_address)
+    return limiter
+
+def register_slowapi(app: FastAPI):
+    limiter = get_limiter()
+    app.state.limiter = limiter
+    app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+
 
 def register_routers(app: FastAPI):
-    pass
-    # app.include_router(login_router, prefix='/api/auth/login')
-    # app.include_router(users_router, prefix='/api/auth/users')
+    app.include_router(invite_router)

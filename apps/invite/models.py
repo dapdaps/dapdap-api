@@ -12,7 +12,7 @@ from core.base.base_models import BaseDBModel, BaseCreatedUpdatedAtModel, BaseCr
 
 
 class UserAddress(BaseDBModel, BaseCreatedAtModel):
-    class ChainTypeEnum(IntEnum):
+    class ChainTypeEnum(str, Enum):
         ETH = 'eth'
         OTHER = 'other'
     address = fields.CharField(max_length=25, unique=True, description="user's evm address")
@@ -30,14 +30,13 @@ class InviteCodePool(BaseDBModel, BaseCreatedUpdatedAtModel):
         SYSTEM = 1
         USER = 2
 
-    id = fields.IntField(pk=True)
     code = fields.CharField(max_length=25, unique=True)
     creator_user = fields.ForeignKeyField(
-        'UserAddress', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True,
+        'invite.UserAddress', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True,
         description="address create invite code"
     )
     used_user = fields.ForeignKeyField(
-        'UserAddress', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True,
+        'invite.UserAddress', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True,
         description="address used invite code"
     )
     creator_type = fields.IntEnumField(CreatorTypeEnum,description="user type", default=CreatorTypeEnum.SYSTEM)

@@ -9,12 +9,12 @@ DEFAULT_LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'filters': {
-        'require_debug_false': {
-            '()': 'app.settings.log.RequireDebugFalse',
-        },
-        'require_debug_true': {
-            '()': 'app.settings.log.RequireDebugTrue',
-        },
+        # 'require_debug_false': {
+        #     '()': 'app.settings.log.RequireDebugFalse',
+        # },
+        # 'require_debug_true': {
+        #     '()': 'app.settings.log.RequireDebugTrue',
+        # },
     },
     'formatters': {
         'main_formatter': {
@@ -26,7 +26,7 @@ DEFAULT_LOGGING = {
     'handlers': {
         'console': {
             'level': 'DEBUG',
-            'filters': ['require_debug_true'],
+            # 'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
             'formatter': 'main_formatter',
         },
@@ -37,7 +37,7 @@ DEFAULT_LOGGING = {
             'maxBytes': 1024 * 1024 * 10,
             'backupCount': 10,
             'formatter': 'main_formatter',
-            'filters': ['require_debug_false'],
+            # 'filters': ['require_debug_false'],
         },
         'debug_file': {
             'level': 'DEBUG',
@@ -46,13 +46,13 @@ DEFAULT_LOGGING = {
             'maxBytes': 1024 * 1024 * 10,
             'backupCount': 10,
             'formatter': 'main_formatter',
-            'filters': ['require_debug_true'],
+            # 'filters': ['require_debug_true'],
         },
     },
     'loggers': {
         '': {
             'handlers': ['console', 'production_file', 'debug_file'],
-            'level': "DEBUG",
+            'level': "INFO",
         },
 
     }

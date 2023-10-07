@@ -4,5 +4,5 @@
 # @File : utils.py
 import secrets
 
-def generate_invite_code():
-    return secrets.token_hex(4)
+def generate_invite_code(number: int):
+    return [secrets.token_hex(4) for x in range(0, number)]
