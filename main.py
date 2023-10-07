@@ -28,17 +28,6 @@ configure_logging()
 init_middlewares(app)
 
 register_db(app)
-# db_url = settings.DB_URL
-# app_list = get_app_list()
-# # app_list.append('aerich.models')
-# register_tortoise(
-#     app,
-#     db_url=db_url,
-#     # modules={'models': app_list},
-#     modules={'models': ["apps"]},
-#     generate_schemas=True,
-#     add_exception_handlers=True,
-# )
 register_exceptions(app)
 register_slowapi(app)
 register_routers(app)

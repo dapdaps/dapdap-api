@@ -32,11 +32,13 @@ class InviteCodePool(BaseDBModel, BaseCreatedUpdatedAtModel):
 
     code = fields.CharField(max_length=25, unique=True)
     creator_user = fields.ForeignKeyField(
-        'invite.UserAddress', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True,
+        'models.UserAddress', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True,
+        related_name="relate_creator_user",
         description="address create invite code"
     )
     used_user = fields.ForeignKeyField(
-        'invite.UserAddress', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True,
+        'models.UserAddress', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True,
+        related_name="relate_used_user",
         description="address used invite code"
     )
     creator_type = fields.IntEnumField(CreatorTypeEnum,description="user type", default=CreatorTypeEnum.SYSTEM)

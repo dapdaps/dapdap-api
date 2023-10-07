@@ -63,7 +63,7 @@ def register_db(app: FastAPI, db_url: str = None):
         app,
         db_url=db_url,
         modules={'models': app_list},
-        # generate_schemas=True,
+        generate_schemas=False,
         add_exception_handlers=True,
     )
 
