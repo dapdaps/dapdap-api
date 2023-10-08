@@ -20,6 +20,7 @@ class Settings:
 
     SERVER_HOST = 'localhost'
 
+
     DEBUG = True
 
     APPLICATIONS = [
