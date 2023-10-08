@@ -1,4 +1,4 @@
-fastapi
+fastapi==0.103.2
 tortoise-orm==0.20.0
 uvicorn==0.23.2
 asyncpg==0.28.0

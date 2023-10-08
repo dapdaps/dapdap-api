@@ -38,9 +38,11 @@ class GenerateCodeIn(BaseModel):
 
 class GenerateCodeOut(BaseModel):
     address: Optional[str] = None
-    code: Optional[int] = 3
-    creator_type: Optional[int] = 1
-    is_used: Optional[bool] = False
+    code: Optional[str]
+    creator_type: Optional[int]
+    is_used: Optional[bool]
+    class Config:
+        from_attributes = True
 
 InviteCodePoolDetailOut = pydantic_model_creator(InviteCodePool)
 

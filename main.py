@@ -3,12 +3,9 @@
 # @Email : rainman@ref.finance
 # @File : main.py
 from fastapi import FastAPI
-from starlette.requests import Request
-from tortoise.contrib.fastapi import register_tortoise
-
 from core.exceptions import SettingNotFound
 from core.init_app import configure_logging, init_middlewares, register_db, register_exceptions, register_routers, \
-    get_app_list, register_slowapi, get_limiter, init_http_middleware
+    register_slowapi, init_http_middleware
 import uvicorn
 
 try:
@@ -16,7 +13,7 @@ try:
 except ImportError:
     raise SettingNotFound('Can not import settings. Create settings file from template.config.py')
 
-limiter = get_limiter()
+
 
 app = FastAPI(
     title=settings.APP_TITLE,
@@ -32,4 +29,4 @@ init_http_middleware(app)
 register_routers(app)
 
 if __name__ == '__main__':
-    uvicorn.run('main:app', host="0.0.0.0", port=3007, reload=True)
+    uvicorn.run('main:app', host="0.0.0.0", port=8888, reload=True)
