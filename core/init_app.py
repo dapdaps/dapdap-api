@@ -60,7 +60,7 @@ def get_app_list():
 
 def get_tortoise_config() -> dict:
     app_list = get_app_list()
-    app_list.append('aerich.models')
+    # app_list.append('aerich.models')
     config = {
         'connections': settings.DB_CONNECTIONS,
         'apps': {
@@ -79,7 +79,7 @@ TORTOISE_ORM = get_tortoise_config()
 def register_db(app: FastAPI, db_url: str = None):
     db_url = db_url or settings.DB_URL
     app_list = get_app_list()
-    app_list.append('aerich.models')
+    # app_list.append('aerich.models')
     register_tortoise(
         app,
         db_url=db_url,

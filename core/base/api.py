@@ -10,7 +10,7 @@ from core.utils.base_util import get_limiter
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
-router = APIRouter(prefix="/api/invite")
+router = APIRouter()
 
 # @router.get('/', tags=['invite check code'])
 # async def root():

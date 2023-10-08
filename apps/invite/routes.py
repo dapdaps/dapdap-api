@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 limiter = get_limiter()
 router = APIRouter(prefix="/api/invite")
 
-@router.get('/check_code/{code}', tags=['invite check code'])
+@router.get('/check-code/{code}', tags=['invite check code'])
 @limiter.limit('100/minute')
 async def check_code(request: Request, code: str):
     can_use = await InviteCodePool.filter(code=code, is_used=False).exists()
@@ -24,7 +24,7 @@ async def check_code(request: Request, code: str):
         "can_use": can_use
     }
 
-@router.get('/check_address/{address}', tags=['invite check address'])
+@router.get('/check-address/{address}', tags=['invite check address'])
 @limiter.limit('100/minute')
 async def check_address(request: Request, address: str):
     current_user = await InviteCodePool.filter(used_user__address=address).first().values("is_used")
@@ -81,7 +81,7 @@ async def generate_code(request: Request, generate_in: GenerateCodeIn):
     ]
 
 
-@router.post('/get_address_code/{address}', tags=['invite get_address_code'])
+@router.post('/get-address-code/{address}', tags=['invite get_address_code'])
 @limiter.limit('100/minute')
 async def get_address_code(request: Request, address: str):
     return await InviteCodePool.filter(
@@ -89,7 +89,7 @@ async def get_address_code(request: Request, address: str):
     ).values_list("code", flat=True)
 
 
-@router.post('/get_code_detail/{code}', tags=['invite code'], response_model=InviteCodePoolDetailOut)
+@router.post('/get-code-detail/{code}', tags=['invite code'], response_model=InviteCodePoolDetailOut)
 @limiter.limit('100/minute')
 async def get_code_detail(request: Request, code: str):
     return await InviteCodePool.filter(code=code).first()
