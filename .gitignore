@@ -135,5 +135,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .idea/
-logs/*
+logs/*.log
 settings/config.py
