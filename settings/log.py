@@ -22,14 +22,28 @@ DEFAULT_LOGGING = {
                       '(%(asctime)s; %(filename)s:%(lineno)d)',
             'datefmt': "%Y-%m-%d %H:%M:%S",
         },
+        'dapdap': {
+            'format': '[%(asctime)s][%(levelname)s] [process_id:%(process)s] [%(filename)s:'
+                      '%(funcName)s:%(lineno)d] %(message)s'
+        },
     },
     'handlers': {
         'console': {
-            'level': 'DEBUG',
+            'level': 'INFO',
             # 'filters': ['require_debug_true'],
             'class': 'logging.StreamHandler',
             'formatter': 'main_formatter',
         },
+        # 'api_file': {
+        #     'level': 'DEBUG',
+        #     'class': 'logging.handlers.TimedRotatingFileHandler',
+        #     # 目前设定每天一个日志文件
+        #     'filename': f'{settings.LOGS_ROOT}/app_api.log',
+        #     'when': 'midnight',
+        #     'interval': 1,
+        #     'backupCount': 100,
+        #     'formatter': 'dapdap'
+        # },
         'production_file': {
             'level': 'INFO',
             'class': 'logging.handlers.RotatingFileHandler',
@@ -52,7 +66,9 @@ DEFAULT_LOGGING = {
     'loggers': {
         '': {
             'handlers': ['console', 'production_file', 'debug_file'],
-            'level': "INFO",
+            # 'level': "DEBUG",
+            'level': 'INFO',
+            'propagate': True,
         },
 
     }

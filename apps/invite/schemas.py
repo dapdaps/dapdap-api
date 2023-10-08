@@ -45,47 +45,47 @@ class GenerateCodeOut(BaseModel):
 InviteCodePoolDetailOut = pydantic_model_creator(InviteCodePool)
 
 
-class BaseUser(BaseProperties):
-    first_name: Optional[str]
-    last_name: Optional[str]
-    hashed_id: Optional[UUID4] = None
-    email: Optional[EmailStr] = None
-    username: Optional[str] = None
-    is_active: Optional[bool] = True
-    is_superuser: Optional[bool] = False
-    created_at: Optional[datetime]
-
-
-class BaseUserCreate(BaseProperties):
-    first_name: Optional[str]
-    last_name: Optional[str]
-    hashed_id: Optional[UUID4] = None
-    email: EmailStr
-    username: Optional[str]
-    password: str
-
-
-class BaseUserUpdate(BaseProperties):
-    first_name: Optional[str]
-    last_name: Optional[str]
-    password: Optional[str]
-    email: Optional[EmailStr]
-    username: Optional[str]
-
-
-class BaseUserDB(BaseUser):
-    id: int
-    hashed_id: UUID4
-    password_hash: str
-    updated_at: datetime
-    last_login: Optional[datetime]
-
-    class Config:
-        orm_mode = True
-
-
-class BaseUserOut(BaseUser):
-    id: int
-
-    class Config:
-        orm_mode = True
+# class BaseUser(BaseProperties):
+#     first_name: Optional[str]
+#     last_name: Optional[str]
+#     hashed_id: Optional[UUID4] = None
+#     email: Optional[EmailStr] = None
+#     username: Optional[str] = None
+#     is_active: Optional[bool] = True
+#     is_superuser: Optional[bool] = False
+#     created_at: Optional[datetime]
+#
+#
+# class BaseUserCreate(BaseProperties):
+#     first_name: Optional[str]
+#     last_name: Optional[str]
+#     hashed_id: Optional[UUID4] = None
+#     email: EmailStr
+#     username: Optional[str]
+#     password: str
+#
+#
+# class BaseUserUpdate(BaseProperties):
+#     first_name: Optional[str]
+#     last_name: Optional[str]
+#     password: Optional[str]
+#     email: Optional[EmailStr]
+#     username: Optional[str]
+#
+#
+# class BaseUserDB(BaseUser):
+#     id: int
+#     hashed_id: UUID4
+#     password_hash: str
+#     updated_at: datetime
+#     last_login: Optional[datetime]
+#
+#     class Config:
+#         orm_mode = True
+#
+#
+# class BaseUserOut(BaseUser):
+#     id: int
+#
+#     class Config:
+#         orm_mode = True

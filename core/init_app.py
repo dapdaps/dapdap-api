@@ -3,18 +3,23 @@
 # @Email : rainman@ref.finance
 # @File : init_app.py
 import logging
+import random
+import secrets
+import time
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.requests import Request
 from tortoise.contrib.fastapi import register_tortoise
 
 from core.exceptions import APIException, on_api_exception
+from core.utils.base_util import get_limiter
 from settings.config import settings
 from settings.log import DEFAULT_LOGGING
 from slowapi import Limiter, _rate_limit_exceeded_handler
-from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from apps.invite.routes import router as invite_router
+from core.base.api import router as base_router
 
 
 def configure_logging(log_settings: dict = None):
@@ -30,6 +35,22 @@ def init_middlewares(app: FastAPI):
         allow_methods=settings.CORS_ALLOW_METHODS,
         allow_headers=settings.CORS_ALLOW_HEADERS,
     )
+
+def init_http_middleware(app: FastAPI):
+    logger = logging.getLogger(__name__)
+    @app.middleware("http")
+    async def log_requests(request: Request, call_next):
+        idem = secrets.token_hex(8)
+        logger.info(f"rid={idem} start request path={request.url.path}")
+        start_time = time.time()
+
+        response = await call_next(request)
+
+        process_time = (time.time() - start_time) * 1000
+        formatted_process_time = '{0:.2f}'.format(process_time)
+        logger.info(f"rid={idem} completed_in={formatted_process_time}ms status_code={response.status_code}")
+
+        return response
 
 
 def get_app_list():
@@ -70,10 +91,6 @@ def register_db(app: FastAPI, db_url: str = None):
 def register_exceptions(app: FastAPI):
     app.add_exception_handler(APIException, on_api_exception)
 
-def get_limiter():
-    limiter = Limiter(key_func=get_remote_address)
-    return limiter
-
 def register_slowapi(app: FastAPI):
     limiter = get_limiter()
     app.state.limiter = limiter
@@ -82,4 +99,5 @@ def register_slowapi(app: FastAPI):
 
 
 def register_routers(app: FastAPI):
+    app.include_router(base_router)
     app.include_router(invite_router)

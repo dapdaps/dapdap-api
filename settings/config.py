@@ -28,7 +28,7 @@ class Settings:
 
     PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
     BASE_DIR = os.path.abspath(os.path.join(PROJECT_ROOT, os.pardir))
-    LOGS_ROOT = os.path.join(BASE_DIR, "logs")
+    LOGS_ROOT = os.path.join(PROJECT_ROOT, "logs")
     # EMAIL_TEMPLATES_DIR = os.path.join(BASE_DIR, "app/templates/emails/build/")
 
     DB_URL = f"postgres://{DATABASE_USERNAME}:{DATABASE_PASSWORD}@{DATABASE_HOST}:5432/{DATABASE_NAME}"

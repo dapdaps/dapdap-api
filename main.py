@@ -8,7 +8,7 @@ from tortoise.contrib.fastapi import register_tortoise
 
 from core.exceptions import SettingNotFound
 from core.init_app import configure_logging, init_middlewares, register_db, register_exceptions, register_routers, \
-    get_app_list, register_slowapi, get_limiter
+    get_app_list, register_slowapi, get_limiter, init_http_middleware
 import uvicorn
 
 try:
@@ -23,25 +23,13 @@ app = FastAPI(
     description=settings.APP_DESCRIPTION,
     version=settings.VERSION
 )
-
 configure_logging()
 init_middlewares(app)
-
 register_db(app)
 register_exceptions(app)
 register_slowapi(app)
+init_http_middleware(app)
 register_routers(app)
 
-@app.get("/")
-async def root():
-    return {"message": "welcome to dapdap"}
-
-
-@app.get("/health_check")
-@limiter.limit('1/second')
-async def health_check(request: Request):
-    return {"message": "Running!"}
-
-
 if __name__ == '__main__':
-    uvicorn.run('main:app', host="0.0.0.0", port=3007, reload=True, log_level="info")
+    uvicorn.run('main:app', host="0.0.0.0", port=3007, reload=True)
