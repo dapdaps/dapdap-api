@@ -81,7 +81,7 @@ async def generate_code(request: Request, generate_in: GenerateCodeIn):
     ]
 
 
-@router.post('/get-address-code/{address}', tags=['invite get_address_code'])
+@router.get('/get-address-code/{address}', tags=['invite get_address_code'])
 @limiter.limit('100/minute')
 async def get_address_code(request: Request, address: str):
     return await InviteCodePool.filter(
@@ -89,7 +89,7 @@ async def get_address_code(request: Request, address: str):
     ).values_list("code", flat=True)
 
 
-@router.post('/get-code-detail/{code}', tags=['invite code'], response_model=InviteCodePoolDetailOut)
+@router.get('/get-code-detail/{code}', tags=['invite code'], response_model=InviteCodePoolDetailOut)
 @limiter.limit('100/minute')
 async def get_code_detail(request: Request, code: str):
     return await InviteCodePool.filter(code=code).first()
