@@ -46,8 +46,22 @@ async def activate(request: Request, active_in: ActivateCodeIn):
     code_obj.used_user = pre_address_obj
     code_obj.is_used = True
     await code_obj.save()
+
+    code_list = generate_invite_code(3)
+    create_list = [
+        InviteCodePool(
+            code=code,
+            creator_user=pre_address_obj,
+            creator_type=InviteCodePool.CreatorTypeEnum.SYSTEM
+        )
+        for code in code_list
+    ]
+
+    result = await InviteCodePool.bulk_create(create_list)
+
     return {
-        "is_success": True
+        "is_success": True,
+        "invite_code_list": result
     }
 
 

@@ -14,7 +14,7 @@ async def get_db_sql(db_url: str = None, app_name: str = None):
         app_list = [f'{settings.APPLICATIONS_MODULE}.{app_name}.models']
     else:
         app_list = get_app_list()
-        app_list.append('aerich.models')
+        # app_list.append('aerich.models')
 
     await Tortoise.init(
         db_url=db_url,
