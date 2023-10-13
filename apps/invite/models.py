@@ -10,19 +10,18 @@ from tortoise.contrib.postgres.fields import ArrayField
 from tortoise.fields.base import CASCADE
 from core.base.base_models import BaseDBModel, BaseCreatedUpdatedAtModel, BaseCreatedAtModel
 
-
-class UserAddress(BaseDBModel, BaseCreatedAtModel):
-    class ChainTypeEnum(str, Enum):
-        ETH = 'eth'
-        OTHER = 'other'
-    address = fields.CharField(max_length=25, unique=True, description="user's evm address")
-    chain_type = fields.CharEnumField(ChainTypeEnum, default=ChainTypeEnum.ETH)
-
-    def __str__(self):
-        return self.address
-
-    class Meta:
-        table = 'user_address'
+# class UserAddress(BaseDBModel, BaseCreatedAtModel):
+#     class ChainTypeEnum(str, Enum):
+#         ETH = 'eth'
+#         OTHER = 'other'
+#     address = fields.CharField(max_length=25, unique=True, description="user's evm address")
+#     chain_type = fields.CharEnumField(ChainTypeEnum, default=ChainTypeEnum.ETH)
+#
+#     def __str__(self):
+#         return self.address
+#
+#     class Meta:
+#         table = 'user_address'
 
 
 class InviteCodePool(BaseDBModel, BaseCreatedUpdatedAtModel):
@@ -32,12 +31,12 @@ class InviteCodePool(BaseDBModel, BaseCreatedUpdatedAtModel):
 
     code = fields.CharField(max_length=25, unique=True)
     creator_user = fields.ForeignKeyField(
-        'models.UserAddress', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True,
+        'models.UserInfo', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True,
         related_name="relate_creator_user",
         description="address create invite code"
     )
     used_user = fields.ForeignKeyField(
-        'models.UserAddress', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True,
+        'models.UserInfo', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True,
         related_name="relate_used_user",
         description="address used invite code"
     )

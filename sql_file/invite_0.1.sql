@@ -1,12 +1,23 @@
-DROP TABLE IF EXISTS user_address;
-CREATE TABLE "user_address" (
+-- DROP TABLE IF EXISTS user_address;
+-- CREATE TABLE "user_address" (
+--     "id" BIGSERIAL NOT NULL PRIMARY KEY,
+--     "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+--     "address" VARCHAR(25) NOT NULL UNIQUE,
+--     "chain_type" VARCHAR(5) NOT NULL  DEFAULT 'eth'
+-- );
+-- COMMENT ON COLUMN "user_address"."address" IS 'user''s evm address';
+-- COMMENT ON COLUMN "user_address"."chain_type" IS 'ETH: eth\nOTHER: other';
+
+DROP TABLE IF EXISTS user_info;
+CREATE TABLE "user_info" (
     "id" BIGSERIAL NOT NULL PRIMARY KEY,
     "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     "address" VARCHAR(25) NOT NULL UNIQUE,
+    "account_info" VARCHAR(25),
     "chain_type" VARCHAR(5) NOT NULL  DEFAULT 'eth'
 );
-COMMENT ON COLUMN "user_address"."address" IS 'user''s evm address';
-COMMENT ON COLUMN "user_address"."chain_type" IS 'ETH: eth\nOTHER: other';
+COMMENT ON COLUMN "user_info"."address" IS 'user''s evm address';
+COMMENT ON COLUMN "user_info"."chain_type" IS 'ETH: eth\nOTHER: other';
 
 DROP TABLE IF EXISTS invite_code_pool;
 CREATE TABLE "invite_code_pool" (

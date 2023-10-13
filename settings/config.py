@@ -23,7 +23,9 @@ class Settings:
     DEBUG = True
 
     APPLICATIONS = [
-        'invite'
+        'user',
+        'invite',
+        'integral'
     ]
 
     PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))

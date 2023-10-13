@@ -10,8 +10,7 @@ from apps.invite.utils import generate_invite_code
 from core.utils.base_util import get_limiter
 from settings.config import settings
 import logging
-from apps.invite.models import InviteCodePool
-from apps.user.models import UserInfo
+from apps.invite.models import InviteCodePool, UserAddress
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
@@ -36,7 +35,7 @@ async def check_address(request: Request, address: str):
 @router.post('/activate', tags=['invite activate'])
 @limiter.limit('100/minute')
 async def activate(request: Request, active_in: ActivateCodeIn):
-    pre_address_obj = await UserInfo.get_or_create(address=active_in.address)
+    pre_address_obj = await UserAddress.get_or_create(address=active_in.address)
     pre_address_obj = pre_address_obj[0]
     code_obj = await InviteCodePool.filter(code=active_in.code).first()
     if not code_obj:
@@ -71,7 +70,7 @@ async def activate(request: Request, active_in: ActivateCodeIn):
 async def generate_code(request: Request, generate_in: GenerateCodeIn):
     create_address_obj = None
     if generate_in.address:
-        create_address_obj = await UserInfo.get_or_create(address=generate_in.address)
+        create_address_obj = await UserAddress.get_or_create(address=generate_in.address)
         create_address_obj = create_address_obj[0]
         # create_address_obj = await UserAddress.get(address=generate_in.address)
     code_list = generate_invite_code(generate_in.code_number)
