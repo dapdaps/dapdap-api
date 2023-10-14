@@ -26,6 +26,13 @@ class UserInfo(BaseDBModel, BaseCreatedAtModel):
     class Meta:
         table = 'user_info'
 
-class GroupInfo(BaseDBModel, BaseCreatedAtModel):
-    name = fields.CharField(max_length=100)
-    users = fields.ManyToManyField("models.UserInfo", on_delete=CASCADE)
+class GroupInfo(BaseDBModel, BaseCreatedUpdatedAtModel):
+    name = fields.CharField(max_length=100, unique=True, description="group name")
+    title = fields.CharField(max_length=255, description="group title")
+    users = fields.ManyToManyField("models.UserInfo", db_constraint=False, on_delete=CASCADE)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        table = 'group_info'

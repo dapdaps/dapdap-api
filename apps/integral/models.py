@@ -82,6 +82,7 @@ class ActivityConfig(BaseDBModel, BaseCreatedAtModel):
     status = fields.IntEnumField(ActivityStatusEnum, default=ActivityStatusEnum.PRE_START)
     start_date = fields.DateField()
     end_date = fields.DateField()
+    description = fields.TextField()
 
     class Meta:
         table = 'activity_config'
