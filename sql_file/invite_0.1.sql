@@ -99,7 +99,8 @@ CREATE TABLE "user_task_result" (
     "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     "status" SMALLINT NOT NULL  DEFAULT 1,
     "task_id" BIGINT NOT NULL,
-    "user_id" BIGINT NOT NULL
+    "user_id" BIGINT NOT NULL,
+    "record_date" DATE NOT NULL,
 );
 COMMENT ON COLUMN "user_task_result"."status" IS 'INIT: 1\nDONE: 2\nFAIL: 3';
 

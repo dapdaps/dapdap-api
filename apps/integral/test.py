@@ -4,7 +4,8 @@
 # @File : test.py
 import random
 from datetime import datetime
-from apps.integral.models import TaskConfig, ChainTypeEnum, ActionTypeEnum, ActivityConfig, ActivityReport
+from apps.integral.models import TaskConfig, ChainTypeEnum, ActionTypeEnum, ActivityConfig, ActivityReport, \
+    UserTaskResult
 from tortoise import Tortoise, connections, run_async
 
 from apps.user.models import UserInfo, GroupInfo
@@ -156,7 +157,26 @@ async def init_user_fake_data():
     all_report_list = arb_report_list + mts_report_list + pol_report_list
     await ActivityReport.bulk_create(all_report_list)
 
+async def init_task_info():
+    db_url = settings.DB_URL
+    app_list = get_app_list()
+    await Tortoise.init(
+        db_url=db_url,
+        modules={'models': app_list}
+    )
+    task_objs = await TaskConfig.all()
+
+    user_obj = await UserInfo.first()
+    result = [UserTaskResult(
+        user=user_obj,
+        task=task,
+        status=random.choice(list(UserTaskResult.TaskStatusEnum)),
+        record_date=datetime(year=2023, month=10, day=i),
+    ) for task in task_objs for i in range(1, 14)]
+    await UserTaskResult.bulk_create(result)
+
 
 if __name__ == "__main__":
     # run_async(init_project_data())
-    run_async(init_user_fake_data())
+    # run_async(init_user_fake_data())
+    run_async(init_task_info())

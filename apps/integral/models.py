@@ -69,6 +69,7 @@ class UserTaskResult(BaseDBModel, BaseCreatedAtModel):
     user = fields.ForeignKeyField('models.UserInfo', db_constraint=False, on_delete=CASCADE)
     task = fields.ForeignKeyField('models.TaskConfig', db_constraint=False, on_delete=CASCADE)
     status = fields.IntEnumField(TaskStatusEnum, default=TaskStatusEnum.INIT)
+    record_date = fields.DateField()
 
     class Meta:
         table = 'user_task_result'

@@ -2,13 +2,14 @@
 # @Author : HanyuLiu/Rainman
 # @Email : rainman@ref.finance
 # @File : routes.py
+import datetime
 import json
 import time
 from typing import Type, List, Optional
 from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
 from starlette.websockets import WebSocket, WebSocketDisconnect
-from apps.integral.models import ActivityReport, ActivityConfig, TaskConfig, UserTaskResult
+from apps.integral.models import ActivityReport, ActivityConfig, TaskConfig, UserTaskResult, ChainTypeEnum
 from core.utils.base_util import get_limiter, ConnectionManager
 from settings.config import settings
 from tortoise.expressions import F
@@ -57,9 +58,10 @@ async def leaderboard_test_top(websocket: WebSocket):
 
 @router.get("/leaderboard/{activity_name}/{chain_id}", tags=["leaderboard_top_realtime"])
 async def leaderboard_top_realtime(activity_name: str, chain_id: str):
-    report_data = await ActivityReport.filter(
-        activity__name=activity_name, chain_id=chain_id
-    ).order_by('-tx_count').limit(10).values(
+    filters = {"activity__name": activity_name}
+    if chain_id != ChainTypeEnum.ALL:
+        filters.update({"chain_id": chain_id})
+    report_data = await ActivityReport.filter(**filters).order_by('-tx_count').limit(10).values(
         "tx_count","report_type", address="user__address", group_name="group__name",
     )
     return report_data
@@ -75,4 +77,4 @@ async def task_info():
 
 @router.get("/user-task-info/{address}", tags=["user task info"])
 async def user_task_info(address: str):
-    return await UserTaskResult.filter(user__address=address).all()
+    return await UserTaskResult.filter(user__address=address, ).all()
