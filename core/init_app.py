@@ -20,6 +20,7 @@ from settings.log import DEFAULT_LOGGING
 from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from apps.invite.routes import router as invite_router
+from apps.action.routes import router as action_router
 from core.base.api import router as base_router
 from apps.integral.routes import router as integral_router
 
@@ -108,3 +109,4 @@ def register_routers(app: FastAPI):
     app.include_router(base_router)
     app.include_router(invite_router)
     app.include_router(integral_router)
+    app.include_router(action_router)
