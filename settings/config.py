@@ -83,5 +83,7 @@ class Settings:
     CORS_ALLOW_METHODS = ["*"]
     CORS_ALLOW_HEADERS = ["*"]
 
+    ACTIVITY_REPORT_CHANGE = 0
+
 
 settings = Settings()

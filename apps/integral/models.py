@@ -22,9 +22,17 @@ class UserIntegral(BaseDBModel, BaseCreatedAtModel):
 
 
 class TaskConfig(BaseDBModel, BaseCreatedAtModel):
+    class TaskTypeEnum(str, Enum):
+        DAYLY = 'day'
+        MONTHLY = 'month'
+        OTHER = 'other'
+
     task_name = fields.CharField(max_length=255)
     network =  fields.CharField(max_length=255, null=True)
     action_type = fields.CharField(max_length=255, null=True)
+    position = fields.IntField(default=0)
+
+    task_type = fields.CharEnumField(enum_type=TaskTypeEnum, description="like daily task monthly task")
     is_active = fields.BooleanField(default=True)
 
     class Meta:
@@ -40,19 +48,35 @@ class UserTaskResult(BaseDBModel, BaseCreatedAtModel):
     task = fields.ForeignKeyField('models.TaskConfig', db_constraint=False, on_delete=CASCADE)
     status = fields.IntEnumField(TaskStatusEnum, default=TaskStatusEnum.INIT)
 
-
-class ActivityReportDaily(BaseDBModel, BaseCreatedAtModel):
-    user = fields.ForeignKeyField('models.UserInfo', db_constraint=False)
-    score = fields.IntField(default=0)
-    report_date = fields.DateField()
+    class Meta:
+        table = 'user_task_result'
 
 
-class ActivityReportMonthly(BaseDBModel, BaseCreatedAtModel):
-    user = fields.ForeignKeyField('models.UserInfo', db_constraint=False)
-    score = fields.IntField(default=0)
-    report_date = fields.DateField()
+class ActivityConfig(BaseDBModel, BaseCreatedAtModel):
+    class ActivityStatusEnum(IntEnum):
+        PRE_START = 1
+        IN_PROGRESS = 2
+        END = 3
+    name = fields.CharField(max_length=255)
+    status = fields.IntEnumField(ActivityStatusEnum, default=ActivityStatusEnum.PRE_START)
+    start_date = fields.DateField()
+    end_date = fields.DateField()
 
+    class Meta:
+        table = 'activity_config'
 
-class ActivityReportHistory(BaseDBModel, BaseCreatedAtModel):
-    user = fields.ForeignKeyField('models.UserInfo', db_constraint=False)
-    score = fields.IntField(default=0)
+class ActivityReport(BaseDBModel, BaseCreatedAtModel):
+    class ReportTypeEnum(str, Enum):
+        USER = 'user'
+        GROUP = 'group'
+        OTHER = 'other'
+    activity = fields.ForeignKeyField('models.ActivityConfig', db_constraint=False, on_delete=CASCADE)
+    user = fields.ForeignKeyField(db_constraint=False, model_name="models.UserInfo", on_delete=CASCADE)
+    group = fields.ForeignKeyField(db_constraint=False, model_name="models.GroupInfo", on_delete=CASCADE)
+    chain_id = fields.CharField(max_length=50)
+    report_type = fields.CharEnumField(ReportTypeEnum)
+    tx_count = fields.IntField(default=0)
+
+    class Meta:
+        table = 'activity_report'
+

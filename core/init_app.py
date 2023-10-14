@@ -12,6 +12,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from tortoise.contrib.fastapi import register_tortoise
 
+from apps.integral.utils import init_integral_signal
 from core.exceptions import APIException, on_api_exception
 from core.utils.base_util import get_limiter
 from settings.config import settings
@@ -20,6 +21,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from apps.invite.routes import router as invite_router
 from core.base.api import router as base_router
+from apps.integral.routes import router as integral_router
 
 
 def configure_logging(log_settings: dict = None):
@@ -51,6 +53,10 @@ def init_http_middleware(app: FastAPI):
         logger.info(f"rid={idem} completed_in={formatted_process_time}ms status_code={response.status_code}")
 
         return response
+
+
+def init_signal():
+    init_integral_signal()
 
 
 def get_app_list():
@@ -101,3 +107,4 @@ def register_slowapi(app: FastAPI):
 def register_routers(app: FastAPI):
     app.include_router(base_router)
     app.include_router(invite_router)
+    app.include_router(integral_router)
