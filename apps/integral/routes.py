@@ -9,6 +9,8 @@ from typing import Type, List, Optional
 from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
 from starlette.websockets import WebSocket, WebSocketDisconnect
+from tortoise.functions import Count, Sum
+
 from apps.integral.models import ActivityReport, ActivityConfig, TaskConfig, UserTaskResult, ChainTypeEnum
 from core.utils.base_util import get_limiter, ConnectionManager
 from settings.config import settings
@@ -85,6 +87,26 @@ async def leaderboard_user(activity_name: str, chain_id: str):
         "tx_count","report_type", "chain_id", address="user__address", group_name="group__name",
     )
     return report_data
+
+@router.get("/user-rank/{activity_name}/{address}", tags=["user rank"])
+async def leaderboard_user(activity_name:str, address: str):
+    # address
+    filters = {"activity__name": activity_name}
+    report_data = await ActivityReport.filter(**filters).annotate(
+        sum_count=Sum("tx_count")).group_by("user__address").order_by('-sum_count').values(
+        "sum_count", address="user__address"
+    )
+    result = {
+        "rank": 0,
+        "total_tx_count": 0
+    }
+
+    for index, data in enumerate(report_data):
+        if data["address"] == address:
+            result["rank"] = index
+            result["total_tx_count"] = data["sum_count"]
+            break
+    return result
 
 @router.get("/activity-info/{status_type}", tags=["activity_info"])
 async def activity_info(status_type: ActivityConfig.ActivityStatusEnum):
