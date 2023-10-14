@@ -8,7 +8,7 @@ from typing import Type, List, Optional
 from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
 from starlette.websockets import WebSocket, WebSocketDisconnect
-from apps.integral.models import ActivityReport
+from apps.integral.models import ActivityReport, ActivityConfig, TaskConfig, UserTaskResult
 from core.utils.base_util import get_limiter, ConnectionManager
 from settings.config import settings
 from tortoise.expressions import F
@@ -19,6 +19,8 @@ limiter = get_limiter()
 router = APIRouter(prefix="/api/integral")
 
 manager = ConnectionManager()
+
+
 @router.websocket("/leaderboard/{activity_name}/ws", name="leaderboard_top")
 async def leaderboard_top(websocket: WebSocket, activity_name: str):
     await manager.connect(websocket)
@@ -30,6 +32,7 @@ async def leaderboard_top(websocket: WebSocket, activity_name: str):
     except WebSocketDisconnect:
         manager.disconnect(websocket)
         await manager.broadcast(f"left the chat")
+
 
 @router.websocket("/leaderboard-test/test/ws")
 async def leaderboard_test_top(websocket: WebSocket):
@@ -51,7 +54,8 @@ async def leaderboard_test_top(websocket: WebSocket):
     except WebSocketDisconnect:
         await websocket.close()
 
-@router.get("/leaderboard/{activity_name}/{chain_id}")
+
+@router.get("/leaderboard/{activity_name}/{chain_id}", tags=["leaderboard_top_realtime"])
 async def leaderboard_top_realtime(activity_name: str, chain_id: str):
     report_data = await ActivityReport.filter(
         activity__name=activity_name, chain_id=chain_id
@@ -59,3 +63,16 @@ async def leaderboard_top_realtime(activity_name: str, chain_id: str):
         "tx_count", address="user__address", group_name="group__name"
     )
     return report_data
+
+@router.get("/activity-info/{status_type}", tags=["activity_info"])
+async def activity_info(status_type: ActivityConfig.ActivityStatusEnum):
+    now_activaty = await ActivityConfig.filter(status=status_type).all()
+    return now_activaty
+
+@router.get("/task-info", tags=["task_info"])
+async def task_info():
+    return await TaskConfig.filter(is_active=True).order_by("action_type", "positon").all()
+
+@router.get("/user-task-info/{address}", tags=["user task info"])
+async def user_task_info(address: str):
+    return await UserTaskResult.filter(user__address=address).all()

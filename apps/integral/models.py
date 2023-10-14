@@ -8,7 +8,27 @@ from tortoise import fields
 from tortoise.contrib.postgres.fields import ArrayField
 from tortoise.fields.base import CASCADE
 from core.base.base_models import BaseDBModel, BaseCreatedUpdatedAtModel, BaseCreatedAtModel
+class ChainTypeEnum(str, Enum):
+    ALL = "all"
 
+    Mantle = "Mantle"
+    Base = "Base"
+    zkEVM = "zkEVM"
+    MAINNET = "MAINNET"
+    ArbitrumOne = "ArbitrumOne"
+    Arbitrum = "Arbitrum"
+    Other = "Other"
+
+class ActionTypeEnum(str, Enum):
+    Deposit = "Deposit"
+    Redeem = "Redeem"
+    Repay = "Repay"
+    Withdraw = "Withdraw"
+    Supply = "Supply"
+    Mint = "Mint"
+    Bridge = "Bridge"
+    Swap = "Swap"
+    Other = "Other"
 
 class UserIntegral(BaseDBModel, BaseCreatedAtModel):
     user = fields.ForeignKeyField(db_constraint=False, model_name="models.UserInfo", on_delete=CASCADE)
@@ -27,11 +47,11 @@ class TaskConfig(BaseDBModel, BaseCreatedAtModel):
         MONTHLY = 'month'
         OTHER = 'other'
 
-    task_name = fields.CharField(max_length=255)
-    network =  fields.CharField(max_length=255, null=True)
-    action_type = fields.CharField(max_length=255, null=True)
-    position = fields.IntField(default=0)
 
+    task_name = fields.CharField(max_length=255)
+    network =  fields.CharEnumField(ChainTypeEnum, default=ChainTypeEnum.ALL)
+    action_type = fields.CharEnumField(ActionTypeEnum, default=ActionTypeEnum.Other)
+    position = fields.IntField(default=0)
     task_type = fields.CharEnumField(enum_type=TaskTypeEnum, description="like daily task monthly task")
     is_active = fields.BooleanField(default=True)
 
@@ -57,7 +77,8 @@ class ActivityConfig(BaseDBModel, BaseCreatedAtModel):
         PRE_START = 1
         IN_PROGRESS = 2
         END = 3
-    name = fields.CharField(max_length=255)
+    name = fields.CharField(max_length=255, unique=True)
+    title = fields.CharField(max_length=255)
     status = fields.IntEnumField(ActivityStatusEnum, default=ActivityStatusEnum.PRE_START)
     start_date = fields.DateField()
     end_date = fields.DateField()
@@ -73,7 +94,7 @@ class ActivityReport(BaseDBModel, BaseCreatedAtModel):
     activity = fields.ForeignKeyField('models.ActivityConfig', db_constraint=False, on_delete=CASCADE)
     user = fields.ForeignKeyField(db_constraint=False, model_name="models.UserInfo", on_delete=CASCADE)
     group = fields.ForeignKeyField(db_constraint=False, model_name="models.GroupInfo", on_delete=CASCADE)
-    chain_id = fields.CharField(max_length=50)
+    chain_id = fields.CharEnumField(ChainTypeEnum, default = ChainTypeEnum.Other)
     report_type = fields.CharEnumField(ReportTypeEnum)
     tx_count = fields.IntField(default=0)
 

@@ -8,6 +8,8 @@ from typing import Optional, TypeVar
 
 from pydantic import BaseModel, EmailStr, UUID4, field_validator, validator
 from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator
+
+from apps.integral.models import ActivityConfig
 from apps.invite.models import InviteCodePool
 
 class BaseProperties(BaseModel):
@@ -23,5 +25,3 @@ class BaseProperties(BaseModel):
 
     def create_update_dict_superuser(self):
         return self.model_dump(exclude_unset=True, exclude={"id"})
-
-

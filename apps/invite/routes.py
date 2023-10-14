@@ -44,6 +44,11 @@ async def activate(request: Request, active_in: ActivateCodeIn):
             "is_success": False,
             "error": "The code not exist!"
         }
+    if code_obj.creator_user.address == active_in.address:
+        return {
+            "is_success": False,
+            "error": "creator user cannot invite self!"
+        }
     code_obj.used_user = pre_address_obj
     code_obj.is_used = True
     await code_obj.save()
@@ -108,3 +113,11 @@ async def get_address_code(request: Request, address: str):
 @limiter.limit('100/minute')
 async def get_code_detail(request: Request, code: str):
     return await InviteCodePool.filter(code=code).first()
+
+
+@router.get('/get-invited-info/{address}', tags=['get some user invited info'])
+@limiter.limit('100/minute')
+async def get_invited_info(request: Request, address: str):
+    return await InviteCodePool.filter(creator_user__address=address, is_used=True).values(
+        "code","created_at", "updated_at", used_user_address="used_user__address",
+    )
