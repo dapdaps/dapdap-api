@@ -60,7 +60,6 @@ async def add_action(request: Request, action_in: ActionIn):
         action_id =  action_obj.action_id
         await action_obj.save()  
     else:
-        print("-------------------6")
         action_obj = Action()
     
         action_obj.action_title = action_in.action_title
