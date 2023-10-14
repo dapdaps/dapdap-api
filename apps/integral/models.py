@@ -28,6 +28,7 @@ class ActionTypeEnum(str, Enum):
     Mint = "Mint"
     Bridge = "Bridge"
     Swap = "Swap"
+    Liquidity = "Liquidity"
     Other = "Other"
 
 class UserIntegral(BaseDBModel, BaseCreatedAtModel):
@@ -50,7 +51,7 @@ class TaskConfig(BaseDBModel, BaseCreatedAtModel):
 
     task_name = fields.CharField(max_length=255)
     network =  fields.CharEnumField(ChainTypeEnum, default=ChainTypeEnum.ALL)
-    action_type = fields.CharEnumField(ActionTypeEnum, default=ActionTypeEnum.Other)
+    action_type = fields.CharEnumField(ActionTypeEnum, max_length=20, default=ActionTypeEnum.Other)
     position = fields.IntField(default=0)
     task_type = fields.CharEnumField(enum_type=TaskTypeEnum, description="like daily task monthly task")
     is_active = fields.BooleanField(default=True)

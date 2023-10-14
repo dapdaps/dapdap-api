@@ -71,7 +71,7 @@ async def activity_info(status_type: ActivityConfig.ActivityStatusEnum):
 
 @router.get("/task-info", tags=["task_info"])
 async def task_info():
-    return await TaskConfig.filter(is_active=True).order_by("action_type", "positon").all()
+    return await TaskConfig.filter(is_active=True).order_by("action_type", "position").all()
 
 @router.get("/user-task-info/{address}", tags=["user task info"])
 async def user_task_info(address: str):

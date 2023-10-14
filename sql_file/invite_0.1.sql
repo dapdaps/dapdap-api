@@ -77,7 +77,7 @@ CREATE TABLE "task_config" (
     "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     "task_name" VARCHAR(255) NOT NULL,
     "network" VARCHAR(11) NOT NULL  DEFAULT 'all',
-    "action_type" VARCHAR(8) NOT NULL  DEFAULT 'Other',
+    "action_type" VARCHAR(20) NOT NULL  DEFAULT 'Other',
     "position" INT NOT NULL  DEFAULT 0,
     "task_type" VARCHAR(5) NOT NULL,
     "is_active" BOOL NOT NULL  DEFAULT True
