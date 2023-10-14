@@ -60,7 +60,7 @@ async def leaderboard_top_realtime(activity_name: str, chain_id: str):
     report_data = await ActivityReport.filter(
         activity__name=activity_name, chain_id=chain_id
     ).order_by('-tx_count').limit(10).values(
-        "tx_count", address="user__address", group_name="group__name"
+        "tx_count","report_type", address="user__address", group_name="group__name",
     )
     return report_data
 

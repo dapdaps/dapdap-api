@@ -10,7 +10,8 @@ from tortoise.fields.base import CASCADE
 from core.base.base_models import BaseDBModel, BaseCreatedUpdatedAtModel, BaseCreatedAtModel
 class ChainTypeEnum(str, Enum):
     ALL = "all"
-
+    Polygon = "Polygon"
+    Metis = "Metis"
     Mantle = "Mantle"
     Base = "Base"
     zkEVM = "zkEVM"
@@ -94,8 +95,8 @@ class ActivityReport(BaseDBModel, BaseCreatedAtModel):
         GROUP = 'group'
         OTHER = 'other'
     activity = fields.ForeignKeyField('models.ActivityConfig', db_constraint=False, on_delete=CASCADE)
-    user = fields.ForeignKeyField(db_constraint=False, model_name="models.UserInfo", on_delete=CASCADE)
-    group = fields.ForeignKeyField(db_constraint=False, model_name="models.GroupInfo", on_delete=CASCADE)
+    user = fields.ForeignKeyField(db_constraint=False, model_name="models.UserInfo", on_delete=CASCADE, null=True)
+    group = fields.ForeignKeyField(db_constraint=False, model_name="models.GroupInfo", on_delete=CASCADE, null=True)
     chain_id = fields.CharEnumField(ChainTypeEnum, default = ChainTypeEnum.Other)
     report_type = fields.CharEnumField(ReportTypeEnum)
     tx_count = fields.IntField(default=0)

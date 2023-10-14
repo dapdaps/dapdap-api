@@ -66,8 +66,8 @@ CREATE TABLE "activity_report" (
     "report_type" VARCHAR(5) NOT NULL,
     "tx_count" INT NOT NULL  DEFAULT 0,
     "activity_id" BIGINT NOT NULL,
-    "group_id" BIGINT NOT NULL,
-    "user_id" BIGINT NOT NULL
+    "group_id" BIGINT NULL,
+    "user_id" BIGINT NULL
 );
 COMMENT ON COLUMN "activity_report"."chain_id" IS 'ALL: all\nMantle: Mantle\nBase: Base\nzkEVM: zkEVM\nMAINNET: MAINNET\nArbitrumOne: ArbitrumOne\nArbitrum: Arbitrum\nOther: Other';
 COMMENT ON COLUMN "activity_report"."report_type" IS 'USER: user\nGROUP: group\nOTHER: other';
