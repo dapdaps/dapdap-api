@@ -57,12 +57,32 @@ async def leaderboard_test_top(websocket: WebSocket):
 
 
 @router.get("/leaderboard/{activity_name}/{chain_id}", tags=["leaderboard_top_realtime"])
-async def leaderboard_top_realtime(activity_name: str, chain_id: str):
+async def leaderboard_both(activity_name: str, chain_id: str):
     filters = {"activity__name": activity_name}
     if chain_id != ChainTypeEnum.ALL:
         filters.update({"chain_id": chain_id})
     report_data = await ActivityReport.filter(**filters).order_by('-tx_count').limit(10).values(
-        "tx_count","report_type", address="user__address", group_name="group__name",
+        "tx_count","report_type", "chain_id", address="user__address", group_name="group__name",
+    )
+    return report_data
+
+@router.get("/leaderboard-group/{activity_name}/{chain_id}", tags=["leaderboard_top_realtime group"])
+async def leaderboard_group(activity_name: str, chain_id: str):
+    filters = {"activity__name": activity_name, "report_type": ActivityReport.ReportTypeEnum.GROUP}
+    if chain_id != ChainTypeEnum.ALL:
+        filters.update({"chain_id": chain_id})
+    report_data = await ActivityReport.filter(**filters).order_by('-tx_count').limit(10).values(
+        "tx_count","report_type", "chain_id", address="user__address", group_name="group__name",
+    )
+    return report_data
+
+@router.get("/leaderboard-user/{activity_name}/{chain_id}", tags=["leaderboard_top_realtime user"])
+async def leaderboard_user(activity_name: str, chain_id: str):
+    filters = {"activity__name": activity_name, "report_type": ActivityReport.ReportTypeEnum.USER}
+    if chain_id != ChainTypeEnum.ALL:
+        filters.update({"chain_id": chain_id})
+    report_data = await ActivityReport.filter(**filters).order_by('-tx_count').limit(10).values(
+        "tx_count","report_type", "chain_id", address="user__address", group_name="group__name",
     )
     return report_data
 
@@ -77,4 +97,5 @@ async def task_info():
 
 @router.get("/user-task-info/{address}", tags=["user task info"])
 async def user_task_info(address: str):
-    return await UserTaskResult.filter(user__address=address, ).all()
+    # return await UserTaskResult.filter(user__address=address, ).all()
+    return await UserTaskResult.all()

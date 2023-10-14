@@ -175,8 +175,63 @@ async def init_task_info():
     ) for task in task_objs for i in range(1, 14)]
     await UserTaskResult.bulk_create(result)
 
+async def init_create_group():
+    db_url = settings.DB_URL
+    app_list = get_app_list()
+    await Tortoise.init(
+        db_url=db_url,
+        modules={'models': app_list}
+    )
+
+    all_user_obj = await UserInfo.all()
+    for i in range(0, 10):
+        group_info = await GroupInfo.create(
+            name=f"winwin-{i}",
+            title=f"WinWin-{i}"
+        )
+        for x in range(0, 3):
+            index = random.randint(0, 10)
+            await group_info.users.add(all_user_obj[index])
+
+    activity_config_obj = await ActivityConfig.all().first()
+
+    arb_report_list = [
+        ActivityReport(
+            activity=activity_config_obj,
+            # user=user_obj,
+            group=group_info,
+            chain_id=ChainTypeEnum.Arbitrum,
+            report_type=ActivityReport.ReportTypeEnum.GROUP,
+            tx_count=random.randint(1, 400)
+        ) for group_info in await GroupInfo.all()
+    ]
+
+    mts_report_list = [
+        ActivityReport(
+            activity=activity_config_obj,
+            # user=user_obj,
+            group=group_info,
+            chain_id=ChainTypeEnum.Metis,
+            report_type=ActivityReport.ReportTypeEnum.GROUP,
+            tx_count=random.randint(1, 400)
+        ) for group_info in await GroupInfo.all()
+    ]
+
+    pol_report_list = [
+        ActivityReport(
+            activity=activity_config_obj,
+            # user=user_obj,
+            group=group_info,
+            chain_id=ChainTypeEnum.Polygon,
+            report_type=ActivityReport.ReportTypeEnum.GROUP,
+            tx_count=random.randint(1, 400)
+        ) for group_info in await GroupInfo.all()
+    ]
+    all_report_list = arb_report_list + mts_report_list + pol_report_list
+    await ActivityReport.bulk_create(all_report_list)
+
 
 if __name__ == "__main__":
     # run_async(init_project_data())
     # run_async(init_user_fake_data())
-    run_async(init_task_info())
+    run_async(init_create_group())
