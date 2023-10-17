@@ -38,7 +38,7 @@ async def check_address(request: Request, address: str):
 async def activate(request: Request, active_in: ActivateCodeIn):
     pre_address_obj = await UserInfo.get_or_create(address=active_in.address)
     pre_address_obj = pre_address_obj[0]
-    code_obj = await InviteCodePool.filter(code=active_in.code).first()
+    code_obj = await InviteCodePool.filter(code=active_in.code).select_related("creator_user").first()
     if not code_obj:
         return {
             "is_success": False,

@@ -56,10 +56,6 @@ def init_http_middleware(app: FastAPI):
         return response
 
 
-def init_signal():
-    init_integral_signal()
-
-
 def get_app_list():
     app_list = [f'{settings.APPLICATIONS_MODULE}.{app}.models' for app in settings.APPLICATIONS]
     return app_list

@@ -5,7 +5,7 @@
 from fastapi import FastAPI
 from core.exceptions import SettingNotFound
 from core.init_app import configure_logging, init_middlewares, register_db, register_exceptions, register_routers, \
-    register_slowapi, init_http_middleware, init_signal
+    register_slowapi, init_http_middleware
 import uvicorn
 
 try:
@@ -27,7 +27,6 @@ register_exceptions(app)
 register_slowapi(app)
 init_http_middleware(app)
 register_routers(app)
-init_signal()
 
 
 if __name__ == '__main__':
