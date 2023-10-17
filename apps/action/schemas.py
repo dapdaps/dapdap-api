@@ -29,7 +29,7 @@ class ActionIn(BaseModel):
    tx_id: Optional[str] = ""
    account_id: Optional[str] = ""
    account_info: Optional[str] = ""
-   action_switch: Optional[str] = ""
+   action_switch: Optional[int] = 0
    action_network_id: Optional[str] = ""
    action_title: Optional[str] = ""
    action_type: Optional[str] = ""

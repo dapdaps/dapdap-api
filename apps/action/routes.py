@@ -22,41 +22,49 @@ async def add_action(request: Request, action_in: ActionIn):
     now_time = datetime.datetime.utcnow()
     timestamp = int(now_time.timestamp())
 
-    # 查询ActionRecord表
-    if action_in.tx_id != "":
+    # search ActionRecord table
+    if action_in.tx_id:
         action_record_obj = await ActionRecord.get_or_none(tx_id = action_in.tx_id) # use get_or_none
 
         if action_record_obj:
             return action_record_obj.action_id
+        else:
+            raise HTTPException(400, f"this tx_id {action_in.tx_id} not exist")
 
-    action_data_status = "0"
-    if action_in.action_switch == "1" or action_in.action_switch == 1:
-        action_data_status = "1"
+    action_data_status = "1" if action_in.action_switch == 1 else "0"
 
-    # 查询Action表
-    if action_in.action_amount != "":
-        action_obj = await Action.filter( Q(action_type=action_in.action_type) & 
-                                          Q(action_tokens=action_in.action_tokens) &
-                                          Q(template=action_in.template) &
-                                          Q(action_network_id=action_in.action_network_id) &
-                                          Q(action_amount=action_in.action_amount) &
-                                          (Q(account_id=action_in.account_id if action_in.account_id else "") | Q(account_info=action_in.account_info if action_in.account_info else ""))
-                                        )
-    else:
-        action_obj = await Action.filter( Q(action_type=action_in.action_type) & 
-                                          Q(action_tokens=action_in.action_tokens) &
-                                          Q(template=action_in.template) &
-                                          Q(action_network_id=action_in.action_network_id) &
-                                          (Q(account_id=action_in.account_id if action_in.account_id else "") | Q(account_info=action_in.account_info if action_in.account_info else ""))
-                                        )
-    
+    # search Action
+    filter_q = Q(
+        action_type=action_in.action_type,
+        action_tokens=action_in.action_tokens,
+        template=action_in.template,
+        action_network_id=action_in.action_network_id,
+    )
+    if action_in.action_amount:
+        filter_q.filters.update({"action_amount" : action_in.action_amount})
+    filter_q_next = Q(account_id=action_in.account_id if action_in.account_id else "") | Q(
+        account_info=action_in.account_info if action_in.account_info else "")
+    action_obj = await Action.filter(filter_q & filter_q_next).first()
+    # if action_in.action_amount != "":
+    #     action_obj = await Action.filter( Q(action_type=action_in.action_type) &
+    #                                       Q(action_tokens=action_in.action_tokens) &
+    #                                       Q(template=action_in.template) &
+    #                                       Q(action_network_id=action_in.action_network_id) &
+    #                                       Q(action_amount=action_in.action_amount) &
+    #                                       (Q(account_id=action_in.account_id if action_in.account_id else "") | Q(account_info=action_in.account_info if action_in.account_info else ""))
+    #                                     )
+    # else:
+    #     action_obj = await Action.filter( Q(action_type=action_in.action_type) &
+    #                                       Q(action_tokens=action_in.action_tokens) &
+    #                                       Q(template=action_in.template) &
+    #                                       Q(action_network_id=action_in.action_network_id) &
+    #                                       (Q(account_id=action_in.account_id if action_in.account_id else "") | Q(account_info=action_in.account_info if action_in.account_info else ""))
+    #                                     )
     if action_obj:
-        action_obj = action_obj[0]
-
         action_obj.count_number = action_obj.count_number + 1
         if action_in.action_switch == 1 or action_in.action_switch == "1":
             if action_obj.status == "0":
-                action_obj.status == "1"  # update Status
+                action_obj.status = "1"  # update Status
         action_id =  action_obj.action_id
         await action_obj.save()  
     else:

@@ -12,6 +12,7 @@ from starlette.websockets import WebSocket, WebSocketDisconnect
 from tortoise.functions import Count, Sum
 
 from apps.integral.models import ActivityReport, ActivityConfig, TaskConfig, UserTaskResult, ChainTypeEnum
+from apps.integral.utils import signal_post_save, ActivityReportFlag
 from core.utils.base_util import get_limiter, ConnectionManager
 from settings.config import settings
 from tortoise.expressions import F
@@ -27,35 +28,29 @@ manager = ConnectionManager()
 @router.websocket("/leaderboard/{activity_name}/ws", name="leaderboard_top")
 async def leaderboard_top(websocket: WebSocket, activity_name: str):
     await manager.connect(websocket)
+    report_data = await ActivityReport.filter(activity__name=activity_name).order_by('-tx_count').limit(10).values(
+        "tx_count", address="user__address"
+    )
+    await manager.broadcast_json(report_data)
     try:
         while True:
-            data = await websocket.receive_text()
-            await manager.send_personal_message(f"You wrote: {data}", websocket)
-            await manager.broadcast(f"1231231231")
+            await ActivityReportFlag.wait()
+            report_data = await ActivityReport.all().order_by('-tx_count').limit(10).values(
+                "tx_count", address="user__address"
+            )
+            await manager.broadcast_json(report_data)
+            ActivityReportFlag.clear()
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        await manager.broadcast(f"left the chat")
 
 
-@router.websocket("/leaderboard-test/test/ws")
-async def leaderboard_test_top(websocket: WebSocket):
-    await websocket.accept()
-    # report_data = {}
-    # pre_count = settings.ACTIVITY_REPORT_CHANGE
-    # report_data = await ActivityReport.all().order_by('-tx_count').limit(10).values(
-    #     "tx_count", address="user__address"
-    # )
-    # await websocket.send_json(report_data)
-    try:
-        while True:
-            if settings.ACTIVITY_REPORT_CHANGE > pre_count:
-                report_data = await ActivityReport.all().order_by('-tx_count').limit(10).values(
-                    "tx_count", address="user__address"
-                )
-                pre_count = settings.ACTIVITY_REPORT_CHANGE
-                await websocket.send_json(report_data)
-    except WebSocketDisconnect:
-        await websocket.close()
+@router.get("/leaderboard/test", tags=["leaderboard test"])
+async def leaderboard_test():
+    report_data = await ActivityReport.create(
+        activity_id = 1,
+        user_id = 2,
+        report_type ="user")
+    return report_data
 
 
 @router.get("/leaderboard/{activity_name}/{chain_id}", tags=["leaderboard_top_realtime"])
