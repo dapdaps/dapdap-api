@@ -12,11 +12,13 @@ from starlette.websockets import WebSocket, WebSocketDisconnect
 from tortoise.functions import Count, Sum
 
 from apps.integral.models import ActivityReport, ActivityConfig, TaskConfig, UserTaskResult, ChainTypeEnum
+from apps.integral.schemas import UserTaskResultOut
 from apps.integral.utils import signal_post_save, ActivityReportFlag
 from core.utils.base_util import get_limiter, ConnectionManager
 from settings.config import settings
 from tortoise.expressions import F
 import logging
+from fastapi_pagination import Page, add_pagination, paginate
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
@@ -112,7 +114,8 @@ async def activity_info(status_type: ActivityConfig.ActivityStatusEnum):
 async def task_info():
     return await TaskConfig.filter(is_active=True).order_by("action_type", "position").all()
 
-@router.get("/user-task-info/{address}", tags=["user task info"])
-async def user_task_info(address: str):
+@router.get("/user-task-info", tags=["user task info"], response_model=Page[UserTaskResultOut])
+async def user_task_info():
+    from fastapi_pagination.ext.tortoise import paginate
     # return await UserTaskResult.filter(user__address=address, ).all()
-    return await UserTaskResult.all()
+    return await paginate(UserTaskResult)

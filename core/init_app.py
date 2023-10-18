@@ -9,6 +9,7 @@ import time
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi_pagination import add_pagination
 from starlette.requests import Request
 from tortoise.contrib.fastapi import register_tortoise
 
@@ -38,6 +39,7 @@ def init_middlewares(app: FastAPI):
         allow_methods=settings.CORS_ALLOW_METHODS,
         allow_headers=settings.CORS_ALLOW_HEADERS,
     )
+    add_pagination(app)
 
 def init_http_middleware(app: FastAPI):
     logger = logging.getLogger(__name__)
