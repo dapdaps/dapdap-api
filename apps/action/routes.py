@@ -46,7 +46,7 @@ async def add_action(request: Request, action_in: ActionIn):
         filter_q.filters.update({"action_amount" : action_in.action_amount})
     filter_q_next = Q(account_id=action_in.account_id if action_in.account_id else "") | Q(
         account_info=action_in.account_info if action_in.account_info else "")
-    action_obj = await Action.filter(filter_q & filter_q_next).exclude().first()
+    action_obj = await Action.filter(filter_q & filter_q_next).first()
     # if action_in.action_amount != "":
     #     action_obj = await Action.filter( Q(action_type=action_in.action_type) &
     #                                       Q(action_tokens=action_in.action_tokens) &
