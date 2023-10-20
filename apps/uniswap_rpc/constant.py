@@ -3,7 +3,6 @@
 # @Email : rainman@ref.finance
 # @File : constant.py
 from enum import IntEnum
-
 from web3 import Web3
 
 
@@ -17,6 +16,7 @@ class ChainEnum(IntEnum):
     Celo = 42220
     Avalanche = 43114
 
+
 CHAIN_RPC = {
     ChainEnum.Ethereum: "https://rpc.ankr.com/eth/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
     ChainEnum.Arbitrum: "https://rpc.ankr.com/arbitrum/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
@@ -28,6 +28,7 @@ CHAIN_RPC = {
     ChainEnum.Avalanche: "https://rpc.ankr.com/avalanche/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef"
 }
 
+
 QUOTER_V2_CONTRACT_ADDRESS = {
     ChainEnum.Ethereum: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
     ChainEnum.Arbitrum: "0x61fFE014bA17989E743c5F6cB21bF9697530B21e",
@@ -38,3 +39,18 @@ QUOTER_V2_CONTRACT_ADDRESS = {
     ChainEnum.Celo: "0x82825d0554fA07f7FC52Ab63c961F330fdEFa8E8",
     ChainEnum.Avalanche: "0xbe0F5544EC67e9B3b2D979aaA43f18Fd87E6257F",
 }
+
+QUOTER_CONTRACT_ADDRESS = {
+    ChainEnum.Ethereum: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
+    ChainEnum.Arbitrum: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
+    ChainEnum.Optimisim: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6",
+    ChainEnum.Polygon: "0xb27308f9F90D607463bb33eA1BeBb41C27CE5AB6"
+}
+
+# router = [56, 8453, 42220, 43114]
+USE_QUOTER_V2 = [
+    ChainEnum.Base,
+    ChainEnum.BSC,
+    ChainEnum.Celo,
+    ChainEnum.Avalanche,
+]
