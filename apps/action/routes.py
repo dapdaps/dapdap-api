@@ -15,10 +15,12 @@ from tortoise.expressions import Q
 from core.utils.tool_util import success, error
 from tortoise.functions import Sum, Count
 from fastapi_pagination.ext.tortoise import paginate
+from core.base.db_provider import query_special_action
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
 router = APIRouter(prefix="/api/action")
+
 
 @router.post('/add', tags=['action'])
 async def add_action(request: Request, action_in: ActionIn):
@@ -134,32 +136,45 @@ async def get_hot_action(action_title: str = "", hot_number: int = 4, action_net
 
 @router.delete('/delete-action-by-id', tags=['delete_action_by_id'])
 async def delete_action_by_id(delete_action: DeleteActionIn):
-    action_data = await Action.filter(action_id=delete_action.action_id).first().values("action_id", "action_title", "account_id", "action_network_id")
+    action_data = await Action.filter(action_id=delete_action.action_id).first().values("action_title", "account_id", "action_network_id")
+    update_data = {"action_title": action_data["action_title"], "account_id": action_data["account_id"], "action_network_id": action_data["action_network_id"]}
+    await Action.filter(**update_data).update(status='0')
     return success(delete_action.action_id)
 
 
 @router.delete('/batch-delete-action', tags=['batch_delete_action'])
 async def batch_delete_action(delete_action: DeleteActionIn):
-    # action_data = await Action.in_bulk(delete_action.action_id_list)
+    for action_id in delete_action.action_id_list:
+        action_data = await Action.filter(action_id=action_id).first().values("action_title", "account_id", "action_network_id")
+        update_data = {"action_title": action_data["action_title"], "account_id": action_data["account_id"], "action_network_id": action_data["action_network_id"]}
+        await Action.filter(**update_data).update(status='0')
     return success(delete_action.action_id_list)
 
 
 @router.put('/update-action-by-id', tags=['update_action_by_id'])
 async def update_action_by_id(update_action_record: UpdateActionRecordIn):
-    update_data = {"id": update_action_record.action_record_id, "tx": update_action_record.tx, "action_status": update_action_record.action_status}
-    action_data = await ActionRecord.filter(**update_data).all()
+    update_data = {"id": update_action_record.action_record_id}
+    await ActionRecord.filter(**update_data).update(action_status=update_action_record.action_status, tx_id=update_action_record.tx_id)
     return success(update_action_record.action_record_id)
 
 
-@router.get("/get-action-records-by-account", tags=['get_action_records_by_account'], response_model=Page[ActionRecordResultOut])
+@router.get('/get-action-records-by-account', tags=['get_action_records_by_account'], response_model=Page[ActionRecordResultOut])
 async def get_action_records_by_account(action_network_id: str = "", account_id: str = "", account_info: str = "", action_type: str = "", template: str = "", action_status: str = ""):
-    filters = {"action_network_id": action_network_id, "account_id": account_id, "account_info": account_info, "action_type": action_type, "template": template, "action_status": action_status}
+    filters = {"action_network_id": action_network_id}
+    if account_id != "":
+        filters.update({"account_id": account_id})
+    if account_info != "":
+        filters.update({"account_info": account_info})
+    if action_type != "":
+        filters.update({"action_type": action_type})
+    if template != "":
+        filters.update({"template": template})
+    if action_status != "":
+        filters.update({"action_status": action_status})
     return await paginate(ActionRecord.filter(**filters).order_by("-id"))
 
 
 @router.get('/get-special-action', tags=['get_special_action'])
 async def get_special_action():
-    filters = {"template": "0vix", "action_network_id": "zkEVM", "action_type": "Supply"}
-    result_data = await Action.filter(**filters).group_by("action_title").order_by("-count_number").limit(10).values("action_title", "count_number")
-    return success(result_data)
+    return success(query_special_action())
 

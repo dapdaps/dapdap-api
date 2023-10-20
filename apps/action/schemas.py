@@ -46,7 +46,7 @@ class DeleteActionIn(BaseModel):
 
 class UpdateActionRecordIn(BaseModel):
     action_record_id: Optional[int] = 0
-    tx: Optional[str] = ""
+    tx_id: Optional[str] = ""
     action_status: Optional[str] = ""
 
 
