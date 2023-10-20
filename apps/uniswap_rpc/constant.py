@@ -26,6 +26,7 @@ CHAIN_RPC = {
     ChainEnum.Base: "https://rpc.ankr.com/base/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
     ChainEnum.BSC: "https://rpc.ankr.com/bsc/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
     ChainEnum.Celo: "https://rpc.ankr.com/celo/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
+    # ChainEnum.Celo: "https://celo-mainnet.infura.io/v3/a13269733d7b4670b050ca945ef1daaa",
     ChainEnum.Avalanche: "https://rpc.ankr.com/avalanche/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef"
 }
 
