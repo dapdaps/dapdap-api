@@ -8,6 +8,8 @@ from tortoise import fields
 from tortoise.contrib.postgres.fields import ArrayField
 from tortoise.fields.base import CASCADE
 from core.base.base_models import BaseDBModel, BaseCreatedUpdatedAtModel, BaseCreatedAtModel
+
+
 class ChainTypeEnum(str, Enum):
     ALL = "all"
     Polygon = "Polygon"
@@ -18,6 +20,10 @@ class ChainTypeEnum(str, Enum):
     MAINNET = "MAINNET"
     ArbitrumOne = "ArbitrumOne"
     Arbitrum = "Arbitrum"
+    ETH = "ETH"
+    Optimism = "Optimism"
+    BNB_Chain = "BSC"
+    Celo = "Celo"
     Other = "Other"
 
 class ActionTypeEnum(str, Enum):

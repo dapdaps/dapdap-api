@@ -24,8 +24,9 @@ class Settings:
     APPLICATIONS = [
         'user',
         'invite',
-        'integral',
-        'action'
+        # 'integral',
+        'action',
+        'uniswap_rpc'
     ]
 
     PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
