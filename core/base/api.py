@@ -7,6 +7,8 @@ from fastapi import APIRouter
 from starlette.requests import Request
 import requests
 from core.utils.base_util import get_limiter
+from core.utils.redis_provider import list_base_token_price
+from core.utils.tool_util import success, error
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
@@ -23,3 +25,10 @@ router = APIRouter()
 async def health_check(request: Request):
     logger.info(request)
     return {"message": "Running!"}
+
+
+@router.get('/get-token-price-by-dapdap', tags=['get_token_price_by_dapdap'])
+async def get_token_price_by_dapdap():
+    result_data = list_base_token_price()
+    return success(result_data)
+
