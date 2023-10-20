@@ -24,6 +24,7 @@ class ChainTypeEnum(str, Enum):
     Optimism = "Optimism"
     BNB_Chain = "BSC"
     Celo = "Celo"
+    Avalanche = "Avalanche"
     Other = "Other"
 
 class ActionTypeEnum(str, Enum):
