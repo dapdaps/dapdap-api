@@ -38,4 +38,16 @@ class ActionIn(BaseModel):
    template: Optional[str] = ""
    
    
-   
+class DeleteActionIn(BaseModel):
+    action_id: Optional[int] = 0
+    action_id_list: Optional[list] = []
+
+
+class DeleteActionRecordIn(BaseModel):
+    action_record_id: Optional[int] = 0
+    tx: Optional[str] = ""
+    action_status: Optional[str] = ""
+
+
+
+
