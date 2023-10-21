@@ -16,12 +16,10 @@ limiter = get_limiter()
 router = APIRouter(prefix="/api/uniswap")
 
 
-@router.get('/quote-check', tags=['quote-check'])
+@router.get('/quote', tags=['quote'])
 @limiter.limit('100/minute')
 async def quote_check(request: Request, token_in: str, token_out:str, chain_id: int, amount: int):
     provider = CHAIN_RPC.get(chain_id)
-    # quoter_v2_contract_address = QUOTER_V2_CONTRACT_ADDRESS.get(chain_id)
-    # quoter_v2_contract_address = Web3.to_checksum_address(quoter_v2_contract_address)
 
     if chain_id in USE_QUOTER_V2:
         quoter_v2_contract_address = QUOTER_V2_CONTRACT_ADDRESS.get(chain_id)
