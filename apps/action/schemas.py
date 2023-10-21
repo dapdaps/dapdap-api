@@ -9,6 +9,7 @@ from typing import Optional, TypeVar
 from pydantic import BaseModel, EmailStr, UUID4, field_validator, validator
 from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator
 from apps.invite.models import InviteCodePool
+from apps.action.models import ActionRecord
 
 class BaseProperties(BaseModel):
     @validator("hashed_id", pre=True, always=True, check_fields=False)
@@ -43,11 +44,11 @@ class DeleteActionIn(BaseModel):
     action_id_list: Optional[list] = []
 
 
-class DeleteActionRecordIn(BaseModel):
+class UpdateActionRecordIn(BaseModel):
     action_record_id: Optional[int] = 0
-    tx: Optional[str] = ""
+    tx_id: Optional[str] = ""
     action_status: Optional[str] = ""
 
 
-
+ActionRecordResultOut = pydantic_model_creator(ActionRecord)
 
