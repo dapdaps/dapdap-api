@@ -11,3 +11,4 @@ flower==2.0.1
 redis==5.0.1
 fastapi_pagination==0.12.10
 uniswap_python==0.7.1
+psycopg2_binary==2.9.9
