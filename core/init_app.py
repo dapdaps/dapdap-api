@@ -24,6 +24,7 @@ from apps.invite.routes import router as invite_router
 from apps.action.routes import router as action_router
 from core.base.api import router as base_router
 from apps.integral.routes import router as integral_router
+from apps.uniswap_rpc.routes import router as uniswap_router
 
 
 def configure_logging(log_settings: dict = None):
@@ -106,5 +107,6 @@ def register_slowapi(app: FastAPI):
 def register_routers(app: FastAPI):
     app.include_router(base_router)
     app.include_router(invite_router)
-    app.include_router(integral_router)
+    # app.include_router(integral_router)
     app.include_router(action_router)
+    app.include_router(uniswap_router)
