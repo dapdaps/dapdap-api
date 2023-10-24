@@ -13,7 +13,7 @@ import logging
 import datetime
 from tortoise.expressions import Q
 from core.utils.tool_util import success, error
-from tortoise.functions import Sum, Count
+from tortoise.functions import Sum, Count, Max
 from fastapi_pagination.ext.tortoise import paginate
 from core.base.db_provider import query_special_action
 
@@ -121,16 +121,21 @@ async def get_action_by_account(account_id: str = "", account_info: str = "", ac
         return success()
     filter_q = Q(account_id=account_id) | Q(account_info=account_info)
     filter_q_next = Q(action_network_id=action_network_id)
-    result_data = await Action.filter(filter_q & filter_q_next).annotate(count_number=Sum("count_number")).group_by("action_title").order_by("-count_number").values("action_title", "count_number")
+    result_data = await Action.filter(filter_q & filter_q_next).group_by("action_id", "account_id", "action_title", "timestamp", "template", "account_info", "count_number").annotate(count_number=Sum("count_number")).order_by("-count_number").values("action_id", "account_id", "action_title", "timestamp", "template", "account_info", "count_number")
+    # result_data = await Action.filter(filter_q & filter_q_next).group_by("action_title").annotate(
+    #     count_number=Sum("count_number")).annotate(action_id=Max("action_id"), account_id=Max("account_id"),
+    #                                                timestamp=Max("timestamp"), template=Max("action_type"),
+    #                                                account_info=Max("account_info")).order_by("-count_number").values(
+    #     "action_id", "account_id", "action_title", "timestamp", "template", "account_info", "count_number")
     return success(result_data)
 
 
 @router.get('/get-hot-action', tags=['get_hot_action'])
 async def get_hot_action(action_title: str = "", hot_number: int = 4, action_network_id: str = ""):
-    filters = {"action_title": action_title}
+    filters = {"action_title__contains": action_title}
     if action_network_id != "":
         filters.update({"action_network_id": action_network_id})
-    result_data = await Action.filter(**filters).annotate(count_number=Sum("count_number")).group_by("action_title").order_by("-count_number").limit(hot_number).values("action_title", "count_number")
+    result_data = await Action.filter(**filters).annotate(count_number=Sum("count_number")).group_by("action_id", "account_id", "action_title", "action_type", "action_tokens", "action_amount", "timestamp", "template", "account_info", "count_number").order_by("-count_number").limit(hot_number).values("action_id", "account_id", "action_title", "action_type", "action_tokens", "action_amount", "timestamp", "template", "account_info", "count_number")
     return success(result_data)
 
 
