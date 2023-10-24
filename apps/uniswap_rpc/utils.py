@@ -5,6 +5,7 @@
 import asyncio
 import json
 from web3 import Web3, AsyncWeb3
+from web3.exceptions import TooManyRequests, Web3Exception
 from settings.config import settings
 
 with open(f"{settings.PROJECT_ROOT}/apps/uniswap_rpc/uniswap-v3/quoter.abi") as f:
@@ -19,6 +20,10 @@ async def fetch_quote(contract, token_in, token_out, fee, amount, sqrtPriceLimit
         price = await contract.functions.quoteExactInputSingle(
             token_in, token_out, fee, amount, sqrtPriceLimitX96
         ).call()
+    except TooManyRequests:
+        print("Too many Requests Need change RPC!")
+    except Web3Exception as e:
+        pass
     except Exception as e:
         print(e)
     return {"price": price, "fee": fee}
@@ -52,7 +57,7 @@ async def quoter_check(provider, quoter_contract_address, token_in, token_out, a
 async def fetch_quote_v2(contract_v2, token_in, token_out, fee, amount, sqrtPriceLimitX96):
     price = None
     try:
-        price = contract_v2.functions.quoteExactInputSingle(
+        price = await contract_v2.functions.quoteExactInputSingle(
             {
                 "tokenIn": token_in,
                 "tokenOut": token_out,
@@ -60,7 +65,12 @@ async def fetch_quote_v2(contract_v2, token_in, token_out, fee, amount, sqrtPric
                 "fee": fee,
                 "sqrtPriceLimitX96": sqrtPriceLimitX96
             }
-        ).call()[0]
+        ).call()
+        price = price[0]
+    except TooManyRequests:
+        print("Too many Requests Need change RPC!")
+    except Web3Exception as e:
+        pass
     except Exception as e:
         print(e)
 

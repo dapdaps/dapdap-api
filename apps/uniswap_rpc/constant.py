@@ -18,13 +18,32 @@ class ChainEnum(IntEnum):
 
 
 CHAIN_RPC = {
-    ChainEnum.Ethereum: "https://rpc.ankr.com/eth/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
-    ChainEnum.Arbitrum: "https://rpc.ankr.com/arbitrum/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
-    ChainEnum.Optimisim: "https://rpc.ankr.com/optimism/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
+    # INFURA
+
+    # ChainEnum.Ethereum: "https://rpc.ankr.com/eth/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
+    ChainEnum.Ethereum: "https://mainnet.infura.io/v3/22f60b180dc04f219a37ce5701d66a71",
+    # ChainEnum.Arbitrum: "https://rpc.ankr.com/arbitrum/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
+    ChainEnum.Arbitrum: "https://arbitrum-mainnet.infura.io/v3/22f60b180dc04f219a37ce5701d66a71",
+
+    # ALCHEMY
+
+    # ChainEnum.Optimisim: "https://rpc.ankr.com/optimism/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
+    ChainEnum.Optimisim: "https://opt-mainnet.g.alchemy.com/v2/5hvXZfQ_rh6cI648Sz31N4rEo-N6-TBT",
     # ChainEnum.Polygon: "https://rpc.ankr.com/optimism/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
-    ChainEnum.Polygon: "https://polygon-mainnet.infura.io/v3/a13269733d7b4670b050ca945ef1daaa",
-    ChainEnum.Base: "https://rpc.ankr.com/base/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
-    ChainEnum.BSC: "https://rpc.ankr.com/bsc/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
+    ChainEnum.Polygon: "https://polygon-mainnet.g.alchemy.com/v2/ncPFKft24tINBSdM3QqOnvNd5rWo7sjg",
+    # ChainEnum.Polygon: "https://polygon-mainnet.infura.io/v3/a13269733d7b4670b050ca945ef1daaa",
+
+    # quick node
+
+    # ChainEnum.Base: "https://rpc.ankr.com/base/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
+    # ChainEnum.Base: "https://base-mainnet.s.chainbase.com/v1/2XCasouKNgAIk0CIXkUsGXVIFJM",
+    ChainEnum.Base: "https://muddy-falling-daylight.base-mainnet.quiknode.pro/04beb18973566dc08041008321a7c9feb25c5885/",
+    # ChainEnum.BSC: "https://rpc.ankr.com/bsc/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
+    # ChainEnum.BSC: "https://bsc-mainnet.s.chainbase.com/v1/2XCasouKNgAIk0CIXkUsGXVIFJM",
+    ChainEnum.BSC: "https://light-lively-snow.bsc.quiknode.pro/cd6bf08158c6d8f8d1e05cabcc52a86916e7da19/",
+
+    # ANKR
+
     ChainEnum.Celo: "https://rpc.ankr.com/celo/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
     # ChainEnum.Celo: "https://celo-mainnet.infura.io/v3/a13269733d7b4670b050ca945ef1daaa",
     ChainEnum.Avalanche: "https://rpc.ankr.com/avalanche/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef"
