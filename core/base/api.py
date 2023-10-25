@@ -5,7 +5,6 @@
 import logging
 from fastapi import APIRouter
 from starlette.requests import Request
-import requests
 from core.utils.base_util import get_limiter
 from core.utils.redis_provider import list_base_token_price
 from core.utils.tool_util import success, error
@@ -32,3 +31,10 @@ async def get_token_price_by_dapdap():
     result_data = list_base_token_price()
     return success(result_data)
 
+@router.get('/debank', tags=['quote-local'])
+async def debank(token_in: str, token_out:str, chain_id: int):
+    # result = await ChainTokenSwap.filter(chain_id=chain_id, token_in=token_in, token_out=token_out).values(
+    #     "quote_price", "quote_fee", "updated_timestamp",
+    # )
+    pass
+    return {}
