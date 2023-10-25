@@ -20,7 +20,7 @@ limiter = get_limiter()
 router = APIRouter(prefix="/api/uniswap")
 
 
-@router.get('/quote', tags=['quote'])
+@router.get('/quote', tags=['uniswap'])
 @limiter.limit('100/minute')
 async def quote_check(request: Request, token_in: str, token_out:str, chain_id: int, amount: int):
     provider = CHAIN_RPC.get(chain_id)
@@ -35,7 +35,7 @@ async def quote_check(request: Request, token_in: str, token_out:str, chain_id: 
         result = await quoter_check(provider, contract_address, token_in, token_out, amount)
     return result
 
-@router.get('/quote-local', tags=['quote-local'])
+@router.get('/quote-local', tags=['uniswap'])
 async def quote_local(token_in: str, token_out:str, chain_id: int):
     result = await ChainTokenSwap.filter(chain_id=chain_id, token_in=token_in, token_out=token_out).values(
         "quote_price", "quote_fee", "updated_timestamp",
