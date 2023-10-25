@@ -8,7 +8,9 @@ from starlette.requests import Request
 from core.utils.base_util import get_limiter
 from core.utils.redis_provider import list_base_token_price
 from core.utils.tool_util import success, error
-
+from pydantic.types import Json
+from urllib.parse import urljoin
+import requests
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
 router = APIRouter()
@@ -31,10 +33,14 @@ async def get_token_price_by_dapdap():
     result_data = list_base_token_price()
     return success(result_data)
 
-@router.get('/debank', tags=['quote-local'])
-async def debank(token_in: str, token_out:str, chain_id: int):
-    # result = await ChainTokenSwap.filter(chain_id=chain_id, token_in=token_in, token_out=token_out).values(
-    #     "quote_price", "quote_fee", "updated_timestamp",
-    # )
-    pass
-    return {}
+@router.get('/debank', tags=['debank'])
+@limiter.limit('10/second')
+def debank_api(request: Request, url: str, params: Json):
+    prefix_url = "https://pro-openapi.debank.com/"
+    headers = {
+        "AccessKey": "280c587032858a5df53764007c8a9fceea75d3bd"
+    }
+    full_url = urljoin(prefix_url , url)
+    rep = requests.get(full_url, params=params, headers=headers, verify=False)
+    result = rep.json()
+    return result
