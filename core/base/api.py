@@ -43,4 +43,4 @@ def debank_api(request: Request, url: str, params: Json):
     full_url = urljoin(prefix_url , url)
     rep = requests.get(full_url, params=params, headers=headers, verify=False)
     result = rep.json()
-    return result
+    return success(result)
