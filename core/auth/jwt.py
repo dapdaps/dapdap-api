@@ -4,7 +4,7 @@
 # @File : jwt.py
 from datetime import datetime, timedelta
 
-from jose import jwt
+from jose import jwt, jws
 
 from settings.config import settings
 

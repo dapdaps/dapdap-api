@@ -30,7 +30,7 @@ async def check_code(request: Request, code: str):
 async def check_address(request: Request, address: str):
     current_user = await InviteCodePool.filter(used_user__address=address).first().values("is_used")
     return {
-        "is_activated": current_user['is_used'] if current_user['is_used'] else False
+        "is_activated": current_user['is_used'] if current_user and current_user['is_used'] else False
     }
 
 @router.post('/activate', tags=['invite activate'])

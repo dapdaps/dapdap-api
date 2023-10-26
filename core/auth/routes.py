@@ -33,3 +33,4 @@ async def login_access_token(credentials: CredentialsSchema):
         ),
         "token_type": "bearer",
     }
+

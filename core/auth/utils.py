@@ -41,7 +41,7 @@ async def update_last_login(user_id: int) -> None:
 reusable_oauth2 = OAuth2AuthorizationCodeBearer(tokenUrl="/api/auth/login/access-token", authorizationUrl="/api/auth/access-token")
 async def get_current_user(token: str = Security(reusable_oauth2)) -> Optional[UserInfo]:
     try:
-        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM.ALGORITHM])
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
         token_data = JWTTokenPayload(**payload)
     except JWTError:
         raise HTTPException(
