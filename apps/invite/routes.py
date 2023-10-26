@@ -4,7 +4,7 @@
 # @File : routes.py
 from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
-
+from web3 import Web3
 from apps.invite.schemas import ActivateCodeIn, GenerateCodeIn, GenerateCodeOut, InviteCodePoolDetailOut
 from apps.invite.utils import generate_invite_code
 from core.utils.base_util import get_limiter
@@ -28,7 +28,10 @@ async def check_code(request: Request, code: str):
 @router.get('/check-address/{address}', tags=['invite check address'])
 @limiter.limit('100/minute')
 async def check_address(request: Request, address: str):
-    current_user = await InviteCodePool.filter(used_user__address=address).first().values("is_used")
+    if not Web3.is_address(address):
+        return HTTPException(status_code=400, detail="address is not web3")
+    w3_address = Web3.to_checksum_address(address)
+    current_user = await InviteCodePool.filter(used_user__address=w3_address).first().values("is_used")
     return {
         "is_activated": current_user['is_used'] if current_user and current_user['is_used'] else False
     }
@@ -36,7 +39,8 @@ async def check_address(request: Request, address: str):
 @router.post('/activate', tags=['invite activate'])
 @limiter.limit('100/minute')
 async def activate(request: Request, active_in: ActivateCodeIn):
-    pre_address_obj = await UserInfo.get_or_create(address=active_in.address)
+    w3_address = Web3.to_checksum_address(active_in.address)
+    pre_address_obj = await UserInfo.get_or_create(address=w3_address)
     pre_address_obj = pre_address_obj[0]
     code_obj = await InviteCodePool.filter(code=active_in.code).select_related("creator_user").first()
     if not code_obj:
@@ -44,7 +48,8 @@ async def activate(request: Request, active_in: ActivateCodeIn):
             "is_success": False,
             "error": "The code not exist!"
         }
-    if code_obj.creator_user.address == active_in.address:
+    creator_w3_address = Web3.to_checksum_address(code_obj.creator_user.address)
+    if creator_w3_address == w3_address:
         return {
             "is_success": False,
             "error": "creator user cannot invite self!"
@@ -104,7 +109,10 @@ async def generate_code(request: Request, generate_in: GenerateCodeIn):
 @router.get('/get-address-code/{address}', tags=['invite get_address_code'])
 @limiter.limit('100/minute')
 async def get_address_code(request: Request, address: str):
-    return await InviteCodePool.filter(creator_user__address=address).all()
+    if not Web3.is_address(address):
+        return HTTPException(status_code=400, detail="address is not web3")
+    web3_address = Web3.to_checksum_address(address)
+    return await InviteCodePool.filter(creator_user__address=web3_address).all()
 
 
 @router.get('/get-code-detail/{code}', tags=['invite code'], response_model=InviteCodePoolDetailOut)
@@ -116,6 +124,9 @@ async def get_code_detail(request: Request, code: str):
 @router.get('/get-invited-info/{address}', tags=['get some user invited info'])
 @limiter.limit('100/minute')
 async def get_invited_info(request: Request, address: str):
-    return await InviteCodePool.filter(creator_user__address=address, is_used=True).values(
+    if not Web3.is_address(address):
+        return HTTPException(status_code=400, detail="address is not web3")
+    web3_address = Web3.to_checksum_address(address)
+    return await InviteCodePool.filter(creator_user__address=web3_address, is_used=True).values(
         "code","created_at", "updated_at", used_user_address="used_user__address",
     )

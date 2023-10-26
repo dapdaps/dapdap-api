@@ -5,7 +5,7 @@
 import uuid
 from datetime import datetime
 from typing import Optional, TypeVar
-
+from web3 import Web3
 from pydantic import BaseModel, EmailStr, UUID4, field_validator, validator
 from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator
 from apps.invite.models import InviteCodePool
@@ -29,11 +29,24 @@ class ActivateCodeIn(BaseModel):
     address: Optional[str]
     code: Optional[str]
 
+    @field_validator("address")
+    @classmethod
+    def check_web3_address(cls, v: str):
+        if not Web3.is_address(v):
+            raise ValueError("address must valid web3")
+        return v
 
 class GenerateCodeIn(BaseModel):
     address: Optional[str] = None
     code_number: Optional[int] = 3
     creator_type: Optional[int] = 1
+
+    @field_validator("address")
+    @classmethod
+    def check_web3_address(cls, v: str):
+        if not Web3.is_address(v):
+            raise ValueError("address must valid web3")
+        return v
 
 
 class GenerateCodeOut(BaseModel):
