@@ -283,7 +283,7 @@ async def bsc_token_data():
         },
         "0x8ac76a51cc950d9822d68b83fe1ad97b32cd580d": {
             "name": "USDC",
-            "decimals": "6"
+            "decimals": 18
         },
         "0x4DB5a66E937A9F4473fA95b1cAF1d1E1D62E29EA": {
             "name": "WETH",
