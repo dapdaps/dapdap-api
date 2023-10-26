@@ -6,7 +6,7 @@ from fastapi import APIRouter, HTTPException
 from starlette.requests import Request
 from web3 import Web3
 from apps.invite.schemas import ActivateCodeIn, GenerateCodeIn, GenerateCodeOut, InviteCodePoolDetailOut
-from apps.invite.utils import generate_invite_code
+from apps.invite.utils import generate_invite_code, is_w3_address
 from core.utils.base_util import get_limiter
 from settings.config import settings
 import logging
@@ -28,7 +28,7 @@ async def check_code(request: Request, code: str):
 @router.get('/check-address/{address}', tags=['invite check address'])
 @limiter.limit('100/minute')
 async def check_address(request: Request, address: str):
-    if not Web3.is_address(address):
+    if not is_w3_address(address):
         return HTTPException(status_code=400, detail="address is not web3")
     w3_address = Web3.to_checksum_address(address)
     current_user = await InviteCodePool.filter(used_user__address=w3_address).first().values("is_used")
@@ -39,6 +39,8 @@ async def check_address(request: Request, address: str):
 @router.post('/activate', tags=['invite activate'])
 @limiter.limit('100/minute')
 async def activate(request: Request, active_in: ActivateCodeIn):
+    if not is_w3_address(active_in.address):
+        return HTTPException(status_code=400, detail="address is not web3")
     w3_address = Web3.to_checksum_address(active_in.address)
     pre_address_obj = await UserInfo.get_or_create(address=w3_address)
     pre_address_obj = pre_address_obj[0]
@@ -109,7 +111,7 @@ async def generate_code(request: Request, generate_in: GenerateCodeIn):
 @router.get('/get-address-code/{address}', tags=['invite get_address_code'])
 @limiter.limit('100/minute')
 async def get_address_code(request: Request, address: str):
-    if not Web3.is_address(address):
+    if not is_w3_address(address):
         return HTTPException(status_code=400, detail="address is not web3")
     web3_address = Web3.to_checksum_address(address)
     return await InviteCodePool.filter(creator_user__address=web3_address).all()
