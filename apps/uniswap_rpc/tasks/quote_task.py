@@ -68,5 +68,6 @@ async def update_swap(chain_id: ChainEnum):
             updated_timestamp=time.time(),
         ))
     await asyncio.gather(*update_db_tasks)
+    await Tortoise.close_connections()
     print(f"Write databse time sec {time.time() - rpc_end_time}")
     return {"result": "task Done"}
