@@ -21,7 +21,8 @@ CREATE TABLE "user_info" (
     "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
     "address" VARCHAR(50) NOT NULL UNIQUE,
     "account_info" VARCHAR(25),
-    "chain_type" VARCHAR(5) NOT NULL  DEFAULT 'eth'
+    "chain_type" VARCHAR(5) NOT NULL  DEFAULT 'eth',
+    "last_login" TIMESTAMPTZ
 );
 COMMENT ON COLUMN "user_info"."address" IS 'user''s evm address';
 COMMENT ON COLUMN "user_info"."chain_type" IS 'ETH: eth\nOTHER: other';

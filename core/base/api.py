@@ -3,8 +3,10 @@
 # @Email : rainman@ref.finance
 # @File : api.py
 import logging
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from starlette.requests import Request
+
+from core.auth.utils import get_current_user
 from core.utils.base_util import get_limiter
 from core.utils.redis_provider import list_base_token_price
 from core.utils.tool_util import success, error
@@ -46,3 +48,7 @@ def debank_api(request: Request, url: str, params: Json):
     if rep.status_code == 200:
         return success(result)
     return error(result)
+
+@router.get('/test_auth', dependencies=[Depends(get_current_user)])
+def test_auth():
+    return {"test": "ok"}

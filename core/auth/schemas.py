@@ -16,8 +16,8 @@ class JWTToken(BaseModel):
     token_type: str
 
 
-class JWTTokenData(BaseModel):
-    username: str = None
+# class JWTTokenData(BaseModel):
+#     username: str = None
 
 
 class JWTTokenPayload(BaseModel):

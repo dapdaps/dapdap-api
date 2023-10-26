@@ -12,8 +12,7 @@ from starlette.status import HTTP_403_FORBIDDEN
 from core.auth.schemas import CredentialsSchema, JWTTokenPayload
 from apps.user.models import UserInfo
 from apps.invite.models import InviteCodePool
-from fastapi.security import OAuth2PasswordBearer
-
+from fastapi.security import OAuth2PasswordBearer, OAuth2AuthorizationCodeBearer
 from settings.config import settings
 
 
@@ -39,7 +38,7 @@ async def update_last_login(user_id: int) -> None:
     user.last_login = datetime.now()
     await user.save()
 
-reusable_oauth2 = OAuth2PasswordBearer(tokenUrl="/api/auth/login/access-token")
+reusable_oauth2 = OAuth2AuthorizationCodeBearer(tokenUrl="/api/auth/login/access-token", authorizationUrl="/api/auth/access-token")
 async def get_current_user(token: str = Security(reusable_oauth2)) -> Optional[UserInfo]:
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM.ALGORITHM])
