@@ -213,6 +213,10 @@ async def polygon_token_data():
         "0xDC3326e71D45186F113a2F448984CA0e8D201995": {
             "name": "XSGD",
             "decimals": "6"
+        },
+        "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270": {
+            "name": "WMATIC",
+            "decimals": 18
         }
     }
 
@@ -303,6 +307,10 @@ async def bsc_token_data():
         },
         "0x12f31B73D812C6Bb0d735a218c086d44D5fe5f89": {
             "name": "agEUR",
+            "decimals": 18
+        },
+        "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c": {
+            "name": "WBNB",
             "decimals": 18
         }
     }
@@ -399,6 +407,10 @@ async def ava_token_data():
         "0xC891EB4cbdEFf6e073e859e987815Ed1505c2ACD": {
             "name": "EUROC",
             "decimals": 6
+        },
+        "0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7": {
+            "name": "WAVAX",
+            "decimals": 18
         }
     }
     for p in permutations(token_dict.keys(), 2):
@@ -428,20 +440,20 @@ async def init_all_data():
         db_url=db_url,
         modules={'models': app_list}
     )
-    print("Start ETH data")
-    await eth_token_data()
-    print("Start ARB data")
-    await arb_token_data()
-    print("Start OP data")
-    await op_token_data()
+    # print("Start ETH data")
+    # await eth_token_data()
+    # print("Start ARB data")
+    # await arb_token_data()
+    # print("Start OP data")
+    # await op_token_data()
     print("Start Polygon data")
     await polygon_token_data()
-    print("Start Base data")
-    await base_token_data()
+    # print("Start Base data")
+    # await base_token_data()
     print("Start BSC data")
     await bsc_token_data()
-    print("Start Celo data")
-    await celo_token_data()
+    # print("Start Celo data")
+    # await celo_token_data()
     print("Start Ava data")
     await ava_token_data()
 
