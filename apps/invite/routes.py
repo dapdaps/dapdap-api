@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 limiter = get_limiter()
 router = APIRouter(prefix="/api/invite")
 
-@router.get('/check-code/{code}', tags=['invite check code'])
+@router.get('/check-code/{code}', tags=['invite'])
 @limiter.limit('100/minute')
 async def check_code(request: Request, code: str):
     can_use = await InviteCodePool.filter(code=code, is_used=False).exists()
@@ -26,7 +26,7 @@ async def check_code(request: Request, code: str):
         "can_use": can_use
     })
 
-@router.get('/check-address/{address}', tags=['invite check address'])
+@router.get('/check-address/{address}', tags=['invite'])
 @limiter.limit('100/minute')
 async def check_address(request: Request, address: str):
     if not is_w3_address(address):
@@ -37,7 +37,7 @@ async def check_address(request: Request, address: str):
         "is_activated": current_user['is_used'] if current_user and current_user['is_used'] else False
     })
 
-@router.post('/activate', tags=['invite activate'])
+@router.post('/activate', tags=['invite'])
 @limiter.limit('100/minute')
 async def activate(request: Request, active_in: ActivateCodeIn):
     if not is_w3_address(active_in.address):
@@ -73,7 +73,7 @@ async def activate(request: Request, active_in: ActivateCodeIn):
     })
 
 
-@router.post('/generate', tags=['invite generate'], response_model=list[GenerateCodeOut])
+@router.post('/generate', tags=['invite'], response_model=list[GenerateCodeOut])
 @limiter.limit('100/minute')
 async def generate_code(request: Request, generate_in: GenerateCodeIn):
     create_address_obj = None
@@ -103,7 +103,7 @@ async def generate_code(request: Request, generate_in: GenerateCodeIn):
     ]
 
 
-@router.get('/get-address-code/{address}', tags=['invite get_address_code'])
+@router.get('/get-address-code/{address}', tags=['invite'])
 @limiter.limit('100/minute')
 async def get_address_code(request: Request, address: str):
     if not is_w3_address(address):
@@ -113,14 +113,14 @@ async def get_address_code(request: Request, address: str):
     return success(result)
 
 
-@router.get('/get-code-detail/{code}', tags=['invite code'], response_model=InviteCodePoolDetailOut)
+@router.get('/get-code-detail/{code}', tags=['invite'], response_model=InviteCodePoolDetailOut)
 @limiter.limit('100/minute')
 async def get_code_detail(request: Request, code: str):
-    result = await InviteCodePool.filter(code=code).first()
+    result = await InviteCodePool.get_or_none(code=code)
     return success(result)
 
 
-@router.get('/get-invited-info/{address}', tags=['get some user invited info'])
+@router.get('/get-invited-info/{address}', tags=['invite'])
 @limiter.limit('100/minute')
 async def get_invited_info(request: Request, address: str):
     if not Web3.is_address(address):

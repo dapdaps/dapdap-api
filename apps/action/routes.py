@@ -115,7 +115,7 @@ async def add_action(request: Request, action_in: ActionIn):
     return action_id
 
 
-@router.get('/get-action-by-account', tags=['get_action_by_account'])
+@router.get('/get-action-by-account', tags=['action'])
 async def get_action_by_account(account_id: str = "", account_info: str = "", action_network_id: str = ""):
     if account_id == "" and account_info == "":
         return success()
@@ -130,7 +130,7 @@ async def get_action_by_account(account_id: str = "", account_info: str = "", ac
     return success(result_data)
 
 
-@router.get('/get-hot-action', tags=['get_hot_action'])
+@router.get('/get-hot-action', tags=['action'])
 async def get_hot_action(action_title: str = "", hot_number: int = 4, action_network_id: str = ""):
     filters = {"action_title__contains": action_title}
     if action_network_id != "":
@@ -139,7 +139,7 @@ async def get_hot_action(action_title: str = "", hot_number: int = 4, action_net
     return success(result_data)
 
 
-@router.delete('/delete-action-by-id', tags=['delete_action_by_id'])
+@router.delete('/delete-action-by-id', tags=['action'])
 async def delete_action_by_id(delete_action: DeleteActionIn):
     action_data = await Action.filter(action_id=delete_action.action_id).first().values("action_title", "account_id", "action_network_id")
     update_data = {"action_title": action_data["action_title"], "account_id": action_data["account_id"], "action_network_id": action_data["action_network_id"]}
@@ -147,7 +147,7 @@ async def delete_action_by_id(delete_action: DeleteActionIn):
     return success(delete_action.action_id)
 
 
-@router.delete('/batch-delete-action', tags=['batch_delete_action'])
+@router.delete('/batch-delete-action', tags=['action'])
 async def batch_delete_action(delete_action: DeleteActionIn):
     for action_id in delete_action.action_id_list:
         action_data = await Action.filter(action_id=action_id).first().values("action_title", "account_id", "action_network_id")
@@ -156,14 +156,14 @@ async def batch_delete_action(delete_action: DeleteActionIn):
     return success(delete_action.action_id_list)
 
 
-@router.put('/update-action-by-id', tags=['update_action_by_id'])
+@router.put('/update-action-by-id', tags=['action'])
 async def update_action_by_id(update_action_record: UpdateActionRecordIn):
     update_data = {"id": update_action_record.action_record_id}
     await ActionRecord.filter(**update_data).update(action_status=update_action_record.action_status, tx_id=update_action_record.tx_id)
     return success(update_action_record.action_record_id)
 
 
-@router.get('/get-action-records-by-account', tags=['get_action_records_by_account'], response_model=Page[ActionRecordResultOut])
+@router.get('/get-action-records-by-account', tags=['action'], response_model=Page[ActionRecordResultOut])
 async def get_action_records_by_account(action_network_id: str = "", account_id: str = "", account_info: str = "", action_type: str = "", template: str = "", action_status: str = ""):
     filters = {"action_network_id": action_network_id}
     if account_id != "":
@@ -179,7 +179,7 @@ async def get_action_records_by_account(action_network_id: str = "", account_id:
     return await paginate(ActionRecord.filter(**filters).order_by("-id"))
 
 
-@router.get('/get-special-action', tags=['get_special_action'])
+@router.get('/get-special-action', tags=['action'])
 async def get_special_action():
     return success(query_special_action())
 

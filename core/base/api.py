@@ -23,19 +23,19 @@ router = APIRouter()
 #     return {"message": "welcome to dapdap"}
 
 
-@router.get('/health_check', tags=['base health_check'])
+@router.get('/health_check', tags=['base'])
 @limiter.limit('5/second')
 async def health_check(request: Request):
     logger.info(request)
     return {"message": "Running!"}
 
 
-@router.get('/get-token-price-by-dapdap', tags=['get_token_price_by_dapdap'])
+@router.get('/get-token-price-by-dapdap', tags=['other'])
 async def get_token_price_by_dapdap():
     result_data = list_base_token_price()
     return success(result_data)
 
-@router.get('/debank', tags=['debank'])
+@router.get('/debank', tags=['other'])
 @limiter.limit('10/second')
 def debank_api(request: Request, url: str, params: Json):
     prefix_url = "https://pro-openapi.debank.com/"
@@ -49,6 +49,6 @@ def debank_api(request: Request, url: str, params: Json):
         return success(result)
     return error(result)
 
-@router.get('/test_auth', dependencies=[Depends(get_current_user)])
+@router.get('/test_auth', dependencies=[Depends(get_current_user)], tags=['other'])
 def test_auth():
     return {"test": "ok"}
