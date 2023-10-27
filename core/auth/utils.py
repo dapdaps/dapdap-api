@@ -39,7 +39,7 @@ async def update_last_login(user_id: int) -> None:
 
 
 reusable_oauth2 = OAuth2AuthorizationCodeBearer(
-    tokenUrl="/api/auth/login/access-token",
+    tokenUrl="/api/auth/access-token",
     authorizationUrl="/api/auth/access-token",
     refreshUrl="/api/auth/refresh-access-token"
 )

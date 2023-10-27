@@ -30,7 +30,8 @@ async def health_check(request: Request):
     return {"message": "Running!"}
 
 
-@router.get('/get-token-price-by-dapdap', tags=['other'], dependencies=[Depends(get_current_user)])
+# @router.get('/get-token-price-by-dapdap', tags=['other'], dependencies=[Depends(get_current_user)])
+@router.get('/get-token-price-by-dapdap', tags=['other'])
 async def get_token_price_by_dapdap():
     result_data = list_base_token_price()
     return success(result_data)
