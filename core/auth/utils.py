@@ -16,16 +16,16 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2AuthorizationCodeBearer
 from settings.config import settings
 
 
-async def authenticate(credentials: CredentialsSchema) -> Optional[UserInfo]:
-    if credentials.address:
-        user = await UserInfo.get_or_none(address=credentials.address)
+async def authenticate(address) -> Optional[UserInfo]:
+    if address:
+        user = await UserInfo.get_or_none(address=address)
     else:
         return None
 
     if user is None:
         return None
 
-    code_obj = await InviteCodePool.get_or_none(used_user__address=credentials.address)
+    code_obj = await InviteCodePool.get_or_none(used_user__address=address)
     if not code_obj or not code_obj.is_used:
         return None
 

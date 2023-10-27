@@ -7,7 +7,8 @@ from fastapi import APIRouter, HTTPException
 from jose import jwt, JWTError
 from starlette.status import HTTP_403_FORBIDDEN
 from tortoise.exceptions import ValidationError
-
+from web3 import Web3
+from apps.invite.utils import is_w3_address
 from core.auth.jwt import create_access_token, create_refresh_access_token
 from core.auth.schemas import JWTToken, CredentialsSchema, JWTRefreshToken, CredentialsRefreshSchema, JWTTokenPayload
 from core.auth.utils import authenticate, update_last_login
@@ -24,8 +25,11 @@ router = APIRouter(prefix="/api/auth")
 
 @router.post("/access-token", response_model=JWTToken, tags=["auth"])
 async def login_access_token(credentials: CredentialsSchema):
+    if not is_w3_address(credentials.address):
+        raise HTTPException(status_code=400, detail="Incorrect address")
+    w3_address = Web3.to_checksum_address(credentials.address)
     try:
-        user = await authenticate(credentials)
+        user = await authenticate(w3_address)
     except ValidationError as e:
         raise HTTPException(status_code=400, detail=f"{e}")
     except Exception as e:
