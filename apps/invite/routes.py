@@ -12,6 +12,7 @@ from settings.config import settings
 import logging
 from apps.invite.models import InviteCodePool
 from apps.user.models import UserInfo
+from core.utils.tool_util import success,  error
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
@@ -40,22 +41,16 @@ async def check_address(request: Request, address: str):
 @limiter.limit('100/minute')
 async def activate(request: Request, active_in: ActivateCodeIn):
     if not is_w3_address(active_in.address):
-        return HTTPException(status_code=400, detail="address is not web3")
+        return error("address is not web3")
     w3_address = Web3.to_checksum_address(active_in.address)
     pre_address_obj = await UserInfo.get_or_create(address=w3_address)
     pre_address_obj = pre_address_obj[0]
     code_obj = await InviteCodePool.filter(code=active_in.code).select_related("creator_user").first()
     if not code_obj:
-        return {
-            "is_success": False,
-            "error": "The code not exist!"
-        }
+        return error("The code not exist!")
     creator_w3_address = Web3.to_checksum_address(code_obj.creator_user.address)
     if creator_w3_address == w3_address:
-        return {
-            "is_success": False,
-            "error": "creator user cannot invite self!"
-        }
+        return error("creator user cannot invite self!")
     code_obj.used_user = pre_address_obj
     code_obj.is_used = True
     await code_obj.save()
@@ -72,10 +67,9 @@ async def activate(request: Request, active_in: ActivateCodeIn):
 
     result = await InviteCodePool.bulk_create(create_list)
 
-    return {
-        "is_success": True,
+    return success({
         "invite_code_list": result
-    }
+    })
 
 
 @router.post('/generate', tags=['invite generate'], response_model=list[GenerateCodeOut])

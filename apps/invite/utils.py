@@ -9,7 +9,7 @@ def generate_invite_code(number: int):
 
 def is_w3_address(address):
     try:
-        Web3.is_checksum_address(address)
+        Web3.to_checksum_address(address)
     except:
         return False
     return True
