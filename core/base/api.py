@@ -30,12 +30,12 @@ async def health_check(request: Request):
     return {"message": "Running!"}
 
 
-@router.get('/get-token-price-by-dapdap', tags=['other'])
+@router.get('/get-token-price-by-dapdap', tags=['other'], dependencies=[Depends(get_current_user)])
 async def get_token_price_by_dapdap():
     result_data = list_base_token_price()
     return success(result_data)
 
-@router.get('/debank', tags=['other'])
+@router.get('/debank', tags=['other'], dependencies=[Depends(get_current_user)])
 @limiter.limit('10/second')
 def debank_api(request: Request, url: str, params: Json):
     prefix_url = "https://pro-openapi.debank.com/"
@@ -49,6 +49,7 @@ def debank_api(request: Request, url: str, params: Json):
         return success(result)
     return error(result)
 
-@router.get('/test_auth', dependencies=[Depends(get_current_user)], tags=['other'])
-def test_auth():
-    return {"test": "ok"}
+# TEST FOR AUTH
+# @router.get('/test_auth', dependencies=[Depends(get_current_user)], tags=['other'])
+# def test_auth():
+#     return {"test": "ok"}
