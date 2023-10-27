@@ -38,9 +38,9 @@ async def check_address(request: Request, address: str):
         "is_activated": current_user['is_used'] if current_user and current_user['is_used'] else False
     })
 
-@router.post('/activate', tags=['invite'], dependencies=[Depends(get_current_user)])
+@router.post('/activate', tags=['invite'])
 @limiter.limit('100/minute')
-async def activate(request: Request, active_in: ActivateCodeIn, ):
+async def activate(request: Request, active_in: ActivateCodeIn):
     if not is_w3_address(active_in.address):
         return error("address is not web3")
     w3_address = Web3.to_checksum_address(active_in.address)

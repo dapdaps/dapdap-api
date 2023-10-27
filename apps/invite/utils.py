@@ -5,7 +5,7 @@
 import secrets
 from web3 import Web3
 def generate_invite_code(number: int):
-    return [secrets.token_hex(4) for x in range(0, number)]
+    return [secrets.token_hex(4).lower() for x in range(0, number)]
 
 def is_w3_address(address):
     try:
