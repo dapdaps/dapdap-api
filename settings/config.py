@@ -50,8 +50,10 @@ class Settings:
     }
 
     SECRET_KEY = '665c3ffa948a78fbaccd71c44c7cca7b988013fe337e758c06b9faa5f2d6b71e'  # openssl rand -hex 32
+    REFRESH_SECRET_KEY = '5e89bdc45ab0c611ca52668717e23509bff38021ae731847e1e162f605ef2119'  # openssl rand -hex 32
     JWT_ALGORITHM = 'HS256'
     JWT_ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30  # 30 day
+    JWT_REFRESH_ACCESS_TOKEN_EXPIRE_MINUTES = 60 * 24 * 30  # 30 day
 
     EMAILS_FROM_NAME = ''
     EMAILS_FROM_EMAIL = ''
