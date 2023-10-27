@@ -4,11 +4,12 @@
 # @File : routes.py
 import json
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from starlette.requests import Request
 from apps.uniswap_rpc.constant import CHAIN_RPC, QUOTER_V2_CONTRACT_ADDRESS, USE_QUOTER_V2, QUOTER_CONTRACT_ADDRESS
 from apps.uniswap_rpc.models import ChainTokenSwap
 from apps.uniswap_rpc.utils import quoter_v2_check, quoter_check
+from core.auth.utils import get_current_user
 from core.utils.base_util import get_limiter
 import logging
 from web3 import Web3
@@ -17,7 +18,7 @@ from core.utils.tool_util import success
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
-router = APIRouter(prefix="/api/uniswap")
+router = APIRouter(prefix="/api/uniswap", dependencies=[Depends(get_current_user)])
 
 
 @router.get('/quote', tags=['uniswap'])

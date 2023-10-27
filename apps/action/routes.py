@@ -2,12 +2,13 @@
 # @Author : ZQ
 # @Email : zq@ref.finance
 # @File : routes.py
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
 from starlette.requests import Request
 
 from apps.action.models import Action, ActionRecord
 from fastapi_pagination import Page, add_pagination, paginate
 from apps.action.schemas import ActionIn, DeleteActionIn, UpdateActionRecordIn, ActionRecordResultOut
+from core.auth.utils import get_current_user
 from core.utils.base_util import get_limiter
 import logging
 import datetime
@@ -19,7 +20,7 @@ from core.base.db_provider import query_special_action
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
-router = APIRouter(prefix="/api/action")
+router = APIRouter(prefix="/api/action", dependencies=[Depends(get_current_user)],)
 
 
 @router.post('/add', tags=['action'])
