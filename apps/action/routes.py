@@ -33,8 +33,6 @@ async def add_action(request: Request, action_in: ActionIn):
 
         if action_record_obj:
             return action_record_obj.action_id
-        else:
-            raise HTTPException(400, f"this tx_id {action_in.tx_id} not exist")
 
     action_data_status = "1" if action_in.action_switch == 1 else "0"
 
