@@ -22,20 +22,20 @@ router = APIRouter(prefix="/api/invite")
 @limiter.limit('100/minute')
 async def check_code(request: Request, code: str):
     can_use = await InviteCodePool.filter(code=code, is_used=False).exists()
-    return {
+    return success({
         "can_use": can_use
-    }
+    })
 
 @router.get('/check-address/{address}', tags=['invite check address'])
 @limiter.limit('100/minute')
 async def check_address(request: Request, address: str):
     if not is_w3_address(address):
-        return HTTPException(status_code=400, detail="address is not web3")
+        return error("address is not web3")
     w3_address = Web3.to_checksum_address(address)
     current_user = await InviteCodePool.filter(used_user__address=w3_address).first().values("is_used")
-    return {
+    return success({
         "is_activated": current_user['is_used'] if current_user and current_user['is_used'] else False
-    }
+    })
 
 @router.post('/activate', tags=['invite activate'])
 @limiter.limit('100/minute')
@@ -68,6 +68,7 @@ async def activate(request: Request, active_in: ActivateCodeIn):
     result = await InviteCodePool.bulk_create(create_list)
 
     return success({
+        "is_success": True,
         "invite_code_list": result
     })
 
@@ -106,23 +107,26 @@ async def generate_code(request: Request, generate_in: GenerateCodeIn):
 @limiter.limit('100/minute')
 async def get_address_code(request: Request, address: str):
     if not is_w3_address(address):
-        return HTTPException(status_code=400, detail="address is not web3")
+        return error("address is not web3")
     web3_address = Web3.to_checksum_address(address)
-    return await InviteCodePool.filter(creator_user__address=web3_address).all()
+    result = await InviteCodePool.filter(creator_user__address=web3_address).all()
+    return success(result)
 
 
 @router.get('/get-code-detail/{code}', tags=['invite code'], response_model=InviteCodePoolDetailOut)
 @limiter.limit('100/minute')
 async def get_code_detail(request: Request, code: str):
-    return await InviteCodePool.filter(code=code).first()
+    result = await InviteCodePool.filter(code=code).first()
+    return success(result)
 
 
 @router.get('/get-invited-info/{address}', tags=['get some user invited info'])
 @limiter.limit('100/minute')
 async def get_invited_info(request: Request, address: str):
     if not Web3.is_address(address):
-        return HTTPException(status_code=400, detail="address is not web3")
+        return error("address is not web3")
     web3_address = Web3.to_checksum_address(address)
-    return await InviteCodePool.filter(creator_user__address=web3_address, is_used=True).values(
+    result = await InviteCodePool.filter(creator_user__address=web3_address, is_used=True).values(
         "code","created_at", "updated_at", used_user_address="used_user__address",
     )
+    return success(result)
