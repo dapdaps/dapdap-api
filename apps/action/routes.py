@@ -21,6 +21,7 @@ from core.base.db_provider import query_special_action
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
 router = APIRouter(prefix="/api/action", dependencies=[Depends(get_current_user)],)
+# router = APIRouter(prefix="/api/action")
 
 
 @router.post('/add', tags=['action'])
@@ -88,7 +89,7 @@ async def add_action(request: Request, action_in: ActionIn):
         action_obj.create_time = now_time
         await action_obj.save()        
         
-        action_obj = Action.all().order_by("-timestamp").first()
+        action_obj = await Action.all().order_by("-timestamp").first()
         action_id = action_obj.action_id
 
     action_record = ActionRecord()
