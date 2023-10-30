@@ -18,7 +18,8 @@ from core.utils.tool_util import success
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
-router = APIRouter(prefix="/api/uniswap", dependencies=[Depends(get_current_user)])
+# router = APIRouter(prefix="/api/uniswap", dependencies=[Depends(get_current_user)])
+router = APIRouter(prefix="/api/uniswap")
 
 
 @router.get('/quote', tags=['uniswap'])
