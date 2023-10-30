@@ -48,6 +48,11 @@ async def activate(request: Request, active_in: ActivateCodeIn):
     code_obj = await InviteCodePool.filter(code=active_in.code, is_used=False).select_related("creator_user").first()
     if not code_obj:
         return error("The code not exist or already used!")
+
+    already_invited = await InviteCodePool.filter(used_user__address=w3_address, is_used=True).exists()
+    if already_invited:
+        return error("This address already invited!")
+
     creator_w3_address = Web3.to_checksum_address(code_obj.creator_user.address)
     if creator_w3_address == w3_address:
         return error("creator user cannot invite self!")
