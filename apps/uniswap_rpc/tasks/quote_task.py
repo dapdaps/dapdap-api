@@ -10,7 +10,7 @@ from web3 import Web3
 from apps.uniswap_rpc.constant import ChainEnum, QUOTER_CONTRACT_ADDRESS, CHAIN_RPC, USE_QUOTER_V2, QUOTER_V2_CONTRACT_ADDRESS
 from apps.uniswap_rpc.models import ChainTokenSwap
 from apps.uniswap_rpc.utils import quoter_check, quoter_v2_check
-from tortoise import run_async, Tortoise
+from tortoise import Tortoise
 
 from core.init_app import TORTOISE_ORM
 

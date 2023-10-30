@@ -2,14 +2,13 @@
 # @Author : HanyuLiu/Rainman
 # @Email : rainman@ref.finance
 # @File : routes.py
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, Depends
 from starlette.requests import Request
 from web3 import Web3
 from apps.invite.schemas import ActivateCodeIn, GenerateCodeIn, GenerateCodeOut, InviteCodePoolDetailOut
 from apps.invite.utils import generate_invite_code, is_w3_address
 from core.auth.utils import get_current_user
 from core.utils.base_util import get_limiter
-from settings.config import settings
 import logging
 from apps.invite.models import InviteCodePool
 from apps.user.models import UserInfo

@@ -2,12 +2,10 @@
 # @Author : HanyuLiu/Rainman
 # @Email : rainman@ref.finance
 # @File : models.py
-from enum import Enum, IntEnum
+from enum import Enum
 
-from tortoise.models import Model
 from tortoise import fields
-from tortoise.contrib.postgres.fields import ArrayField
-from tortoise.fields.base import CASCADE, NO_ACTION
+from tortoise.fields.base import CASCADE
 
 from core.base.base_models import BaseDBModel, BaseCreatedUpdatedAtModel, BaseCreatedAtModel
 

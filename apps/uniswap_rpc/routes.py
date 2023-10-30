@@ -2,14 +2,12 @@
 # @Author : ZQ
 # @Email : zq@ref.finance
 # @File : routes.py
-import json
 
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter
 from starlette.requests import Request
 from apps.uniswap_rpc.constant import CHAIN_RPC, QUOTER_V2_CONTRACT_ADDRESS, USE_QUOTER_V2, QUOTER_CONTRACT_ADDRESS
 from apps.uniswap_rpc.models import ChainTokenSwap
 from apps.uniswap_rpc.utils import quoter_v2_check, quoter_check
-from core.auth.utils import get_current_user
 from core.utils.base_util import get_limiter
 import logging
 from web3 import Web3

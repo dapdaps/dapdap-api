@@ -5,7 +5,6 @@
 import asyncio
 from typing import Type, List, Optional
 from apps.integral.models import ActivityReport
-from settings.config import Settings
 from tortoise.signals import post_save
 from tortoise import BaseDBAsyncClient
 

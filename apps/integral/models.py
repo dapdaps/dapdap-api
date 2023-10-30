@@ -3,11 +3,9 @@
 # @Email : rainman@ref.finance
 # @File : models.py
 from enum import Enum, IntEnum
-from tortoise.models import Model
 from tortoise import fields
-from tortoise.contrib.postgres.fields import ArrayField
 from tortoise.fields.base import CASCADE
-from core.base.base_models import BaseDBModel, BaseCreatedUpdatedAtModel, BaseCreatedAtModel
+from core.base.base_models import BaseDBModel, BaseCreatedAtModel
 
 
 class ChainTypeEnum(str, Enum):

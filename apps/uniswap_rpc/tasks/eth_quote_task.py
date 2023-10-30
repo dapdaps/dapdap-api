@@ -12,7 +12,7 @@ from apps.uniswap_rpc.models import ChainTokenSwap
 from apps.uniswap_rpc.utils import quoter_check
 from tortoise import run_async, Tortoise
 
-from core.init_app import TORTOISE_ORM, get_app_list
+from core.init_app import TORTOISE_ORM
 
 
 async def get_all_token_quoter(provider, contract_address, token_in, token_out, amount):

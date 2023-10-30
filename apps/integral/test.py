@@ -6,7 +6,7 @@ import random
 from datetime import datetime
 from apps.integral.models import TaskConfig, ChainTypeEnum, ActionTypeEnum, ActivityConfig, ActivityReport, \
     UserTaskResult
-from tortoise import Tortoise, connections, run_async
+from tortoise import Tortoise, run_async
 
 from apps.user.models import UserInfo, GroupInfo
 from core.init_app import get_app_list

@@ -2,23 +2,16 @@
 # @Author : HanyuLiu/Rainman
 # @Email : rainman@ref.finance
 # @File : routes.py
-import datetime
-import json
-import time
-from typing import Type, List, Optional
-from fastapi import APIRouter, HTTPException
-from starlette.requests import Request
+from fastapi import APIRouter
 from starlette.websockets import WebSocket, WebSocketDisconnect
-from tortoise.functions import Count, Sum
+from tortoise.functions import Sum
 
 from apps.integral.models import ActivityReport, ActivityConfig, TaskConfig, UserTaskResult, ChainTypeEnum
 from apps.integral.schemas import UserTaskResultOut
-from apps.integral.utils import signal_post_save, ActivityReportFlag
+from apps.integral.utils import ActivityReportFlag
 from core.utils.base_util import get_limiter, ConnectionManager
-from settings.config import settings
-from tortoise.expressions import F
 import logging
-from fastapi_pagination import Page, add_pagination, paginate
+from fastapi_pagination import Page
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
@@ -86,7 +79,7 @@ async def leaderboard_user(activity_name: str, chain_id: str):
     return report_data
 
 @router.get("/user-rank/{activity_name}/{address}", tags=["user rank"])
-async def leaderboard_user(activity_name:str, address: str):
+async def user_rank(activity_name:str, address: str):
     # address
     filters = {"activity__name": activity_name}
     report_data = await ActivityReport.filter(**filters).annotate(

@@ -2,13 +2,11 @@
 # @Author : HanyuLiu/Rainman
 # @Email : rainman@ref.finance
 # @File : models.py
-from enum import Enum, IntEnum
+from enum import IntEnum
 
-from tortoise.models import Model
 from tortoise import fields
-from tortoise.contrib.postgres.fields import ArrayField
 from tortoise.fields.base import CASCADE
-from core.base.base_models import BaseDBModel, BaseCreatedUpdatedAtModel, BaseCreatedAtModel
+from core.base.base_models import BaseDBModel, BaseCreatedUpdatedAtModel
 
 # class UserAddress(BaseDBModel, BaseCreatedAtModel):
 #     class ChainTypeEnum(str, Enum):
@@ -40,7 +38,7 @@ class InviteCodePool(BaseDBModel, BaseCreatedUpdatedAtModel):
         related_name="relate_used_user",
         description="address used invite code"
     )
-    creator_type = fields.IntEnumField(CreatorTypeEnum,description="user type", default=CreatorTypeEnum.SYSTEM)
+    creator_type = fields.IntEnumField(CreatorTypeEnum, description="user type", default=CreatorTypeEnum.SYSTEM)
     is_used = fields.BooleanField(default=False, description="code is used")
 
     def __str__(self):

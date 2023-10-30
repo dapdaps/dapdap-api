@@ -2,10 +2,7 @@
 # @Author : HanyuLiu/Rainman
 # @Email : rainman@ref.finance
 # @File : tasks.py
-import asyncio
 import time
-from time import sleep
-from celery import current_task
 from celery.utils.log import get_logger
 from core.celery_app import celery_app
 from tortoise import run_async

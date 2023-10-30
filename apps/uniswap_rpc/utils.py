@@ -22,7 +22,7 @@ async def fetch_quote(contract, token_in, token_out, fee, amount, sqrtPriceLimit
         ).call()
     except TooManyRequests:
         print("Too many Requests Need change RPC!")
-    except Web3Exception as e:
+    except Web3Exception:
         pass
     except Exception as e:
         print(e)
@@ -69,7 +69,7 @@ async def fetch_quote_v2(contract_v2, token_in, token_out, fee, amount, sqrtPric
         price = price[0]
     except TooManyRequests:
         print("Too many Requests Need change RPC!")
-    except Web3Exception as e:
+    except Web3Exception:
         pass
     except Exception as e:
         print(e)

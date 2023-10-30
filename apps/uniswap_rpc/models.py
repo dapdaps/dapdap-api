@@ -2,11 +2,8 @@
 # @Author : ZQ
 # @Email : zq@ref.finance
 # @File : models.py
-from enum import Enum, IntEnum
-from tortoise.models import Model
 from tortoise import fields
-from core.base.base_models import BaseDBModel, BaseCreatedUpdatedAtModel, BaseCreatedAtModel
-from apps.uniswap_rpc.constant import ChainEnum
+from core.base.base_models import BaseDBModel, BaseCreatedUpdatedAtModel
 
 
 class ChainTokenSwap(BaseDBModel, BaseCreatedUpdatedAtModel):

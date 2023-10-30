@@ -4,7 +4,6 @@
 # @File : celery_app.py
 from celery import Celery
 from settings.config import settings
-from celery.schedules import crontab
 from apps.uniswap_rpc.constant import ChainEnum
 broker_url = f'{settings.REDIS_URL}/0'
 backend_url = f'{settings.REDIS_URL}/1'

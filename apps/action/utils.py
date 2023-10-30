@@ -2,14 +2,12 @@
 # @Author : ZQ
 # @Email : zq@ref.finance
 # @File : utils.py
-import secrets
 
 from typing import Type, List, Optional
 from apps.action.models import ActionRecord
 from apps.integral.models import ActivityConfig, ActivityReport
 from apps.user.models import UserInfo, GroupInfo
 
-from settings.config import  Settings
 from tortoise.signals import post_save
 from tortoise import BaseDBAsyncClient
 from tortoise.expressions import Q

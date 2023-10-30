@@ -3,12 +3,9 @@
 # @Email : rainman@ref.finance
 # @File : schemas.py
 import uuid
-from datetime import datetime
-from typing import Optional, TypeVar
+from typing import Optional
 
-from pydantic import BaseModel, EmailStr, UUID4, field_validator, validator
-from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator
-from apps.invite.models import InviteCodePool
+from pydantic import BaseModel, validator
 
 class BaseProperties(BaseModel):
     @validator("hashed_id", pre=True, always=True, check_fields=False)

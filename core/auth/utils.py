@@ -9,10 +9,10 @@ from jose import jwt
 from jose.exceptions import JWTError
 from starlette.status import HTTP_403_FORBIDDEN
 
-from core.auth.schemas import CredentialsSchema, JWTTokenPayload
+from core.auth.schemas import JWTTokenPayload
 from apps.user.models import UserInfo
 from apps.invite.models import InviteCodePool
-from fastapi.security import OAuth2PasswordBearer, OAuth2AuthorizationCodeBearer, HTTPAuthorizationCredentials
+from fastapi.security import OAuth2AuthorizationCodeBearer
 from settings.config import settings
 
 

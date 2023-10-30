@@ -3,7 +3,6 @@
 # @Email : rainman@ref.finance
 # @File : constant.py
 from enum import IntEnum
-from web3 import Web3
 
 
 class ChainEnum(IntEnum):

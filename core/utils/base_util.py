@@ -2,9 +2,8 @@
 # @Author : HanyuLiu/Rainman
 # @Email : rainman@ref.finance
 # @File : base_util.py
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import Limiter
 from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
 from starlette.websockets import WebSocket
 
 

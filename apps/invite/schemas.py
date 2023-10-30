@@ -3,11 +3,9 @@
 # @Email : rainman@ref.finance
 # @File : schemas.py
 import uuid
-from datetime import datetime
-from typing import Optional, TypeVar
-from web3 import Web3
-from pydantic import BaseModel, EmailStr, UUID4, field_validator, validator
-from tortoise.contrib.pydantic import pydantic_model_creator, pydantic_queryset_creator
+from typing import Optional
+from pydantic import BaseModel, validator
+from tortoise.contrib.pydantic import pydantic_model_creator
 from apps.invite.models import InviteCodePool
 
 class BaseProperties(BaseModel):

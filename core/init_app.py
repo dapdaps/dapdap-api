@@ -3,7 +3,6 @@
 # @Email : rainman@ref.finance
 # @File : init_app.py
 import logging
-import random
 import secrets
 import time
 
@@ -13,17 +12,15 @@ from fastapi_pagination import add_pagination
 from starlette.requests import Request
 from tortoise.contrib.fastapi import register_tortoise
 
-from apps.integral.utils import init_integral_signal
 from core.exceptions import APIException, on_api_exception
 from core.utils.base_util import get_limiter
 from settings.config import settings
 from settings.log import DEFAULT_LOGGING
-from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi import _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from apps.invite.routes import router as invite_router
 from apps.action.routes import router as action_router
 from core.base.api import router as base_router
-from apps.integral.routes import router as integral_router
 from apps.uniswap_rpc.routes import router as uniswap_router
 from core.auth.routes import router as auth_router
 
