@@ -25,7 +25,7 @@ async def authenticate(address) -> Optional[UserInfo]:
     if user is None:
         return None
 
-    code_obj = await InviteCodePool.get_or_none(used_user__address=address)
+    code_obj = await InviteCodePool.filter(used_user__address=address).first()
     if not code_obj or not code_obj.is_used:
         return None
 
