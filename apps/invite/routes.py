@@ -2,17 +2,21 @@
 # @Author : HanyuLiu/Rainman
 # @Email : rainman@ref.finance
 # @File : routes.py
+from datetime import timedelta
+
 from fastapi import APIRouter, Depends
 from starlette.requests import Request
 from web3 import Web3
 from apps.invite.schemas import ActivateCodeIn, GenerateCodeIn, GenerateCodeOut, InviteCodePoolDetailOut
 from apps.invite.utils import generate_invite_code, is_w3_address
+from core.auth.jwt import create_access_token, create_refresh_access_token
 from core.auth.utils import get_current_user
 from core.utils.base_util import get_limiter
 import logging
 from apps.invite.models import InviteCodePool
 from apps.user.models import UserInfo
 from core.utils.tool_util import success,  error
+from settings.config import settings
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
@@ -72,9 +76,18 @@ async def activate(request: Request, active_in: ActivateCodeIn):
 
     result = await InviteCodePool.bulk_create(create_list)
 
+    access_token_expires = timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
+    refresh_access_token_expires = timedelta(minutes=settings.JWT_REFRESH_ACCESS_TOKEN_EXPIRE_MINUTES)
+
     return success({
         "is_success": True,
-        "invite_code_list": result
+        "invite_code_list": result,
+        "access_token": create_access_token(
+            data={"user_id": pre_address_obj.id}, expires_delta=access_token_expires
+        ),
+        "refresh_access_token": create_refresh_access_token(
+            data={"user_id": pre_address_obj.id}, expires_delta=refresh_access_token_expires
+        ),
     })
 
 
