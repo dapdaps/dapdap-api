@@ -13,15 +13,15 @@ async def init_integral_signal():
     pass
 
 
-ActivityReportFlag = asyncio.Event()
-@post_save(ActivityReport)
-async def signal_post_save(
-        sender: "Type[ActivityReport]",
-        instance: ActivityReport,
-        created: bool,
-        using_db: "Optional[BaseDBAsyncClient]",
-        update_fields: List[str],
-):
-    ActivityReportFlag.set()
-    return (sender, instance, created, using_db, update_fields)
+# ActivityReportFlag = asyncio.Event()
+# @post_save(ActivityReport)
+# async def signal_post_save(
+#         sender: "Type[ActivityReport]",
+#         instance: ActivityReport,
+#         created: bool,
+#         using_db: "Optional[BaseDBAsyncClient]",
+#         update_fields: List[str],
+# ):
+#     ActivityReportFlag.set()
+#     return (sender, instance, created, using_db, update_fields)
     # Settings.ACTIVITY_REPORT_CHANGE += 1

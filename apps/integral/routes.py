@@ -8,7 +8,7 @@ from tortoise.functions import Sum
 
 from apps.integral.models import ActivityReport, ActivityConfig, TaskConfig, UserTaskResult, ChainTypeEnum
 from apps.integral.schemas import UserTaskResultOut
-from apps.integral.utils import ActivityReportFlag
+# from apps.integral.utils import ActivityReportFlag
 from core.utils.base_util import get_limiter, ConnectionManager
 import logging
 from fastapi_pagination import Page
@@ -20,23 +20,23 @@ router = APIRouter(prefix="/api/integral")
 manager = ConnectionManager()
 
 
-@router.websocket("/leaderboard/{activity_name}/ws", name="leaderboard_top")
-async def leaderboard_top(websocket: WebSocket, activity_name: str):
-    await manager.connect(websocket)
-    report_data = await ActivityReport.filter(activity__name=activity_name).order_by('-tx_count').limit(10).values(
-        "tx_count", address="user__address"
-    )
-    await manager.broadcast_json(report_data)
-    try:
-        while True:
-            await ActivityReportFlag.wait()
-            report_data = await ActivityReport.all().order_by('-tx_count').limit(10).values(
-                "tx_count", address="user__address"
-            )
-            await manager.broadcast_json(report_data)
-            ActivityReportFlag.clear()
-    except WebSocketDisconnect:
-        manager.disconnect(websocket)
+# @router.websocket("/leaderboard/{activity_name}/ws", name="leaderboard_top")
+# async def leaderboard_top(websocket: WebSocket, activity_name: str):
+#     await manager.connect(websocket)
+#     report_data = await ActivityReport.filter(activity__name=activity_name).order_by('-tx_count').limit(10).values(
+#         "tx_count", address="user__address"
+#     )
+#     await manager.broadcast_json(report_data)
+#     try:
+#         while True:
+#             await ActivityReportFlag.wait()
+#             report_data = await ActivityReport.all().order_by('-tx_count').limit(10).values(
+#                 "tx_count", address="user__address"
+#             )
+#             await manager.broadcast_json(report_data)
+#             ActivityReportFlag.clear()
+#     except WebSocketDisconnect:
+#         manager.disconnect(websocket)
 
 
 @router.get("/leaderboard/test", tags=["leaderboard test"])
