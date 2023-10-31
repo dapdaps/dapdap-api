@@ -166,18 +166,15 @@ async def update_action_by_id(update_action_record: UpdateActionRecordIn):
 
 @router.get('/get-action-records-by-account', tags=['action'], response_model=Page[ActionRecordResultOut])
 async def get_action_records_by_account(action_network_id: str = "", account_id: str = "", account_info: str = "", action_type: str = "", template: str = "", action_status: str = ""):
-    filters = {"action_network_id": action_network_id}
-    if account_id != "":
-        filters.update({"account_id": account_id})
-    if account_info != "":
-        filters.update({"account_info": account_info})
+    filter_q = Q(account_id=account_id) | Q(account_info=account_info)
+    filter_q_next = Q(action_network_id=action_network_id)
     if action_type != "":
-        filters.update({"action_type": action_type})
+        filter_q_next = Q(action_network_id=action_network_id, action_type=action_type)
     if template != "":
-        filters.update({"template": template})
+        filter_q_next = Q(action_network_id=action_network_id, action_type=action_type, template=template)
     if action_status != "":
-        filters.update({"action_status": action_status})
-    return await paginate(ActionRecord.filter(**filters).order_by("-id"))
+        filter_q_next = Q(action_network_id=action_network_id, action_type=action_type, template=template, action_status=action_status)
+    return await paginate(ActionRecord.filter(filter_q & filter_q_next).order_by("-id"))
 
 
 @router.get('/get-special-action', tags=['action'])
