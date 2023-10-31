@@ -119,23 +119,24 @@ async def add_action(request: Request, action_in: ActionIn):
 async def get_action_by_account(account_id: str = "", account_info: str = "", action_network_id: str = ""):
     if account_id == "" and account_info == "":
         return success()
-    filter_q = Q(account_id=account_id) | Q(account_info=account_info)
-    filter_q_next = Q(action_network_id=action_network_id)
-    result_data = await Action.filter(filter_q & filter_q_next).group_by("action_id", "account_id", "action_title", "timestamp", "template", "account_info", "count_number").annotate(count_number=Sum("count_number")).order_by("-count_number").values("action_id", "account_id", "action_title", "timestamp", "template", "account_info", "count_number")
-    # result_data = await Action.filter(filter_q & filter_q_next).group_by("action_title").annotate(
-    #     count_number=Sum("count_number")).annotate(action_id=Max("action_id"), account_id=Max("account_id"),
-    #                                                timestamp=Max("timestamp"), template=Max("action_type"),
-    #                                                account_info=Max("account_info")).order_by("-count_number").values(
-    #     "action_id", "account_id", "action_title", "timestamp", "template", "account_info", "count_number")
+    sql = "select (ARRAY_AGG(action_id))[1] as action_id, (ARRAY_AGG(account_id))[1] as account_id,action_title," \
+          "(ARRAY_AGG(timestamp))[1] as timestamp,(ARRAY_AGG(template))[1] as template, " \
+          "(ARRAY_AGG(account_info))[1] as account_info, sum(count_number) as count_number from t_action " \
+          "where status = '1' and action_network_id = '%s' and (account_id = '%s' or account_info = '%s') " \
+          "group by action_title order by count_number desc" % (action_network_id, account_id, account_info)
+    result_data = await Action.raw(sql)
     return success(result_data)
 
 
 @router.get('/get-hot-action', tags=['action'])
 async def get_hot_action(action_title: str = "", hot_number: int = 4, action_network_id: str = ""):
-    filters = {"action_title__contains": action_title}
-    if action_network_id != "":
-        filters.update({"action_network_id": action_network_id})
-    result_data = await Action.filter(**filters).annotate(count_number=Sum("count_number")).group_by("action_id", "account_id", "action_title", "action_type", "action_tokens", "action_amount", "timestamp", "template", "account_info", "count_number").order_by("-count_number").limit(hot_number).values("action_id", "account_id", "action_title", "action_type", "action_tokens", "action_amount", "timestamp", "template", "account_info", "count_number")
+    sql = "select (ARRAY_AGG(account_id))[1] as account_id,action_title, (ARRAY_AGG(action_type))[1] as action_type," \
+          "(ARRAY_AGG(action_tokens))[1] as action_tokens,(ARRAY_AGG(action_amount))[1] as action_amount," \
+          "(ARRAY_AGG(account_info))[1] as account_info,(ARRAY_AGG(timestamp))[1] as timestamp," \
+          "(ARRAY_AGG(template))[1] as template,sum(count_number) as count_number from t_action " \
+          "where action_title like '%%%s%%' and action_network_id = '%s' group by action_title " \
+          "order by count_number desc limit %s" % (action_title, action_network_id, hot_number)
+    result_data = await Action.raw(sql)
     return success(result_data)
 
 
