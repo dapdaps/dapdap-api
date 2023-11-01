@@ -5,16 +5,10 @@
 import os
 
 
-# DATABASE_HOST = os.getenv('DATABASE_HOST') or "127.0.0.1"
-# DATABASE_NAME = os.getenv('DATABASE_NAME') or "dapdap"
-# DATABASE_USERNAME = os.getenv('DATABASE_USERNAME') or "postgres"
-# DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD') or "root"
-# REDIS_URL = os.getenv('REDIS_URL') or "redis://localhost:6379"
-
-DATABASE_HOST = os.getenv('DATABASE_HOST') or "173.255.250.105"
+DATABASE_HOST = os.getenv('DATABASE_HOST') or "127.0.0.1"
 DATABASE_NAME = os.getenv('DATABASE_NAME') or "dapdap"
 DATABASE_USERNAME = os.getenv('DATABASE_USERNAME') or "postgres"
-DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD') or "PetIZKT3ykL8O"
+DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD') or "postgres"
 REDIS_URL = os.getenv('REDIS_URL') or "redis://localhost:6379"
 
 class Settings:
