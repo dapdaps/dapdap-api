@@ -173,9 +173,9 @@ async def get_action_records_by_account(action_network_id: str = "", account_id:
         if action_type == "Lending":
             action_type_q_1 = Q(action_type="Supply") | Q(action_type="Repay")
             action_type_q_2 = action_type_q_1 | Q(action_type="Borrow")
-            action_type_q = action_type_q_2 | Q(action_type="lending withdraw")
-        elif action_type == "liquidity":
-            action_type_q = Q(action_type="deposit") | Q(action_type="liquidity withdraw")
+            action_type_q = action_type_q_2 | Q(action_type="Lending withdraw")
+        elif action_type == "Liquidity":
+            action_type_q = Q(action_type="Deposit") | Q(action_type="Liquidity Withdraw")
         else:
             action_type_q = Q(action_type=action_type)
     template_q = Q()
