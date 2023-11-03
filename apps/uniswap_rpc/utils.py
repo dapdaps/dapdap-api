@@ -67,8 +67,8 @@ async def fetch_quote_v2(contract_v2, token_in, token_out, fee, amount, sqrtPric
                 "sqrtPriceLimitX96": sqrtPriceLimitX96
             }
         ).call()
-        price = price[0]
         gas_estimate = price[3]
+        price = price[0]
     except TooManyRequests:
         print("Too many Requests Need change RPC!")
     except Web3Exception:
@@ -76,7 +76,7 @@ async def fetch_quote_v2(contract_v2, token_in, token_out, fee, amount, sqrtPric
     except Exception as e:
         print(e)
 
-    return {"price": price,"gasEstimate": gas_estimate, "fee": fee}
+    return {"price": price, "gasEstimate": gas_estimate, "fee": fee}
 
 async def quoter_v2_check(provider, quoter_v2_contract_address, token_in, token_out, amount):
     w3 = AsyncWeb3(Web3.AsyncHTTPProvider(provider))
