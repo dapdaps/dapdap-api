@@ -14,6 +14,7 @@ class ChainEnum(IntEnum):
     BSC = 56
     Celo = 42220
     Avalanche = 43114
+    LineaTestnet = 59140
 
 
 CHAIN_RPC = {
@@ -28,6 +29,7 @@ CHAIN_RPC = {
 
     # celo free RPC
     ChainEnum.Celo: "https://rpc.ankr.com/celo/fa8cecf2398fe6a2d19fea8b78b641c35edb7bdf60e5bf7a3883565532ba07ef",
+    ChainEnum.LineaTestnet: "https://rpc.goerli.linea.build",
 }
 
 
@@ -40,6 +42,7 @@ QUOTER_V2_CONTRACT_ADDRESS = {
     ChainEnum.BSC: "0x78D78E420Da98ad378D7799bE8f4AF69033EB077",
     ChainEnum.Celo: "0x82825d0554fA07f7FC52Ab63c961F330fdEFa8E8",
     ChainEnum.Avalanche: "0xbe0F5544EC67e9B3b2D979aaA43f18Fd87E6257F",
+    ChainEnum.LineaTestnet: "0x2Dd5C9E53d6467E13d77037d4a9E9b84571eAE2e",
 }
 
 QUOTER_CONTRACT_ADDRESS = {
@@ -55,4 +58,5 @@ USE_QUOTER_V2 = [
     ChainEnum.BSC,
     ChainEnum.Celo,
     ChainEnum.Avalanche,
+    ChainEnum.LineaTestnet
 ]
