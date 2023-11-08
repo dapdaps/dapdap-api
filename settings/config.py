@@ -26,7 +26,8 @@ class Settings:
         'invite',
         # 'integral',
         'action',
-        'uniswap_rpc'
+        'uniswap_rpc',
+        'token'
     ]
 
     PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
@@ -87,6 +88,11 @@ class Settings:
     CORS_ALLOW_HEADERS = ["*"]
 
     ACTIVITY_REPORT_CHANGE = 0
+
+    AWS_REGION_NAME = os.getenv('AWS_REGION_NAME')
+    AWS_BUCKET_NAME = os.getenv('AWS_BUCKET_NAME')
+    AWS_S3_AKI = os.getenv('AWS_S3_AKI')
+    AWS_S3_SAK = os.getenv('AWS_S3_SAK')
 
 
 settings = Settings()

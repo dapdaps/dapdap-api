@@ -1,0 +1,11 @@
+CREATE TABLE "token" (
+    "id" BIGSERIAL NOT NULL PRIMARY KEY,
+    "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+    "address" VARCHAR(50) NOT NULL UNIQUE,
+    "name" VARCHAR(50) NULL,
+    "symbol" VARCHAR(50) NULL,
+    "decimal" INT Not NULL DEFAULT 0,
+    "chain_id" INT Not NULL DEFAULT 0,
+    "icon" VARCHAR(100) NULL
+);
