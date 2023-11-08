@@ -12,7 +12,8 @@ from core.utils.base_util import get_limiter
 import logging
 from web3 import Web3
 
-from core.utils.tool_util import success
+from core.utils.tool_util import success,error
+import requests
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
@@ -41,3 +42,13 @@ async def quote_local(token_in: str, token_out:str, chain_id: int):
         "quote_price", "quote_fee", "updated_timestamp",
     )
     return success(result)
+
+@router.get('/v2/quote', tags=['uniswap'])
+@limiter.limit('100/minute')
+async def quote_check(request: Request, token_in: str, token_out:str, chain_id: int, amount: int):
+    full_url = "http://127.0.0.1:9101/router?chainId="+str(chain_id)+"&tokenIn="+token_in+"&tokenOut="+token_out+"&amount="+str(amount)
+    rep = requests.get(full_url)
+    result = rep.json()
+    if rep.status_code == 200:
+        return success(result)
+    return error(result)
