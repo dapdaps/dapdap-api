@@ -58,7 +58,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY_PROD_01 }}
           port: 60022
           script: |
-            # sh /data/web/dapdap-api/boot.sh restart
+            sh /data/web/dapdap-api/boot.sh start
+            sh /data/web/dapdap-api/run_celery.sh worker start
+            sh /data/web/dapdap-api/run_celery.sh beat start
+            sh /data/web/dapdap-api/run_celery.sh flower start
             
       - name: deploy to remote server [3.228.195.200]
         uses: easingthemes/ssh-deploy@v2.2.11
@@ -89,4 +92,7 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY_PROD_02 }}
           port: 60022
           script: |
-            # sh /data/web/dapdap-api/boot.sh restart
+            sh /data/web/dapdap-api/boot.sh start
+            sh /data/web/dapdap-api/run_celery.sh worker start
+            sh /data/web/dapdap-api/run_celery.sh beat start
+            sh /data/web/dapdap-api/run_celery.sh flower start
