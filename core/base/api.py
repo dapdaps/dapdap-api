@@ -27,7 +27,7 @@ router = APIRouter()
 @limiter.limit('5/second')
 async def health_check(request: Request):
     logger.info(request)
-    return {"message": "Running!"}
+    return {"message": "Running!!"}
 
 
 # @router.get('/get-token-price-by-dapdap', tags=['other'], dependencies=[Depends(get_current_user)])
