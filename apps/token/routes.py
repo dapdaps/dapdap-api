@@ -22,23 +22,22 @@ router = APIRouter(prefix="/api/token")
 
 @router.post('/upload', tags=['token'], dependencies=[Depends(get_current_user)])
 @limiter.limit('100/minute')
-async def upload_icon(request: Request, file: Annotated[UploadFile, File()], code: Annotated[str, Form()]):
+async def upload_icon(request: Request, file: Annotated[UploadFile, File()], address: Annotated[str, Form()]):
     contentType = file.content_type.lower()
-    print(contentType)
     if contentType != 'image/png' and contentType != 'image/jpg' and contentType != 'image/jpeg':
         return error("image type only support png|jpg|jpeg")
-    if not code:
-        return error("code is empty")
-    filename = code.lower()+"."+contentType[contentType.index("/")+1:]
-    path = "token/"+filename
+    if not is_w3_address(address):
+        return error("address is not web3")
+    web3_address = Web3.to_checksum_address(address)
+    filename = web3_address.lower()+".png"
     try:
-        s3 = boto3.client('s3', region_name=settings.AWS_REGION_NAME, aws_access_key_id=settings.DEV_AWS_S3_AKI,aws_secret_access_key=settings.DEV_AWS_S3_SAK)
-        s3.upload_fileobj(file, settings.PROD_BUCKET_NAME, path)
-    except ClientError as e:
+        s3 = boto3.client('s3', region_name=settings.AWS_REGION_NAME, aws_access_key_id=settings.AWS_S3_AKI, aws_secret_access_key=settings.AWS_S3_SAK)
+        s3.upload_fileobj(file.file, settings.AWS_BUCKET_NAME, "images/"+filename)
+    except Exception as e:
         logger.error(f'upload token icon error: {e}')
-        return error("code is empty")
+        return error("error upload")
     return success({
-        "path": path
+        "url": settings.AWS_PATH+filename
     })
 
 @router.post('/', tags=['token'], dependencies=[Depends(get_current_user)])

@@ -93,6 +93,10 @@ class Settings:
     AWS_BUCKET_NAME = os.getenv('AWS_BUCKET_NAME')
     AWS_S3_AKI = os.getenv('AWS_S3_AKI')
     AWS_S3_SAK = os.getenv('AWS_S3_SAK')
+    AWS_PATH = os.getenv('AWS_PATH')
 
 
 settings = Settings()
+
+if len(settings.AWS_PATH) > 0 and not settings.AWS_PATH.endswith("/"):
+    settings.AWS_PATH = settings.AWS_PATH + "/"
