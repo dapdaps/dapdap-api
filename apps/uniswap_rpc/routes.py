@@ -45,10 +45,11 @@ async def quote_local(token_in: str, token_out:str, chain_id: int):
 
 @router.get('/v2/quote', tags=['uniswap'])
 @limiter.limit('100/minute')
-async def quote_check(request: Request, token_in: str, token_out:str, chain_id: int, amount: int):
+async def quote_router(request: Request, token_in: str, token_out:str, chain_id: int, amount: int):
     full_url = "http://127.0.0.1:9101/router?chainId="+str(chain_id)+"&tokenIn="+token_in+"&tokenOut="+token_out+"&amount="+str(amount)
     rep = requests.get(full_url)
     result = rep.json()
-    if rep.status_code == 200:
-        return success(result)
-    return error(result)
+    if result['code'] == 0:
+        return error(result['message'])
+    else:
+        return success(result['data'])
