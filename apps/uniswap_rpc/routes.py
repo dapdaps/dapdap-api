@@ -13,6 +13,7 @@ import logging
 from web3 import Web3
 
 from core.utils.tool_util import success,error
+from tasks.smart_route_task import getGasPrice
 import requests
 
 logger = logging.getLogger(__name__)
@@ -46,7 +47,7 @@ async def quote_local(token_in: str, token_out:str, chain_id: int):
 @router.get('/v2/quote', tags=['uniswap'])
 @limiter.limit('100/minute')
 async def quote_check(request: Request, token_in: str, token_out:str, chain_id: int, amount: int):
-    full_url = "http://127.0.0.1:9101/router?chainId="+str(chain_id)+"&tokenIn="+token_in+"&tokenOut="+token_out+"&amount="+str(amount)
+    full_url = "http://127.0.0.1:9101/router?chainId="+str(chain_id)+"&tokenIn="+token_in+"&tokenOut="+token_out+"&amount="+str(amount)+"gasPrice="+str(getGasPrice())
     rep = requests.get(full_url)
     result = rep.json()
     if rep.status_code == 200:

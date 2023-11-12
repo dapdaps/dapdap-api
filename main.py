@@ -6,6 +6,7 @@ from fastapi import FastAPI
 from core.exceptions import SettingNotFound
 from core.init_app import configure_logging, init_middlewares, register_db, register_exceptions, register_routers, \
     register_slowapi, init_http_middleware
+from apps.uniswap_rpc.tasks.smart_route_task import startSmartRouterTask
 import uvicorn
 
 try:
@@ -27,6 +28,8 @@ register_exceptions(app)
 register_slowapi(app)
 init_http_middleware(app)
 register_routers(app)
+startSmartRouterTask()
+
 
 if __name__ == '__main__':
     uvicorn.run('main:app', host="0.0.0.0", port=8101, reload=True, workers=5)

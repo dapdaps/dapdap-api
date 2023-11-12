@@ -101,7 +101,6 @@ def register_slowapi(app: FastAPI):
     app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 
-
 def register_routers(app: FastAPI):
     app.include_router(auth_router)
     app.include_router(base_router)
