@@ -60,3 +60,8 @@ USE_QUOTER_V2 = [
     ChainEnum.Avalanche,
     ChainEnum.LineaTestnet
 ]
+
+GraphApi = {
+    "testnet": "https://graph-query.goerli.linea.build/subgraphs/name/dapdap/uniswap-v3-test",
+    "prd": "https://graph-query.linea.build/subgraphs/name/dapdap/uniswap-v3-prd",
+}

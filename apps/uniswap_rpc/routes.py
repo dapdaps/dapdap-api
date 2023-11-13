@@ -6,7 +6,7 @@
 from fastapi import APIRouter
 from starlette.requests import Request
 from apps.uniswap_rpc.constant import CHAIN_RPC, QUOTER_V2_CONTRACT_ADDRESS, USE_QUOTER_V2, QUOTER_CONTRACT_ADDRESS
-from apps.uniswap_rpc.models import ChainTokenSwap
+from apps.uniswap_rpc.models import ChainTokenSwap,Mint
 from apps.uniswap_rpc.utils import quoter_v2_check, quoter_check
 from core.utils.base_util import get_limiter
 import logging
@@ -53,3 +53,29 @@ async def quote_router(request: Request, token_in: str, token_out:str, chain_id:
         return error(result['message'])
     else:
         return success(result['data'])
+
+@router.get('/mint', tags=['uniswap'])
+async def mint_info(token0: str, token1: str):
+    mints = await Mint.filter(token0=token0, token1=token1).values("pool_fee")
+    if not mints or len(mints) == 0:
+        return success({"100": "0", "500": "0", "3000": "0", "10000": "0"})
+    print(f"total: {len(mints)} {mints}")
+    fee100: int = 0
+    fee500: int = 0
+    fee3000: int = 0
+    fee10000: int = 0
+    for mint in mints:
+        if mint['pool_fee'] == 100:
+            fee100 += 1
+        elif mint['pool_fee'] == 500:
+            fee500 += 1
+        elif mint['pool_fee'] == 3000:
+            fee3000 += 1
+        elif mint['pool_fee'] == 10000:
+            fee10000 += 1
+    print(f"{fee100} {fee500} {fee3000} {fee10000}")
+    data = {"100": str(round(fee100 * 100 / len(mints))), "500": str(round(fee500 * 100 / len(mints))),
+            "3000": str(round(fee3000 * 100 / len(mints))), "10000": str(round(fee10000 * 100 / len(mints)))}
+    return data
+
+

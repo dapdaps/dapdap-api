@@ -53,5 +53,10 @@ celery_app.conf.beat_schedule = {
         'task': 'uniswap_quote_task',
         'schedule': 20,
         'args': (ChainEnum.Celo, )
+    },
+    'uniswap_beat_mint': {
+        'task': 'uniswap_mint_task',
+        'schedule': 20,
+        'args': (settings.ENV, )
     }
 }

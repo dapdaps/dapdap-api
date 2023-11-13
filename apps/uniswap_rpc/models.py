@@ -1,9 +1,5 @@
-# @Time : 10/7/23 1:56 PM
-# @Author : ZQ
-# @Email : zq@ref.finance
-# @File : models.py
 from tortoise import fields
-from core.base.base_models import BaseDBModel, BaseCreatedUpdatedAtModel
+from core.base.base_models import BaseDBModel, BaseCreatedUpdatedAtModel, BaseCreatedAtModel
 
 
 class ChainTokenSwap(BaseDBModel, BaseCreatedUpdatedAtModel):
@@ -23,3 +19,18 @@ class ChainTokenSwap(BaseDBModel, BaseCreatedUpdatedAtModel):
 
     class Meta:
         table = 'chain_token_swap'
+
+class Mint(BaseDBModel, BaseCreatedAtModel):
+    tx_hash = fields.CharField(max_length=66)
+    token0 = fields.CharField(max_length=66)
+    token1 = fields.CharField(max_length=66)
+    pool_address = fields.CharField(max_length=66, index=True)
+    pool_fee = fields.IntField()
+    timestamp = fields.BigIntField(index=True)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'mint'
+        indexes = ("token0", "token1")
