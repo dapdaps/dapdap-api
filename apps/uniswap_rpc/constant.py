@@ -60,3 +60,5 @@ USE_QUOTER_V2 = [
     ChainEnum.Avalanche,
     ChainEnum.LineaTestnet
 ]
+
+UNISWAP_API = "http://127.0.0.1:9101"
