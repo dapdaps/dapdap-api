@@ -13,6 +13,7 @@ from core.init_app import TORTOISE_ORM
 logger = logging.getLogger(__name__)
 
 async def update_mints(env:str):
+    await Tortoise.init(config=TORTOISE_ORM)
     pageSize = 100
     graphApi = GraphApi[env]
     if not graphApi:
