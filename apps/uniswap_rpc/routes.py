@@ -5,7 +5,7 @@
 
 from fastapi import APIRouter
 from starlette.requests import Request
-from apps.uniswap_rpc.constant import CHAIN_RPC, QUOTER_V2_CONTRACT_ADDRESS, USE_QUOTER_V2, QUOTER_CONTRACT_ADDRESS
+from apps.uniswap_rpc.constant import CHAIN_RPC, QUOTER_V2_CONTRACT_ADDRESS, USE_QUOTER_V2, QUOTER_CONTRACT_ADDRESS, UNISWAP_API
 from apps.uniswap_rpc.models import ChainTokenSwap,Mint
 from apps.uniswap_rpc.utils import quoter_v2_check, quoter_check
 from core.utils.base_util import get_limiter
@@ -46,7 +46,7 @@ async def quote_local(token_in: str, token_out:str, chain_id: int):
 @router.get('/v2/quote', tags=['uniswap'])
 @limiter.limit('100/minute')
 async def quote_router(request: Request, token_in: str, token_out:str, chain_id: int, amount: int):
-    full_url = "http://127.0.0.1:9101/router?chainId="+str(chain_id)+"&tokenIn="+token_in+"&tokenOut="+token_out+"&amount="+str(amount)
+    full_url = UNISWAP_API+"/router?chainId="+str(chain_id)+"&tokenIn="+token_in+"&tokenOut="+token_out+"&amount="+str(amount)
     rep = requests.get(full_url)
     result = rep.json()
     if result['code'] == 0:

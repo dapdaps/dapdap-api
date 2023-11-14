@@ -65,3 +65,5 @@ GraphApi = {
     "testnet": "https://graph-query.goerli.linea.build/subgraphs/name/dapdap/uniswap-v3-test",
     "prd": "https://graph-query.linea.build/subgraphs/name/dapdap/uniswap-v3-prd",
 }
+
+UNISWAP_API = "http://127.0.0.1:9101"

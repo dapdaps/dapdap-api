@@ -3,13 +3,14 @@
 # @Email : rainman@ref.finance
 # @File : api.py
 import logging
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Response
 from starlette.requests import Request
 
 from core.auth.utils import get_current_user
 from core.utils.base_util import get_limiter
 from core.utils.redis_provider import list_base_token_price
 from core.utils.tool_util import success, error
+from apps.uniswap_rpc.constant import UNISWAP_API
 from pydantic.types import Json
 from urllib.parse import urljoin
 import requests
@@ -49,6 +50,15 @@ def debank_api(request: Request, url: str, params: Json):
     if rep.status_code == 200:
         return success(result)
     return error(result)
+
+
+@router.get('/api/monitor/uniswap', tags=['base'], status_code=200)
+@limiter.limit('5/second')
+async def uniswap_api_check(request: Request, response: Response):
+    logger.info(request)
+    full_url = UNISWAP_API+"/monitor"
+    rep = requests.get(full_url)
+    response.status_code = rep.status_code
 
 # TEST FOR AUTH
 # @router.get('/test_auth', dependencies=[Depends(get_current_user)], tags=['other'])
