@@ -76,6 +76,6 @@ async def mint_info(token0: str, token1: str):
     print(f"{fee100} {fee500} {fee3000} {fee10000}")
     data = {"100": str(round(fee100 * 100 / len(mints))), "500": str(round(fee500 * 100 / len(mints))),
             "3000": str(round(fee3000 * 100 / len(mints))), "10000": str(round(fee10000 * 100 / len(mints)))}
-    return data
+    return success(data)
 
 
