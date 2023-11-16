@@ -8,6 +8,5 @@ CREATE TABLE "mint" (
     "pool_fee" INT NOT NULL,
     "timestamp" BIGINT NOT NULL
 );
-CREATE INDEX "idx_mint_pool_address" ON "mint" ("pool_address");
 CREATE INDEX "idx_mint_timestamp" ON "mint" ("timestamp");
 CREATE INDEX "idx_mint_token0_token1" ON "mint" ("token0", "token1");

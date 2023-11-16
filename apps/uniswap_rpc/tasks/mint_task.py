@@ -88,10 +88,10 @@ def getMints(client, fromTimestamp, pageSize)->List[Mint]:
     for mintEvent in response['mints']:
         mint = Mint()
         mintId:str = mintEvent['id']
-        mint.tx_hash = mintId[0:mintId.index("#")]
-        mint.token0 = mintEvent['token0']['id']
-        mint.token1 = mintEvent['token1']['id']
-        mint.pool_address = mintEvent['pool']['id']
+        mint.tx_hash = mintId[0:mintId.index("#")].lower()
+        mint.token0 = mintEvent['token0']['id'].lower()
+        mint.token1 = mintEvent['token1']['id'].lower()
+        mint.pool_address = mintEvent['pool']['id'].lower()
         mint.pool_fee = mintEvent['pool']['feeTier']
         mint.timestamp = mintEvent['timestamp']
         mints.append(mint)
