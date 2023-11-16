@@ -8,11 +8,12 @@ from starlette.requests import Request
 from apps.uniswap_rpc.constant import CHAIN_RPC, QUOTER_V2_CONTRACT_ADDRESS, USE_QUOTER_V2, QUOTER_CONTRACT_ADDRESS, UNISWAP_API
 from apps.uniswap_rpc.models import ChainTokenSwap,Mint
 from apps.uniswap_rpc.utils import quoter_v2_check, quoter_check
+from apps.uniswap_rpc.schemas import Router
 from core.utils.base_util import get_limiter
 import logging
 from web3 import Web3
 
-from core.utils.tool_util import success,error
+from core.utils.tool_util import success,error,successByInTract,errorByInTract
 import requests
 
 logger = logging.getLogger(__name__)
@@ -43,16 +44,31 @@ async def quote_local(token_in: str, token_out:str, chain_id: int):
     )
     return success(result)
 
-@router.get('/v2/quote', tags=['uniswap'])
+@router.post('/v2/quote', tags=['uniswap'], status_code=200)
 @limiter.limit('100/minute')
-async def quote_router(request: Request, token_in: str, token_out:str, chain_id: int, amount: int):
-    full_url = UNISWAP_API+"/router?chainId="+str(chain_id)+"&tokenIn="+token_in+"&tokenOut="+token_out+"&amount="+str(amount)
-    rep = requests.get(full_url)
-    result = rep.json()
+async def quote_router(request: Request, router: Router=None):
+    if not router:
+        return errorByInTract("lack params")
+    if not router.token_in or len(router.token_in) == 0:
+        return errorByInTract("illegal token_in")
+    if not router.token_out or len(router.token_out) == 0:
+        return errorByInTract("illegal token_out")
+    if not router.amount or len(router.amount) == 0:
+        return errorByInTract("illegal amount")
+    if not router.chain_id or router.chain_id <= 0:
+        return errorByInTract("illegal chain_id")
+
+    full_url = UNISWAP_API+"/router?chainId="+str(router.chain_id)+"&tokenIn="+router.token_in+"&tokenOut="+router.token_out+"&amount="+router.amount
+    try:
+        rep = requests.get(full_url)
+        result = rep.json()
+    except Exception as e:
+        logger.error(f"router exception: {e}")
+        return errorByInTract("Internal Server Error")
     if result['code'] == 0:
-        return error(result['message'])
+        return errorByInTract(result['message'])
     else:
-        return success(result['data'])
+        return successByInTract(result['data'])
 
 @router.get('/mint', tags=['uniswap'])
 async def mint_info(token0: str, token1: str):

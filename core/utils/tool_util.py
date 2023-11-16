@@ -15,3 +15,29 @@ def error(msg, code=None, data=None):
         "data": data
     }
     return ret
+
+
+def successByInTract(data=None):
+    ret = {
+        "error": {
+            "code": 0,
+            "message": "",
+        },
+        "data": {
+            "result": data,
+        },
+    }
+    return ret
+
+
+def errorByInTract(msg=None, code=1):
+    ret = {
+        "error": {
+            "code": code,
+            "message": msg,
+        },
+        "data": {
+            "result": {},
+        },
+    }
+    return ret
