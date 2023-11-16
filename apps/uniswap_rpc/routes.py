@@ -53,16 +53,17 @@ async def quote_router(request: Request, router: Router=None):
         return errorByInTract("illegal token_in")
     if not router.token_out or len(router.token_out) == 0:
         return errorByInTract("illegal token_out")
-    if not router.amount or router.amount <= 0:
-        return errorByInTract("amount must greater than 0")
+    if not router.amount or len(router.amount) == 0:
+        return errorByInTract("illegal amount")
     if not router.chain_id or router.chain_id <= 0:
         return errorByInTract("illegal chain_id")
 
-    full_url = UNISWAP_API+"/router?chainId="+str(router.chain_id)+"&tokenIn="+router.token_in+"&tokenOut="+router.token_out+"&amount="+str(router.amount)
+    full_url = UNISWAP_API+"/router?chainId="+str(router.chain_id)+"&tokenIn="+router.token_in+"&tokenOut="+router.token_out+"&amount="+router.amount
     try:
         rep = requests.get(full_url)
         result = rep.json()
-    except:
+    except Exception as e:
+        logger.error(f"router exception: {e}")
         return errorByInTract("Internal Server Error")
     if result['code'] == 0:
         return errorByInTract(result['message'])

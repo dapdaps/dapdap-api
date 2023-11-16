@@ -32,4 +32,4 @@ class Router(BaseModel):
     token_in: str | None = None
     token_out: str | None = None
     chain_id: int | None = None
-    amount: int | None = None
+    amount: str | None = None
