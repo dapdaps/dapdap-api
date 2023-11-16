@@ -32,3 +32,17 @@ def uniswap_quote_task(chian_id):
     logger.info(f"TOTAL RUN TIME sec {end_time - start_time}")
     logger.info("*********** END uniswap_quote_task **********")
     return {"done": "ok"}
+
+@celery_app.task(name="uniswap_mint_task")
+def uniswap_mint_task(env):
+    from apps.uniswap_rpc.tasks.mint_task import update_mints
+    # print("*********** uniswap_eth_task **********")
+    logger.info("*********** START uniswap_mint_task **********")
+    start_time = time.time()
+    # asyncio.run(update_eth_swap())
+    run_async(update_mints(env))
+    # await update_eth_swap()
+    end_time = time.time()
+    logger.info(f"TOTAL RUN TIME sec {end_time - start_time}")
+    logger.info("*********** END uniswap_mint_task **********")
+    return {"done": "ok"}
