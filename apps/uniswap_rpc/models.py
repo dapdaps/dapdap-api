@@ -21,10 +21,10 @@ class ChainTokenSwap(BaseDBModel, BaseCreatedUpdatedAtModel):
         table = 'chain_token_swap'
 
 class Mint(BaseDBModel, BaseCreatedAtModel):
-    tx_hash = fields.CharField(max_length=66)
+    tx_hash = fields.CharField(max_length=66, unique=True)
     token0 = fields.CharField(max_length=66)
     token1 = fields.CharField(max_length=66)
-    pool_address = fields.CharField(max_length=66, index=True)
+    pool_address = fields.CharField(max_length=66)
     pool_fee = fields.IntField()
     timestamp = fields.BigIntField(index=True)
 

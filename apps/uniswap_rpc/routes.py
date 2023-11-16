@@ -72,7 +72,7 @@ async def quote_router(request: Request, router: Router=None):
 
 @router.get('/mint', tags=['uniswap'])
 async def mint_info(token0: str, token1: str):
-    mints = await Mint.filter(token0=token0, token1=token1).values("pool_fee")
+    mints = await Mint.filter(token0=token0.lower(), token1=token1.lower()).values("pool_fee")
     if not mints or len(mints) == 0:
         return success({"100": "0", "500": "0", "3000": "0", "10000": "0"})
     print(f"total: {len(mints)} {mints}")
