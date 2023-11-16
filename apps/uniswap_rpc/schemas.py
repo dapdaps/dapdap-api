@@ -27,3 +27,9 @@ class ChainTokenIn(BaseModel):
     token_out: Optional[str]
     chain_id: Optional[str]
     amount: Optional[int]
+
+class Router(BaseModel):
+    token_in: str | None = None
+    token_out: str | None = None
+    chain_id: int | None = None
+    amount: int | None = None
