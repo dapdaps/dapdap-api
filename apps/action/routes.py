@@ -20,8 +20,8 @@ from core.base.db_provider import query_special_action
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
-router = APIRouter(prefix="/api/action", dependencies=[Depends(get_current_user)],)
-# router = APIRouter(prefix="/api/action")
+# router = APIRouter(prefix="/api/action", dependencies=[Depends(get_current_user)],)
+router = APIRouter(prefix="/api/action")
 
 
 @router.post('/add', tags=['action'])
