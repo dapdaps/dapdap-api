@@ -33,3 +33,17 @@ class Router(BaseModel):
     token_out: str | None = None
     chain_id: int | None = None
     amount: str | None = None
+
+
+class SwapRecordIn(BaseModel):
+    address: str | None = None
+
+class AddSwapRecordIn(BaseModel):
+    sender: str
+    tx_hash: str
+    token_in_address: str
+    token_in_volume: str
+    token_in_usd_amount: str
+    token_out_address: str
+    token_out_volume: str
+    token_out_usd_amount: str

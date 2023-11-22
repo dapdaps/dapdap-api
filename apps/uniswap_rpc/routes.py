@@ -6,14 +6,15 @@
 from fastapi import APIRouter
 from starlette.requests import Request
 from apps.uniswap_rpc.constant import CHAIN_RPC, QUOTER_V2_CONTRACT_ADDRESS, USE_QUOTER_V2, QUOTER_CONTRACT_ADDRESS, UNISWAP_API
-from apps.uniswap_rpc.models import ChainTokenSwap,Mint
+from apps.uniswap_rpc.models import ChainTokenSwap, Mint, SwapRecord
 from apps.uniswap_rpc.utils import quoter_v2_check, quoter_check
-from apps.uniswap_rpc.schemas import Router
+from apps.uniswap_rpc.schemas import Router, SwapRecordIn, AddSwapRecordIn
 from core.utils.base_util import get_limiter
 import logging
 from web3 import Web3
+import time
 
-from core.utils.tool_util import success,error,successByInTract,errorByInTract
+from core.utils.tool_util import success, successByInTract, errorByInTract
 import requests
 
 logger = logging.getLogger(__name__)
@@ -93,5 +94,38 @@ async def mint_info(token0: str, token1: str):
     data = {"100": str(round(fee100 * 100 / len(mints))), "500": str(round(fee500 * 100 / len(mints))),
             "3000": str(round(fee3000 * 100 / len(mints))), "10000": str(round(fee10000 * 100 / len(mints)))}
     return success(data)
+
+
+@router.post('/records/add', tags=['uniswap'])
+async def add_records(request: Request, swapRecordIn: AddSwapRecordIn):
+    sender = swapRecordIn.sender.lower()
+    txHash = swapRecordIn.tx_hash.lower()
+    tokenIn = swapRecordIn.token_in_address.lower()
+    tokenOut = swapRecordIn.token_out_address.lower()
+    await SwapRecord(
+        tx_hash=txHash,
+        sender=sender,
+        token_in_address = tokenIn,
+        token_in_volume = swapRecordIn.token_in_volume,
+        token_in_usd_amount = swapRecordIn.token_in_usd_amount,
+        token_out_address = tokenOut,
+        token_out_volume = swapRecordIn.token_out_volume,
+        token_out_usd_amount = swapRecordIn.token_out_usd_amount,
+        timestamp = int(time.time() * 1000)
+    ).save()
+    return success()
+
+
+@router.post('/records', tags=['uniswap'], status_code=200)
+@limiter.limit('200/minute')
+async def query_records(request: Request, swapRecordIn: SwapRecordIn = None):
+    if not swapRecordIn or not swapRecordIn.address or len(swapRecordIn.address) == 0:
+        return errorByInTract("lack address/illegal address")
+    address = swapRecordIn.address.lower()
+    result = await SwapRecord.filter(sender=address).order_by('-timestamp').all().values(
+        "timestamp", txHash = "tx_hash", tokenInAddress = "token_in_address", tokenInVolume = "token_in_volume", tokenInUsdAmount = "token_in_usd_amount",
+        tokenOutAddress = "token_out_address", tokenOutVolume = "token_out_volume", tokenOutUsdAmount = "token_out_usd_amount",
+    )
+    return successByInTract(result)
 
 
