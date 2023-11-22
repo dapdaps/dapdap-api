@@ -12,6 +12,7 @@ from apps.uniswap_rpc.schemas import Router, SwapRecordIn, AddSwapRecordIn
 from core.utils.base_util import get_limiter
 import logging
 from web3 import Web3
+import time
 
 from core.utils.tool_util import success, successByInTract, errorByInTract
 import requests
@@ -104,13 +105,13 @@ async def add_records(request: Request, swapRecordIn: AddSwapRecordIn):
     await SwapRecord(
         tx_hash=txHash,
         sender=sender,
-        timestamp = swapRecordIn.timestamp,
         token_in_address = tokenIn,
         token_in_volume = swapRecordIn.token_in_volume,
         token_in_usd_amount = swapRecordIn.token_in_usd_amount,
         token_out_address = tokenOut,
         token_out_volume = swapRecordIn.token_out_volume,
         token_out_usd_amount = swapRecordIn.token_out_usd_amount,
+        timestamp = int(time.time() * 1000)
     ).save()
     return success()
 

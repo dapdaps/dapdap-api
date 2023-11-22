@@ -47,4 +47,3 @@ class AddSwapRecordIn(BaseModel):
     token_out_address: str
     token_out_volume: str
     token_out_usd_amount: str
-    timestamp: int
