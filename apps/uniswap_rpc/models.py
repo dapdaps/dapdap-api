@@ -34,3 +34,22 @@ class Mint(BaseDBModel, BaseCreatedAtModel):
     class Meta:
         table = 'mint'
         indexes = ("token0", "token1")
+
+
+class SwapRecord(BaseDBModel):
+    tx_hash = fields.CharField(max_length=100, null=False, unique=True)
+    sender = fields.CharField(max_length=100, null=False, index=True)
+    token_in_address = fields.CharField(max_length=100, null=False)
+    token_in_volume = fields.CharField(max_length=100, null=False)
+    token_in_usd_amount = fields.CharField(max_length=100, null=False)
+    token_out_address = fields.CharField(max_length=100, null=False)
+    token_out_volume = fields.CharField(max_length=100, null=False)
+    token_out_usd_amount = fields.CharField(max_length=100, null=False)
+    timestamp = fields.BigIntField()
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'swap_record'
+        indexes = ("sender", "timestamp")
