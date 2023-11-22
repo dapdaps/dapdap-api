@@ -53,8 +53,7 @@ class ActionRecord(BaseDBModel):
         table = 't_action_record'
 
 
-class ActionChain(Model):
-    id = fields.BigIntField(pk=True)
+class ActionChain(BaseDBModel):
     count =  fields.IntField()
     action_title =  fields.CharField(max_length=512, null=False)
     template =  fields.CharField(max_length=255, null=False)

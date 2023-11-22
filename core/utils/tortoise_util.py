@@ -25,6 +25,6 @@ async def get_db_sql(db_url: str = None, app_name: str = None):
 
 
 if __name__ == '__main__':
-    run_async(get_db_sql(app_name='action'))
+    run_async(get_db_sql(app_name='dapp'))
     # run_async(get_db_sql())
 
