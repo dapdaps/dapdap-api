@@ -193,6 +193,6 @@ async def get_special_action():
 
 
 @router.get('/get-action-by-chain', tags=['action'])
-async def get_special_action(action_network_id: str, limit: int = 4):
+async def get_action_by_chain(action_network_id: str, limit: int = 4):
     result = await ActionChain().filter(action_network_id=action_network_id).order_by("-count").limit(limit)
     return success(result)
