@@ -1,6 +1,6 @@
 CREATE TABLE "network" (
-    "id" BIGSERIAL NOT NULL PRIMARY KEY,
-    "chain_id" INT NOT NULL,
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "chain_id" INT NOT NULL UNIQUE,
     "name" VARCHAR(128) NOT NULL,
     "technology" VARCHAR(100) NULL,
     "description" VARCHAR(1000) NULL,
@@ -12,7 +12,7 @@ CREATE TABLE "network" (
 
 
 CREATE TABLE "dapp" (
-    "id" BIGSERIAL NOT NULL PRIMARY KEY,
+    "id" SERIAL NOT NULL PRIMARY KEY,
     "name" VARCHAR(128) NOT NULL,
     "description" VARCHAR(1000) NULL,
     "native_token" VARCHAR(50) NULL,
@@ -25,7 +25,7 @@ CREATE TABLE "dapp" (
 
 
 CREATE TABLE "category" (
-    "id" BIGSERIAL NOT NULL PRIMARY KEY,
+    "id" SERIAL NOT NULL PRIMARY KEY,
     "name" VARCHAR(50) NOT NULL UNIQUE,
     "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP
 );
@@ -33,7 +33,7 @@ COMMENT ON COLUMN "category"."name" IS 'Bridge,Dex,Lending,Liquidity,Staking,Yie
 
 
 CREATE TABLE "dapp_favorite" (
-    "id" BIGSERIAL NOT NULL PRIMARY KEY,
+    "id" SERIAL NOT NULL PRIMARY KEY,
     "account_id" INT NOT NULL,
     "dapp_id" INT NOT NULL,
     "is_favorite" BOOL NOT NULL DEFAULT False,
@@ -43,7 +43,7 @@ CREATE UNIQUE INDEX "idx_dapp_favorite_account_id" ON "dapp_favorite" ("account_
 
 
 CREATE TABLE "dapp_relate" (
-    "id" BIGSERIAL NOT NULL PRIMARY KEY,
+    "id" SERIAL NOT NULL PRIMARY KEY,
     "dapp_id" INT NOT NULL,
     "dapp_id_relate" INT NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP
@@ -52,7 +52,7 @@ CREATE INDEX "idx_dapp_relate_dapp_id" ON "dapp_relate" ("dapp_id");
 
 
 CREATE TABLE "dapp_network" (
-    "id" BIGSERIAL NOT NULL PRIMARY KEY,
+    "id" SERIAL NOT NULL PRIMARY KEY,
     "dapp_id" INT NOT NULL,
     "network_id" INT NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP
@@ -62,7 +62,7 @@ CREATE INDEX "idx_dapp_network_dapp_id" ON "dapp_network" ("dapp_id");
 
 
 CREATE TABLE "dapp_category" (
-    "id" BIGSERIAL NOT NULL PRIMARY KEY,
+    "id" SERIAL NOT NULL PRIMARY KEY,
     "dapp_id" INT NOT NULL,
     "category_id" INT NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP
