@@ -62,7 +62,8 @@ CREATE TABLE "dapp_relate" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "dapp_id" INT NOT NULL,
     "dapp_id_relate" INT NOT NULL,
-    "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP
+    "created_at" TIMESTAMPTZ NOT NULL  DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (dapp_id) REFERENCES dapp (id)
 );
 CREATE INDEX "idx_dapp_relate_dapp_id" ON "dapp_relate" ("dapp_id");
 
