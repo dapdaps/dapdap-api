@@ -120,7 +120,7 @@ async def get_action_by_account(account_id: str = "", account_info: str = "", ac
     if account_id == "" and account_info == "":
         return success()
     sql = "select (ARRAY_AGG(action_id))[1] as action_id, (ARRAY_AGG(account_id))[1] as account_id,action_title," \
-          "(ARRAY_AGG(timestamp))[1] as timestamp,(ARRAY_AGG(template))[1] as template, action_tokens, " \
+          "(ARRAY_AGG(timestamp))[1] as timestamp,(ARRAY_AGG(template))[1] as template, (ARRAY_AGG(action_tokens))[1] as action_tokens, " \
           "(ARRAY_AGG(account_info))[1] as account_info, sum(count_number) as count_number from t_action " \
           "where status = '1' and action_network_id = '%s' and (account_id = '%s' or account_info = '%s') " \
           "group by action_title order by count_number desc" % (action_network_id, account_id, account_info)
