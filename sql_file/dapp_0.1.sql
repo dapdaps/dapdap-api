@@ -61,7 +61,7 @@ CREATE TABLE "dapp_favorite" (
     "is_favorite" BOOL NOT NULL DEFAULT False,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX "idx_dapp_favorite_dapp" ON "dapp_category" ("dapp_id","created_at");
+CREATE INDEX "idx_dapp_favorite_dapp" ON "dapp_favorite" ("dapp_id","created_at");
 CREATE UNIQUE INDEX "idx_dapp_favorite_account_id" ON "dapp_favorite" ("account_id","dapp_id");
 
 
