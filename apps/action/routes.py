@@ -5,7 +5,7 @@
 from fastapi import APIRouter, Depends
 from starlette.requests import Request
 
-from apps.action.models import Action, ActionRecord
+from apps.action.models import Action, ActionRecord, ActionChain
 from fastapi_pagination import Page
 from apps.action.schemas import ActionIn, DeleteActionIn, UpdateActionRecordIn, ActionRecordResultOut
 from core.auth.utils import get_current_user
@@ -191,3 +191,8 @@ async def get_action_records_by_account(action_network_id: str = "", account_id:
 async def get_special_action():
     return success(query_special_action())
 
+
+@router.get('/get-action-by-chain', tags=['action'])
+async def get_action_by_chain(action_network_id: str, limit: int = 4):
+    result = await ActionChain().filter(action_network_id=action_network_id).order_by("-count").limit(limit)
+    return success(result)

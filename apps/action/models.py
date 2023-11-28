@@ -51,3 +51,18 @@ class ActionRecord(BaseDBModel):
 
     class Meta:
         table = 't_action_record'
+
+
+class ActionChain(BaseDBModel):
+    count =  fields.IntField()
+    action_title =  fields.CharField(max_length=512, null=False)
+    template =  fields.CharField(max_length=255, null=False)
+    action_network_id =  fields.CharField(max_length=128, null=False)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 't_action_chain'
+        indexes = ("action_network_id", "count")
+        unique_together = ("action_title", "template", "action_network_id")

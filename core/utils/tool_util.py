@@ -1,8 +1,8 @@
 
-def success(data=None):
+def success(data=None, msg="success"):
     ret = {
         "code": "0",
-        "msg": "success",
+        "msg": msg,
         "data": data
     }
     return ret

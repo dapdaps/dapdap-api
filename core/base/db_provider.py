@@ -4,6 +4,7 @@ from datetime import datetime
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from settings.config import DATABASE_HOST, DATABASE_NAME, DATABASE_USERNAME, DATABASE_PASSWORD
+from tortoise.transactions import in_transaction
 
 
 class Encoder(json.JSONEncoder):
@@ -53,6 +54,12 @@ def query_special_action():
         print("query_special_action to db error:", e)
     finally:
         cursor.close()
+
+
+async def start_transaction(fun):
+    async with in_transaction() as connection:
+        # await connection.execute_query("YOUR SQL QUERY HERE")
+        await fun(connection)
 
 
 if __name__ == '__main__':
