@@ -20,6 +20,7 @@ CREATE TABLE "dapp" (
     "name" VARCHAR(128) NOT NULL,
     "route" VARCHAR(200) NULL,
     "tbd_token" VARCHAR(10) NOT NULL,
+    "priority" INT NULL DEFAULT 0,
     "logo" VARCHAR(100) NULL,
     "default_chain_id" INT NULL,
     "description" VARCHAR(1000) NULL,
