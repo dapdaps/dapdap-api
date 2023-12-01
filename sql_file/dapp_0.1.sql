@@ -27,8 +27,8 @@ CREATE TABLE "dapp" (
     "favorite" INT DEFAULT 0,
     "recommend" BOOL NULL DEFAULT False,
     "recommend_icon" VARCHAR(100) NULL,
-    "category_ids" VARCHAR(100) NOT NULL,
-    "network_ids" VARCHAR(100) NOT NULL,
+    "category_ids" VARCHAR(100) NULL,
+    "network_ids" VARCHAR(100) NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
