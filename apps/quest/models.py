@@ -35,6 +35,7 @@ class Quest(BaseDBModel, BaseCreatedUpdatedAtModel):
     gas_required = fields.CharField(max_length=20, null=True)
     time_required = fields.CharField(max_length=20, null=True)
     status = fields.CharField(max_length=20, null=False)
+    total_action = fields.IntField(null=False)
 
     def __str__(self):
         return self.id
@@ -42,3 +43,63 @@ class Quest(BaseDBModel, BaseCreatedUpdatedAtModel):
     class Meta:
         table = 'quest'
 
+
+class QuestAction(BaseDBModel, BaseCreatedUpdatedAtModel):
+    name = fields.CharField(max_length=50, null=False)
+    quest_campaign_id = fields.IntField(null=False)
+    quest_id = fields.IntField(null=False)
+    category_id = fields.IntField(null=False)
+    description = fields.CharField(max_length=200, null=True)
+    difficulty = fields.IntField(null=False)
+    times = fields.IntField(null=False)
+    source = fields.CharField(max_length=50, null=True)
+    dapps = fields.CharField(max_length=200, null=True)
+    networks = fields.CharField(max_length=100, null=True)
+    to_networks = fields.CharField(max_length=200, null=True)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'quest_action'
+
+
+class QuestCategory(BaseDBModel, BaseCreatedAtModel):
+    name = fields.CharField(max_length=50, null=False)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'quest_category'
+
+
+class UserQuest(BaseDBModel, BaseCreatedUpdatedAtModel):
+    account_id = fields.IntField(null=False)
+    quest_id = fields.IntField(null=False)
+    quest_campaign_id = fields.IntField(null=False)
+    action_completed = fields.IntField(null=False)
+    status = fields.CharField(max_length=20, null=False)
+    is_claimed = fields.BooleanField()
+    claimed_at = fields.DatetimeField(null=True)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'user_quest'
+
+
+class UserRequestAction(BaseDBModel, BaseCreatedUpdatedAtModel):
+    account_id = fields.IntField(null=False)
+    quest_id = fields.IntField(null=False)
+    quest_action_id = fields.IntField(null=False)
+    quest_campaign_id = fields.IntField(null=False)
+    times = fields.IntField(null=False)
+    status = fields.CharField(max_length=20, null=False)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'user_action'

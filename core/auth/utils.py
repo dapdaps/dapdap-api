@@ -4,7 +4,7 @@
 # @File : utils.py
 from datetime import datetime
 from typing import Optional
-from fastapi import Security, HTTPException
+from fastapi import Security, HTTPException, Depends
 from jose import jwt
 from jose.exceptions import JWTError
 from starlette.status import HTTP_403_FORBIDDEN

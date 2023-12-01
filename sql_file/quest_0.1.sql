@@ -36,7 +36,8 @@ CREATE TABLE "quest" (
     "difficulty" INT NOT NULL,
     "gas_required" VARCHAR(20) NULL,
     "time_required" VARCHAR(20) NULL,
-    "reward" INT NOT NULL,
+    "total_action" INT NOT NULL DEFAULT 0,
+    "reward" INT NOT NULL DEFAULT 0,
     "priority" INT DEFAULT 0,
     "favorite" INT DEFAULT 0,
     "status" VARCHAR(20) NOT NULL,
@@ -45,7 +46,7 @@ CREATE TABLE "quest" (
 );
 COMMENT ON COLUMN "quest"."status" IS 'un_start,ongoing,finished';
 CREATE INDEX "idx_quest_campaign_id_create" ON "quest" ("quest_campaign_id","created_at");
-CREATE INDEX "idx_quest_priority_create" ON "quest" ("priority","created_at");
+CREATE INDEX "idx_quest_campaign_id_priority_create" ON "quest" ("quest_campaign_id", "priority", "created_at");
 CREATE INDEX "idx_quest_category_create" ON "quest" ("quest_category_id","created_at");
 CREATE INDEX "idx_quest_name_create" ON "quest" ("name","created_at");
 
@@ -78,18 +79,19 @@ CREATE INDEX "idx_quest_action_name_create" ON "quest_action" ("name","created_a
 
 CREATE TABLE "user_quest" (
     "id" SERIAL NOT NULL PRIMARY KEY,
-    "user_id" INT NOT NULL,
-    "quest_id" INT NOT NULL,
-    "quest_campaign_id" INT NOT NULL,
+    "account_id" INT NOT NULL DEFAULT 0,
+    "quest_id" INT NOT NULL DEFAULT 0,
+    "quest_campaign_id" INT NOT NULL DEFAULT 0,
+    "action_completed" INT NOT NULL DEFAULT 0,
     "status" VARCHAR(20) NOT NULL,
-    "is_claimed" boolean NULL,
+    "is_claimed" boolean NULL DEFAULT false,
     "claimed_at" TIMESTAMP with time zone NULL,
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 COMMENT ON COLUMN "user_quest"."status" IS 'in_process,expired,completed,un_claimed';
 CREATE unique index "idx_user_request_user_quest" ON "user_quest" ("user_id","quest_id");
-CREATE INDEX "idx_user_request_user_creat" ON "user_quest" ("user_id","created_at");
+CREATE INDEX "idx_user_request_user_campaign_creat" ON "user_quest" ("user_id","quest_campaign_id","created_at");
 CREATE INDEX "idx_user_request_quest_id" ON "user_quest" ("quest_id");
 CREATE INDEX "idx_user_request_quest_campaign_id" ON "user_quest" ("quest_campaign_id");
 

@@ -4,7 +4,7 @@ CREATE TABLE "network" (
     "name" VARCHAR(128) NOT NULL,
     "native_currency" VARCHAR(200) NOT NULL,
     "tbd_token" VARCHAR(10) NOT NULL,
-    "logo" VARCHAR(200) NULL,
+    "logo" VARCHAR(100) NULL,
     "technology" VARCHAR(100) NULL,
     "description" VARCHAR(1000) NULL,
     "rpc" VARCHAR(500) NULL,

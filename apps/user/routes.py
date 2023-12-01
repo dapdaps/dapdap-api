@@ -50,3 +50,12 @@ async def favorite(request: Request, param: FavoriteIn, user: UserInfo = Depends
     #     category=param.category,
     # )
     return success()
+
+
+@router.get('/favorite', tags=['user'])
+@limiter.limit('60/minute')
+async def is_favorite(request: Request, id: int, category: str, user: UserInfo = Depends(get_current_user)):
+    userFavorite = await UserFavorite.filter(account_id=user.id, relate_id=id, category=category).first().values("is_favorite")
+    return success({
+        "favorite": True if userFavorite and userFavorite["is_favorite"] else False
+    })
