@@ -24,6 +24,8 @@ from core.base.api import router as base_router
 from apps.uniswap_rpc.routes import router as uniswap_router
 from core.auth.routes import router as auth_router
 from apps.dapp.routes import router as dapp_router
+from apps.user.routes import router as user_router
+from apps.quest.routes import router as quest_router
 
 
 def configure_logging(log_settings: dict = None):
@@ -111,3 +113,5 @@ def register_routers(app: FastAPI):
     app.include_router(action_router)
     app.include_router(uniswap_router)
     app.include_router(dapp_router)
+    app.include_router(quest_router)
+    app.include_router(user_router)
