@@ -27,6 +27,8 @@ CREATE TABLE "dapp" (
     "favorite" INT DEFAULT 0,
     "recommend" BOOL NULL DEFAULT False,
     "recommend_icon" VARCHAR(100) NULL,
+    "category_ids" VARCHAR(100) NOT NULL,
+    "network_ids" VARCHAR(100) NOT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -73,7 +75,7 @@ CREATE TABLE "dapp_relate" (
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (dapp_id) REFERENCES dapp (id)
 );
-CREATE INDEX "idx_dapp_relate_dapp_id" ON "dapp_relate" ("dapp_id");
+CREATE INDEX "idx_dapp_relate_dapp_create" ON "dapp_relate" ("dapp_id","created_at");
 CREATE UNIQUE INDEX "idx_dapp_relate_dapp_relate" ON "dapp_relate" ("dapp_id","dapp_id_relate");
 
 
