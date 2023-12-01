@@ -4,7 +4,6 @@
 # @File : main.py
 from fastapi import FastAPI
 
-from apps.dapp.service import init_dapps
 from core.exceptions import SettingNotFound
 from core.init_app import configure_logging, init_middlewares, register_db, register_exceptions, register_routers, \
     register_slowapi, init_http_middleware
@@ -29,7 +28,6 @@ register_exceptions(app)
 register_slowapi(app)
 init_http_middleware(app)
 register_routers(app)
-init_dapps()
 
 if __name__ == '__main__':
     uvicorn.run('main:app', host="0.0.0.0", port=8101, reload=True, workers=5)

@@ -146,7 +146,7 @@ CREATE TABLE "user_favorite" (
 );
 COMMENT ON COLUMN "user_favorite"."category" IS 'dapp,quest_campaign,quest';
 CREATE INDEX "idx_user_favorite_category_relate_id" ON "user_favorite" ("category","relate_id");
-CREATE INDEX "idx_user_favorite_account_category_create" ON "user_favorite" ("account_id","category","created_at");
+CREATE INDEX "idx_user_favorite_account_category_favorite_create" ON "user_favorite" ("account_id", "category", "is_favorite", "created_at");
 CREATE unique index "idx_user_favorite_account_category_relate" ON "user_favorite" ("account_id","relate_id","category");
 
 alter table user_info add column "avatar" varchar(200) NULL;

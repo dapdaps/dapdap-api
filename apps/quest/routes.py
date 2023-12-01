@@ -5,7 +5,6 @@ from starlette.requests import Request
 
 from apps.dapp.models import Network, Dapp, DappNetwork
 from apps.quest.models import QuestCampaign, Quest, UserQuest, QuestCategory, QuestAction
-from apps.quest.service import actionDapps
 from apps.user.models import UserInfo
 from core.utils.base_util import get_limiter
 from fastapi import APIRouter, Depends
