@@ -19,8 +19,12 @@ class Network(BaseDBModel, BaseCreatedUpdatedAtModel):
 class Dapp(BaseDBModel, BaseCreatedUpdatedAtModel):
     name = fields.CharField(max_length=128, null=False)
     description = fields.CharField(max_length=1000, null=True)
+    route = fields.CharField(max_length=200, null=True)
+    logo = fields.CharField(max_length=100, null=True)
     favorite = fields.IntField()
-    native_token = fields.CharField(max_length=50, null=True)
+    default_chain_id = fields.IntField()
+    priority = fields.IntField()
+    tbd_token = fields.CharField(max_length=10, null=True)
     recommend = fields.BooleanField(null=False, default=False)
     recommend_icon = fields.CharField(max_length=100, null=True)
 
@@ -29,17 +33,5 @@ class Dapp(BaseDBModel, BaseCreatedUpdatedAtModel):
 
     class Meta:
         table = 'dapp'
-
-
-class DappFavorite(BaseDBModel, BaseCreatedAtModel):
-    account_id = fields.IntField()
-    dapp_id = fields.IntField()
-    is_favorite = fields.BooleanField()
-
-    def __str__(self):
-        return self.id
-
-    class Meta:
-        table = 'dapp_favorite'
 
 

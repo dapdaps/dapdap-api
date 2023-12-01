@@ -35,3 +35,16 @@ class GroupInfo(BaseDBModel, BaseCreatedUpdatedAtModel):
 
     class Meta:
         table = 'group_info'
+
+
+class UserFavorite(BaseDBModel, BaseCreatedUpdatedAtModel):
+    account_id = fields.IntField(null=False)
+    relate_id = fields.IntField(null=False)
+    category = fields.CharField(max_length=20, null=False)
+    is_favorite = fields.BooleanField()
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'user_favorite'

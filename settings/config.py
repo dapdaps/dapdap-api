@@ -28,7 +28,8 @@ class Settings:
         # 'integral',
         'action',
         'uniswap_rpc',
-        'dapp'
+        'dapp',
+        'quest',
     ]
 
     PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))

@@ -38,6 +38,7 @@ CREATE TABLE "quest" (
     "time_required" VARCHAR(20) NULL,
     "reward" INT NOT NULL,
     "priority" INT DEFAULT 0,
+    "favorite" INT DEFAULT 0,
     "status" VARCHAR(20) NOT NULL,
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
@@ -144,7 +145,7 @@ CREATE TABLE "user_favorite" (
 COMMENT ON COLUMN "user_favorite"."category" IS 'dapp,quest_campaign,quest';
 CREATE INDEX "idx_user_favorite_category_relate_id" ON "user_favorite" ("category","relate_id");
 CREATE INDEX "idx_user_favorite_user_category_create" ON "user_favorite" ("account_id","category","created_at");
-CREATE unique index "idx_user_favorite_user_category_relate" ON "user_favorite" ("account_id","category","relate_id");
+CREATE unique index "idx_user_favorite_user_category_relate" ON "user_favorite" ("account_id","relate_id","category");
 
 alter table user_info add column "avatar" varchar(200) NULL;
 alter table user_info add column "username" varchar(50) NULL;

@@ -24,7 +24,7 @@ CREATE TABLE "dapp" (
     "logo" VARCHAR(100) NULL,
     "default_chain_id" INT NULL,
     "description" VARCHAR(1000) NULL,
-    "favorite" INT NULL DEFAULT 0,
+    "favorite" INT DEFAULT 0,
     "recommend" BOOL NULL DEFAULT False,
     "recommend_icon" VARCHAR(100) NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
