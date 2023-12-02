@@ -4,7 +4,7 @@ from starlette.requests import Request
 
 from apps.dapp.models import DappNetwork, DappCategory, Dapp, DappRelate
 from apps.dapp.service import filterDapps
-from apps.user.models import UserInfo
+from apps.user.models import UserInfo, UserFavorite
 from core.auth.utils import get_current_user
 from core.utils.base_util import get_limiter
 from fastapi import APIRouter, Depends
@@ -76,3 +76,24 @@ async def filter_list(request: Request, tad_token: bool = False, is_favorite: bo
     data = await filterDapps(user.id, tad_token, is_favorite, network_ids, category_ids, quest, page, page_size)
     return success(data)
 
+
+@router.get('/favorite_list', tags=['dapp'])
+@limiter.limit('60/minute')
+async def favorite_list(request: Request, user: UserInfo = Depends(get_current_user)):
+    userFavorites = await UserFavorite.filter(account_id=user.id, category="dapp", is_favorite=True)
+    if len(userFavorites) == 0:
+        return success([])
+    dappIds = list()
+    for userFavorite in userFavorites:
+        dappIds.append(userFavorite.relate_id)
+    favoriteDapps = await Dapp.filter(id__in=dappIds).all().values()
+    if len(favoriteDapps) == 0:
+        return success([])
+    for favoriteDapp in favoriteDapps:
+        if len(favoriteDapp['category_ids']) > 0:
+            dappIds = favoriteDapp['category_ids'].split(",")
+            favoriteDapp['category_ids'] = [int(item) for item in dappIds]
+        if len(favoriteDapp['network_ids']) > 0:
+            networkIds = favoriteDapp['network_ids'].split(",")
+            favoriteDapp['network_ids'] = [int(item) for item in networkIds]
+    return success(favoriteDapps)

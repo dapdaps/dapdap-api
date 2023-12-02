@@ -1,3 +1,5 @@
+from tortoise.fields import CASCADE
+
 from core.base.base_models import BaseDBModel, BaseCreatedUpdatedAtModel, BaseCreatedAtModel
 from tortoise import fields
 
@@ -76,12 +78,14 @@ class QuestCategory(BaseDBModel, BaseCreatedAtModel):
 
 class UserQuest(BaseDBModel, BaseCreatedUpdatedAtModel):
     account_id = fields.IntField(null=False)
-    quest_id = fields.IntField(null=False)
     quest_campaign_id = fields.IntField(null=False)
     action_completed = fields.IntField(null=False)
     status = fields.CharField(max_length=20, null=False)
     is_claimed = fields.BooleanField()
     claimed_at = fields.DatetimeField(null=True)
+    quest = fields.ForeignKeyField(
+        'models.Quest', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True, related_name="quest",
+    )
 
     def __str__(self):
         return self.id
@@ -103,3 +107,18 @@ class UserRequestAction(BaseDBModel, BaseCreatedUpdatedAtModel):
 
     class Meta:
         table = 'user_action'
+
+
+class QuestCampaignReward(BaseDBModel, BaseCreatedAtModel):
+    quest_campaign_id = fields.IntField(null=False)
+    reward = fields.IntField(null=False)
+    rank = fields.IntField(null=False)
+    account = fields.ForeignKeyField(
+        'models.UserInfo', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True, related_name="user",
+    )
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'quest_campaign_reward'

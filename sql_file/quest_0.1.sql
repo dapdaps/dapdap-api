@@ -94,6 +94,7 @@ CREATE unique index "idx_user_request_account_quest" ON "user_quest" ("account_i
 CREATE INDEX "idx_user_request_account_campaign_creat" ON "user_quest" ("account_id","quest_campaign_id","created_at");
 CREATE INDEX "idx_user_request_quest_id" ON "user_quest" ("quest_id");
 CREATE INDEX "idx_user_request_quest_campaign_id" ON "user_quest" ("quest_campaign_id");
+CREATE INDEX "idx_user_request_account_claimed_create" ON "user_quest" ("account_id","is_claimed","claimed_at");
 
 
 CREATE TABLE "user_quest_action" (
@@ -112,18 +113,7 @@ CREATE unique index "idx_user_quest_action_account_action" ON "user_quest_action
 CREATE INDEX "idx_user_quest_action_account_quest" ON "user_quest_action" ("account_id","quest_id");
 
 
-CREATE TABLE "user_reward" (
-    "id" SERIAL NOT NULL PRIMARY KEY,
-    "account_id" INT NOT NULL,
-    "total_reward" INT NOT NULL,
-    "claimed_reward" INT NOT NULL,
-    "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-CREATE INDEX "idx_user_reward_account" ON "user_reward" ("account_id");
-
-
-CREATE TABLE "user_reward_quest_campaign" (
+CREATE TABLE "quest_campaign_reward" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "account_id" INT NOT NULL,
     "quest_campaign_id" INT NOT NULL,
@@ -131,8 +121,20 @@ CREATE TABLE "user_reward_quest_campaign" (
     "rank" INT NOT NULL,
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX "idx_user_reward_quest_campaign" ON "user_reward_quest_campaign" ("quest_campaign_id","rank");
-CREATE INDEX "idx_user_reward_quest_campaign_account_campaign" ON "user_reward_quest_campaign" ("account_id","quest_campaign_id");
+CREATE INDEX "idx_quest_campaign_reward_campaign_rank" ON "quest_campaign_reward" ("quest_campaign_id","rank");
+CREATE INDEX "idx_quest_campaign_reward_account_campaign" ON "quest_campaign_reward" ("account_id","quest_campaign_id");
+
+
+CREATE TABLE "user_reward" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "account_id" INT NOT NULL,
+    "reward" INT NOT NULL,
+    "claimed_reward" INT NOT NULL,
+    "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX "idx_user_reward_account" ON "user_reward" ("account_id");
+CREATE INDEX "idx_user_reward_reward" ON "user_reward" ("reward");
 
 
 CREATE TABLE "user_favorite" (
