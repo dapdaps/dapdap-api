@@ -1,7 +1,10 @@
 import logging
 
+from tortoise.functions import Count
+
 from apps.dapp.models import Dapp
-from apps.quest.models import QuestCampaign, Quest
+from apps.invite.models import InviteCodePool
+from apps.quest.models import QuestCampaign, Quest, QuestCampaignReward
 from apps.user.dao import updateUserFavorite
 from apps.user.models import UserInfo, UserFavorite
 from apps.user.schemas import FavoriteIn
@@ -14,6 +17,22 @@ from core.utils.tool_util import success, error
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
 router = APIRouter(prefix="/api/user")
+
+
+@router.get('', tags=['user'])
+@limiter.limit('60/minute')
+async def user(request: Request, user: UserInfo = Depends(get_current_user)):
+    userInfo = await UserInfo.filter(id=user.id).first()
+    inviteTotal = await InviteCodePool.filter(creator_user_id=user.id, is_used=True).all().annotate(count=Count('id')).first().values("count")
+    rewardRank = await QuestCampaignReward.filter(account_id=user.id).order_by("-id").first()
+    return success({
+        'id': userInfo.id,
+        'address': userInfo.address,
+        'avatar': userInfo.avatar,
+        'reward': rewardRank.reward,
+        'rank': rewardRank.rank,
+        'total_invited':inviteTotal['count']
+    })
 
 
 @router.post('/favorite', tags=['user'])
