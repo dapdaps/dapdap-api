@@ -148,3 +148,28 @@ async def get_invited_info(request: Request, address: str):
         "code","created_at", "updated_at", used_user_address="used_user__address",
     )
     return success(result)
+
+
+@router.get('/list', tags=['invite'])
+@limiter.limit('100/minute')
+async def get_invited_info(request: Request, user: UserInfo = Depends(get_current_user)):
+    inviteds = await InviteCodePool.filter(creator_user_id=user.id, is_used=True).select_related("used_user").order_by("-updated_at")
+    if len(inviteds) == 0:
+        return success([])
+
+    data = list()
+    for invite in inviteds:
+        data.append({
+            'code': invite.code,
+            'status': 'Pending',
+            'reward': 0,
+            'invited_user': {
+                'address': invite.used_user.address,
+                'avatar': invite.used_user.avatar,
+                'username': invite.used_user.username,
+            }
+        })
+    return success({
+        'unClaimed_reward': 10,
+        'data': data,
+    })

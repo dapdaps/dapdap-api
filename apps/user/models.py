@@ -19,6 +19,7 @@ class UserInfo(BaseDBModel, BaseCreatedAtModel):
     chain_type = fields.CharEnumField(ChainTypeEnum, default=ChainTypeEnum.ETH)
     last_login = fields.DatetimeField(null=True)
     avatar = fields.CharField(max_length=50, null=True)
+    username = fields.CharField(max_length=50, null=True)
 
     def __str__(self):
         return self.address
