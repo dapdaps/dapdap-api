@@ -167,17 +167,23 @@ async def quest(request: Request, id: int, user: UserInfo = Depends(get_current_
         quest['action_completed'] = userQuest['action_completed']
 
     actions = await QuestAction.filter(quest_id=id).order_by("id").all().values()
+    networks = []
+    dapps = []
     if actions:
-        networks = await Network.all().values()
-        dapps = await Dapp.all().values()
         for action in actions:
+            if action['category'] != "dapp":
+                continue
+            if not networks or len(networks) == 0:
+                networks = await Network.all().values()
+            if not dapps or len(dapps) == 0:
+                dapps = await Dapp.all().values()
             operators = list()
             action['operators'] = operators
             if len(action['dapps']) == 0 or len(action['networks']) == 0:
                 continue
             actionDappIds = action['dapps'].split(',')
             actionNetworkIds = action['networks'].split(',')
-            dappNetworks = await DappNetwork.filter(dapp_id__in = actionDappIds, network_id__in = actionNetworkIds).all().values()
+            dappNetworks = await DappNetwork.filter(dapp_id__in=actionDappIds, network_id__in=actionNetworkIds).all().values()
             if len(dappNetworks) == 0:
                 continue
             for dappNetwork in dappNetworks:
@@ -201,7 +207,11 @@ async def quest(request: Request, id: int, user: UserInfo = Depends(get_current_
                     'network_name': networkName,
                     'dapp_logo': dappLogo,
                 })
-            action['dapps'] = operators
+
+        for action in actions:
+            del action['dapps']
+            del action['networks']
+            del action['to_networks']
 
     return success({
         'quest': quest,
