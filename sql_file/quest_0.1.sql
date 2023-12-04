@@ -1,6 +1,6 @@
 CREATE TABLE "quest_campaign" (
     "id" SERIAL NOT NULL PRIMARY KEY,
-    "name" VARCHAR(50) NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
     "description" VARCHAR(200) NULL,
     "start_time" BIGINT NOT NULL,
     "end_time" BIGINT NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE "quest" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "quest_campaign_id" INT NOT NULL,
     "quest_category_id" INT NOT NULL,
-    "name" VARCHAR(50) NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
     "logo" VARCHAR(100) NULL,
     "description" VARCHAR(200) NULL,
     "is_period" boolean DEFAULT TRUE,
@@ -53,7 +53,7 @@ CREATE INDEX "idx_quest_name_create" ON "quest" ("name","created_at");
 
 CREATE TABLE "quest_action" (
     "id" SERIAL NOT NULL PRIMARY KEY,
-    "name" VARCHAR(50) NOT NULL,
+    "name" VARCHAR(100) NOT NULL,
     "description" VARCHAR(200) NULL,
     "quest_campaign_id" INT NOT NULL,
     "quest_id" INT NOT NULL,

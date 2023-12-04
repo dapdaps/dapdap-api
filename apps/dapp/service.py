@@ -1,9 +1,9 @@
 from apps.dapp.models import Dapp
-from apps.quest.models import Quest, QuestAction
+from apps.quest.models import QuestAction
 from apps.user.models import UserFavorite
 
 
-async def filterDapps(user_id: int, tad_token: bool, is_favorite: bool, network_ids: str, category_ids: str, quest: int, page: int, page_size: int):
+async def filterDapps(user_id: int, tbd_token: bool, is_favorite: bool, network_ids: str, category_ids: str, quest: int, page: int, page_size: int):
     data = {
         "data": [],
         "total": 0,
@@ -47,9 +47,9 @@ async def filterDapps(user_id: int, tad_token: bool, is_favorite: bool, network_
     dappsData = list()
     for dapp in dapps:
         if not is_favorite:
-            if tad_token and dapp.tbd_token != "Y":
+            if tbd_token and dapp.tbd_token != "Y":
                 continue
-            if not tad_token and dapp.tbd_token != "N":
+            if not tbd_token and dapp.tbd_token != "N":
                 continue
         if len(filterNetworkIds) > 0:
             if len(dapp.network_ids) == 0:
