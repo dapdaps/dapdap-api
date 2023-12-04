@@ -72,8 +72,8 @@ async def relate_list(request: Request, dapp_id: int):
 
 @router.get('/filter_list', tags=['dapp'])
 @limiter.limit('60/minute')
-async def filter_list(request: Request, tad_token: bool = False, is_favorite: bool = False, network_ids: str = None, category_ids: str = None, quest: int = 0, page: int = 0, page_size: int = 100, user: UserInfo = Depends(get_current_user)):
-    data = await filterDapps(user.id, tad_token, is_favorite, network_ids, category_ids, quest, page, page_size)
+async def filter_list(request: Request, tbd_token: bool = False, is_favorite: bool = False, network_ids: str = None, category_ids: str = None, quest: int = 0, page: int = 0, page_size: int = 100, user: UserInfo = Depends(get_current_user)):
+    data = await filterDapps(user.id, tbd_token, is_favorite, network_ids, category_ids, quest, page, page_size)
     return success(data)
 
 
