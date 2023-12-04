@@ -56,17 +56,18 @@ CREATE TABLE "quest_action" (
     "name" VARCHAR(100) NOT NULL,
     "description" VARCHAR(200) NULL,
     "quest_campaign_id" INT NOT NULL,
+    "category" VARCHAR(30) NULL,
     "quest_id" INT NOT NULL,
     "category_id" INT NOT NULL DEFAULT 0,
     "source" VARCHAR(50) NULL,
     "dapps" VARCHAR(200) NULL,
     "networks" VARCHAR(100) NULL,
     "to_networks" VARCHAR(200) NULL,
-    "difficulty" INT NOT NULL,
     "times" INT NOT NULL DEFAULT 1,
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+COMMENT ON COLUMN "quest_action"."category" IS 'dapp,twitter_follow,twitter_like,twitter_retweet,twitter_quote,twitter_create,tg_join,tg_role';
 COMMENT ON COLUMN "quest_action"."source" IS '从哪里进入';
 COMMENT ON COLUMN "quest_action"."dapps" IS '指定dapp上操作';
 COMMENT ON COLUMN "quest_action"."networks" IS '指定链上操作';
@@ -75,6 +76,7 @@ COMMENT ON COLUMN "quest_action"."times" IS '需要完成几次';
 CREATE INDEX "idx_quest_action_quest_id" ON "quest_action" ("quest_id");
 CREATE INDEX "idx_quest_action_quest_campaign_id" ON "quest_action" ("quest_campaign_id");
 CREATE INDEX "idx_quest_action_name_create" ON "quest_action" ("name","created_at");
+CREATE INDEX "idx_quest_action_category_quest_campaign_id" ON "quest_action" ("category","quest_campaign_id");
 
 
 CREATE TABLE "user_quest" (
