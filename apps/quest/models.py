@@ -122,3 +122,31 @@ class QuestCampaignReward(BaseDBModel, BaseCreatedAtModel):
 
     class Meta:
         table = 'quest_campaign_reward'
+
+
+class QuestLong(BaseDBModel, BaseCreatedUpdatedAtModel):
+    name = fields.CharField(max_length=50, null=False)
+    description = fields.CharField(max_length=200, null=True)
+    category = fields.CharField(max_length=50, null=False)
+    rule = fields.TextField(null=True)
+    status = fields.CharField(max_length=20, null=False)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'quest_long'
+
+
+class UserDailyCheckIn(BaseDBModel, BaseCreatedAtModel):
+    account_id = fields.IntField(null=False)
+    quest_long_id = fields.IntField(null=False)
+    reward = fields.IntField(null=False)
+    day = fields.IntField(null=False)
+    check_in_time = fields.BigIntField(null=False)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'user_daily_check_in'

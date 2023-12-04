@@ -159,3 +159,32 @@ alter table t_action_record add column "network_id" INT NULL;
 alter table t_action_record add column "dapp_id" INT NULL;
 alter table t_action_record add column "to_network_id" INT NULL;
 alter table t_action_record add column "category_id" INT NULL;
+
+
+CREATE TABLE "quest_long" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(50) NOT NULL,
+    "description" VARCHAR(200) NULL,
+    "rule" TEXT NULL,
+    "category" VARCHAR(50) NOT NULL,
+    "status" VARCHAR(20) NOT NULL,
+    "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+COMMENT ON COLUMN "quest_long"."category" IS 'daily_check_in,invite';
+COMMENT ON COLUMN "quest_long"."status" IS 'ongoing,completed';
+CREATE INDEX "idx_quest_long_category" ON "quest_long" ("category","status");
+
+
+CREATE TABLE "user_daily_check_in" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "quest_long_id" INT NOT NULL,
+    "account_id" INT NOT NULL,
+    "day" INT NOT NULL,
+    "reward" INT NOT NULL,
+    "check_in_time" bigint NOT NULL,
+    "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+COMMENT ON COLUMN "user_daily_check_in"."check_in_time" IS 'check in time/utc 0点';
+CREATE unique INDEX "idx_user_daily_check_in_account_quest_check_in_time" ON "user_daily_check_in" ("account_id","quest_long_id","check_in_time");
+CREATE unique INDEX "idx_user_daily_check_in_account_quest_day" ON "user_daily_check_in" ("account_id", "quest_long_id", "day");

@@ -25,6 +25,7 @@ from apps.uniswap_rpc.routes import router as uniswap_router
 from core.auth.routes import router as auth_router
 from apps.dapp.routes import router as dapp_router
 from apps.user.routes import router as user_router
+
 from apps.quest.routes import router as quest_router
 
 

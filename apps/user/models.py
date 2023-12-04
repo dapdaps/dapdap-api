@@ -27,6 +27,7 @@ class UserInfo(BaseDBModel, BaseCreatedAtModel):
     class Meta:
         table = 'user_info'
 
+
 class GroupInfo(BaseDBModel, BaseCreatedUpdatedAtModel):
     name = fields.CharField(max_length=100, unique=True, description="group name")
     title = fields.CharField(max_length=255, description="group title")

@@ -1,14 +1,17 @@
+from datetime import datetime
+import json
 import logging
 
 from tortoise.functions import Sum, Count
 from starlette.requests import Request
 
 from apps.dapp.models import Network, Dapp, DappNetwork
-from apps.quest.models import QuestCampaign, Quest, UserQuest, QuestCategory, QuestAction, QuestCampaignReward
+from apps.quest.models import QuestCampaign, Quest, UserQuest, QuestCategory, QuestAction, QuestCampaignReward, UserDailyCheckIn, QuestLong
 from apps.user.models import UserInfo, UserFavorite
 from core.utils.base_util import get_limiter
 from fastapi import APIRouter, Depends
 from core.auth.utils import get_current_user
+from core.utils.time_util import getUtcSecond
 from core.utils.tool_util import success, error
 
 
@@ -232,3 +235,176 @@ async def leaderboard(request: Request, campaign_id: int, page: int, page_size: 
         'data': data,
         'total': total['count'],
     })
+
+
+@router.get('/daily_check_in', tags=['quest'])
+@limiter.limit('60/minute')
+async def daily_check_in(request: Request, user: UserInfo = Depends(get_current_user)):
+    dailyCheckInQuest = await QuestLong.filter(category='daily_check_in', status='ongoing').order_by("-id").first()
+    if not dailyCheckInQuest:
+        return success()
+
+    userDailyCheckIns = await UserDailyCheckIn.filter(account_id=user.id, quest_long_id=dailyCheckInQuest.id).all().order_by("check_in_time")
+    rule = json.loads(dailyCheckInQuest.rule)
+    reward_single_day = rule['reward_single_day']
+    reward_consecutive = rule['reward_consecutive']
+    data = list()
+
+    if len(userDailyCheckIns) == 0:
+        index = 0
+        reward = 0
+        while index < 7:
+            rewardConsecutiveIndex = len(reward_consecutive)-1
+            while rewardConsecutiveIndex >= 0:
+                if reward_consecutive[rewardConsecutiveIndex]['day'] < index+1:
+                    reward = reward_consecutive['reward']
+                    break
+                rewardConsecutiveIndex -= 1
+            if reward == 0:
+                reward = reward_single_day
+            data.append({
+                'day:': index+1,
+                'reward': reward,
+                'status': "claim" if index == 0 else "will_claim"
+            })
+            index += 1
+        return success(data)
+
+    checkInTime = getUtcSecond()
+    oneDaySecond = 24 * 60 * 60
+    delta = datetime.utcfromtimestamp(checkInTime) - datetime.utcfromtimestamp(userDailyCheckIns[0].check_in_time)
+    checkInDay = delta.days+1
+
+    for index, userDailyCheckIn in enumerate(userDailyCheckIns):
+        if userDailyCheckIn.day > 1 and userDailyCheckIn.day != userDailyCheckIns[index-1].day+1:
+            expiredDay = userDailyCheckIns[index-1].day+1
+            while expiredDay < userDailyCheckIn.day:
+                data.append({
+                    'day:': expiredDay,
+                    'reward': reward_single_day,
+                    'status': "expired"
+                })
+                expiredDay += 1
+        data.append({
+            'day:': userDailyCheckIn.day,
+            'reward': userDailyCheckIn.reward,
+            'status': "claimed"
+        })
+    if userDailyCheckIns[len(userDailyCheckIns)-1].check_in_time != checkInTime and userDailyCheckIns[len(userDailyCheckIns)-1].check_in_time != checkInTime-oneDaySecond:
+        expiredDay = userDailyCheckIns[len(userDailyCheckIns)-1].day+1
+        while expiredDay <= delta.days:
+            data.append({
+                'day:': expiredDay,
+                'reward': reward_single_day,
+                'status': "expired"
+            })
+            expiredDay += 1
+
+    daysConsecutive = 1
+    if userDailyCheckIns[len(userDailyCheckIns) - 1].check_in_time != checkInTime-oneDaySecond:
+        daysConsecutive = 0
+    else:
+        userDailyChecnInIndex = len(userDailyCheckIns) - 1
+        while userDailyChecnInIndex >= 0:
+            if userDailyChecnInIndex == len(userDailyCheckIns) - 1:
+                daysConsecutive = 1
+            elif userDailyCheckIns[userDailyChecnInIndex+1].check_in_time - userDailyCheckIns[userDailyChecnInIndex].check_in_time <= 24*60*60:
+                daysConsecutive += 1
+            else:
+                break
+            userDailyChecnInIndex -= 1
+
+    nextDays = 1 if len(data) >= 7 else 7-len(data)
+    nextDay = 0
+    if userDailyCheckIns[len(userDailyCheckIns) - 1].check_in_time == checkInTime:
+        nextDay = userDailyCheckIns[len(userDailyCheckIns) - 1].day + 1
+    else:
+        nextDay = checkInDay
+    nextDayEnd = nextDay+nextDays
+    while nextDay < nextDayEnd:
+        reward = 0
+        rewardConsecutiveIndex = len(reward_consecutive) - 1
+        while rewardConsecutiveIndex >= 0:
+            if reward_consecutive[rewardConsecutiveIndex]['day'] <= daysConsecutive:
+                reward = reward_consecutive[rewardConsecutiveIndex]['reward']
+                break
+            rewardConsecutiveIndex -= 1
+        if reward == 0:
+            reward = reward_single_day
+        data.append({
+            'day': nextDay,
+            'reward': reward,
+            'status': "claim" if nextDay == checkInDay else "will_claim",
+        })
+        nextDay += 1
+        daysConsecutive += 1
+
+    return success(data)
+
+
+@router.post('/daily_check_in', tags=['quest'])
+@limiter.limit('60/minute')
+async def claim_daily_check_in(request: Request, user: UserInfo = Depends(get_current_user)):
+    dailyCheckInQuest = await QuestLong.filter(category='daily_check_in', status='ongoing').order_by("-id").first()
+    if not dailyCheckInQuest:
+        return error("daily check in not exist")
+
+    checkInTime = getUtcSecond()
+    oneDaySecond = 24 * 60 * 60
+
+    hasCheckIn = await UserDailyCheckIn.filter(account_id=user.id, quest_long_id=dailyCheckInQuest.id, check_in_time=checkInTime).first()
+    if hasCheckIn:
+        return error("already check in")
+
+    userDailyCheckIns = await UserDailyCheckIn.filter(account_id=user.id,quest_long_id=dailyCheckInQuest.id).all().order_by("check_in_time")
+    rule = json.loads(dailyCheckInQuest.rule)
+    reward_single_day = rule['reward_single_day']
+    reward_consecutive = rule['reward_consecutive']
+
+    if len(userDailyCheckIns) == 0:
+        dailyCheckIn = UserDailyCheckIn()
+        dailyCheckIn.account_id = user.id
+        dailyCheckIn.quest_long_id = dailyCheckInQuest.id
+        dailyCheckIn.reward = reward_single_day
+        dailyCheckIn.day = 1
+        dailyCheckIn.check_in_time = checkInTime
+        await dailyCheckIn.save()
+        return success({
+            'day': 1,
+            'reward': reward_single_day,
+        })
+
+    daysConsecutive = 1
+    if userDailyCheckIns[len(userDailyCheckIns) - 1].check_in_time != checkInTime-oneDaySecond:
+        daysConsecutive = 0
+    else:
+        userDailyChecnInIndex = len(userDailyCheckIns) - 1
+        while userDailyChecnInIndex >= 0:
+            if userDailyChecnInIndex == len(userDailyCheckIns) - 1:
+                daysConsecutive = 1
+            elif userDailyCheckIns[userDailyChecnInIndex + 1].check_in_time - userDailyCheckIns[userDailyChecnInIndex].check_in_time <= oneDaySecond:
+                daysConsecutive += 1
+            else:
+                break
+            userDailyChecnInIndex -= 1
+
+    reward = reward_single_day
+    rewardConsecutiveIndex = len(reward_consecutive) - 1
+    while rewardConsecutiveIndex >= 0:
+        if reward_consecutive[rewardConsecutiveIndex]['day'] <= daysConsecutive:
+            reward = reward_consecutive[rewardConsecutiveIndex]['reward']
+            break
+        rewardConsecutiveIndex -= 1
+
+    delta = datetime.utcfromtimestamp(checkInTime) - datetime.utcfromtimestamp(userDailyCheckIns[0].check_in_time)
+    dailyCheckIn = UserDailyCheckIn()
+    dailyCheckIn.account_id = user.id
+    dailyCheckIn.quest_long_id = dailyCheckInQuest.id
+    dailyCheckIn.reward = reward
+    dailyCheckIn.day = userDailyCheckIns[0].day+delta.days
+    dailyCheckIn.check_in_time = checkInTime
+    await dailyCheckIn.save()
+    return success({
+            'day': dailyCheckIn.day,
+            'reward': dailyCheckIn.reward,
+        })
