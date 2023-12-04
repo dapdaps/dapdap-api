@@ -57,16 +57,6 @@ CREATE TABLE "category" (
 );
 COMMENT ON COLUMN "category"."name" IS 'Bridge,Dex,Lending,Liquidity,Staking,Yield';
 
-CREATE TABLE "dapp_favorite" (
-    "id" SERIAL NOT NULL PRIMARY KEY,
-    "account_id" INT NOT NULL,
-    "dapp_id" INT NOT NULL,
-    "is_favorite" BOOL NOT NULL DEFAULT False,
-    "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-CREATE INDEX "idx_dapp_favorite_dapp" ON "dapp_favorite" ("dapp_id","created_at");
-CREATE UNIQUE INDEX "idx_dapp_favorite_account_id" ON "dapp_favorite" ("account_id","dapp_id");
-
 
 CREATE TABLE "dapp_relate" (
     "id" SERIAL NOT NULL PRIMARY KEY,

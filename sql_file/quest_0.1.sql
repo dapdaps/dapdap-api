@@ -94,6 +94,7 @@ CREATE unique index "idx_user_request_account_quest" ON "user_quest" ("account_i
 CREATE INDEX "idx_user_request_account_campaign_creat" ON "user_quest" ("account_id","quest_campaign_id","created_at");
 CREATE INDEX "idx_user_request_quest_id" ON "user_quest" ("quest_id");
 CREATE INDEX "idx_user_request_quest_campaign_id" ON "user_quest" ("quest_campaign_id");
+CREATE INDEX "idx_user_request_account_claimed_create" ON "user_quest" ("account_id","is_claimed","claimed_at");
 
 
 CREATE TABLE "user_quest_action" (
@@ -112,18 +113,7 @@ CREATE unique index "idx_user_quest_action_account_action" ON "user_quest_action
 CREATE INDEX "idx_user_quest_action_account_quest" ON "user_quest_action" ("account_id","quest_id");
 
 
-CREATE TABLE "user_reward" (
-    "id" SERIAL NOT NULL PRIMARY KEY,
-    "account_id" INT NOT NULL,
-    "total_reward" INT NOT NULL,
-    "claimed_reward" INT NOT NULL,
-    "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-CREATE INDEX "idx_user_reward_account" ON "user_reward" ("account_id");
-
-
-CREATE TABLE "user_reward_quest_campaign" (
+CREATE TABLE "quest_campaign_reward" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "account_id" INT NOT NULL,
     "quest_campaign_id" INT NOT NULL,
@@ -131,8 +121,20 @@ CREATE TABLE "user_reward_quest_campaign" (
     "rank" INT NOT NULL,
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX "idx_user_reward_quest_campaign" ON "user_reward_quest_campaign" ("quest_campaign_id","rank");
-CREATE INDEX "idx_user_reward_quest_campaign_account_campaign" ON "user_reward_quest_campaign" ("account_id","quest_campaign_id");
+CREATE INDEX "idx_quest_campaign_reward_campaign_rank" ON "quest_campaign_reward" ("quest_campaign_id","rank");
+CREATE INDEX "idx_quest_campaign_reward_account_campaign" ON "quest_campaign_reward" ("account_id","quest_campaign_id");
+
+
+CREATE TABLE "user_reward" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "account_id" INT NOT NULL,
+    "reward" INT NOT NULL,
+    "claimed_reward" INT NOT NULL,
+    "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX "idx_user_reward_account" ON "user_reward" ("account_id");
+CREATE INDEX "idx_user_reward_reward" ON "user_reward" ("reward");
 
 
 CREATE TABLE "user_favorite" (
@@ -157,3 +159,32 @@ alter table t_action_record add column "network_id" INT NULL;
 alter table t_action_record add column "dapp_id" INT NULL;
 alter table t_action_record add column "to_network_id" INT NULL;
 alter table t_action_record add column "category_id" INT NULL;
+
+
+CREATE TABLE "quest_long" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "name" VARCHAR(50) NOT NULL,
+    "description" VARCHAR(200) NULL,
+    "rule" TEXT NULL,
+    "category" VARCHAR(50) NOT NULL,
+    "status" VARCHAR(20) NOT NULL,
+    "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+COMMENT ON COLUMN "quest_long"."category" IS 'daily_check_in,invite';
+COMMENT ON COLUMN "quest_long"."status" IS 'ongoing,completed';
+CREATE INDEX "idx_quest_long_category" ON "quest_long" ("category","status");
+
+
+CREATE TABLE "user_daily_check_in" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "quest_long_id" INT NOT NULL,
+    "account_id" INT NOT NULL,
+    "day" INT NOT NULL,
+    "reward" INT NOT NULL,
+    "check_in_time" bigint NOT NULL,
+    "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+COMMENT ON COLUMN "user_daily_check_in"."check_in_time" IS 'check in time/utc 0点';
+CREATE unique INDEX "idx_user_daily_check_in_account_quest_check_in_time" ON "user_daily_check_in" ("account_id","quest_long_id","check_in_time");
+CREATE unique INDEX "idx_user_daily_check_in_account_quest_day" ON "user_daily_check_in" ("account_id", "quest_long_id", "day");

@@ -1,3 +1,5 @@
+from tortoise.fields import CASCADE
+
 from core.base.base_models import BaseDBModel, BaseCreatedUpdatedAtModel, BaseCreatedAtModel
 from tortoise import fields
 
@@ -76,12 +78,14 @@ class QuestCategory(BaseDBModel, BaseCreatedAtModel):
 
 class UserQuest(BaseDBModel, BaseCreatedUpdatedAtModel):
     account_id = fields.IntField(null=False)
-    quest_id = fields.IntField(null=False)
     quest_campaign_id = fields.IntField(null=False)
     action_completed = fields.IntField(null=False)
     status = fields.CharField(max_length=20, null=False)
     is_claimed = fields.BooleanField()
     claimed_at = fields.DatetimeField(null=True)
+    quest = fields.ForeignKeyField(
+        'models.Quest', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True, related_name="quest",
+    )
 
     def __str__(self):
         return self.id
@@ -103,3 +107,46 @@ class UserRequestAction(BaseDBModel, BaseCreatedUpdatedAtModel):
 
     class Meta:
         table = 'user_action'
+
+
+class QuestCampaignReward(BaseDBModel, BaseCreatedAtModel):
+    quest_campaign_id = fields.IntField(null=False)
+    reward = fields.IntField(null=False)
+    rank = fields.IntField(null=False)
+    account = fields.ForeignKeyField(
+        'models.UserInfo', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True, related_name="user",
+    )
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'quest_campaign_reward'
+
+
+class QuestLong(BaseDBModel, BaseCreatedUpdatedAtModel):
+    name = fields.CharField(max_length=50, null=False)
+    description = fields.CharField(max_length=200, null=True)
+    category = fields.CharField(max_length=50, null=False)
+    rule = fields.TextField(null=True)
+    status = fields.CharField(max_length=20, null=False)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'quest_long'
+
+
+class UserDailyCheckIn(BaseDBModel, BaseCreatedAtModel):
+    account_id = fields.IntField(null=False)
+    quest_long_id = fields.IntField(null=False)
+    reward = fields.IntField(null=False)
+    day = fields.IntField(null=False)
+    check_in_time = fields.BigIntField(null=False)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'user_daily_check_in'
