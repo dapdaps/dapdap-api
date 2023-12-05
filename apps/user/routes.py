@@ -1,10 +1,11 @@
 import logging
+import math
 
 from tortoise.functions import Count
 
 from apps.dapp.models import Dapp
 from apps.invite.models import InviteCodePool
-from apps.quest.models import QuestCampaign, Quest, QuestCampaignReward
+from apps.quest.models import QuestCampaign, Quest, QuestCampaignReward, UserQuest
 from apps.user.dao import updateUserFavorite
 from apps.user.models import UserInfo, UserFavorite
 from apps.user.schemas import FavoriteIn
@@ -21,17 +22,25 @@ router = APIRouter(prefix="/api/user")
 
 @router.get('', tags=['user'])
 @limiter.limit('60/minute')
-async def user(request: Request, user: UserInfo = Depends(get_current_user)):
+async def user(request: Request, campaign_id: int, user: UserInfo = Depends(get_current_user)):
     userInfo = await UserInfo.filter(id=user.id).first()
     inviteTotal = await InviteCodePool.filter(creator_user_id=user.id, is_used=True).all().annotate(count=Count('id')).first().values("count")
-    rewardRank = await QuestCampaignReward.filter(account_id=user.id).order_by("-id").first()
+    rewardRank = await QuestCampaignReward.filter(quest_campaign_id=campaign_id, account_id=user.id).first()
+
+    achieved = 0
+    completedQuest = await UserQuest.filter(quest_campaign_id=campaign_id, account_id=user.id, status='completed').annotate(count=Count('id')).first().values("count")
+    if completedQuest['count'] > 0:
+        totalQuest = await Quest.filter(quest_campaign_id=campaign_id).annotate(count=Count('id')).first().values("count")
+        achieved = math.ceil(completedQuest['count']/totalQuest['count']*100)
+
     return success({
         'id': userInfo.id,
         'address': userInfo.address,
         'avatar': userInfo.avatar,
         'reward': rewardRank.reward,
-        'rank': rewardRank.rank,
-        'total_invited':inviteTotal['count']
+        #'rank': rewardRank.rank,
+        'total_invited': inviteTotal['count'],
+        'achieved': achieved
     })
 
 
