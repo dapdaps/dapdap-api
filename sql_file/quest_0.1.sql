@@ -12,7 +12,7 @@ CREATE TABLE "quest_campaign" (
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-COMMENT ON COLUMN "quest_campaign"."status" IS 'un_start,ongoing,finished';
+COMMENT ON COLUMN "quest_campaign"."status" IS 'un_start,ongoing,ended';
 
 
 CREATE TABLE "quest_category" (
@@ -44,11 +44,11 @@ CREATE TABLE "quest" (
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-COMMENT ON COLUMN "quest"."status" IS 'un_start,ongoing,finished';
+COMMENT ON COLUMN "quest"."status" IS 'un_start,ongoing,ended';
 CREATE INDEX "idx_quest_campaign_id_create" ON "quest" ("quest_campaign_id","created_at");
 CREATE INDEX "idx_quest_campaign_id_priority_create" ON "quest" ("quest_campaign_id", "priority", "created_at");
 CREATE INDEX "idx_quest_category_create" ON "quest" ("quest_category_id","created_at");
-CREATE INDEX "idx_quest_campaign_id_status" ON "quest" ("quest_campaign_id","status");
+CREATE INDEX "idx_quest_status_campaign_id" ON "quest" ("status","quest_campaign_id");
 
 
 CREATE TABLE "quest_action" (
@@ -91,7 +91,7 @@ CREATE TABLE "user_quest" (
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-COMMENT ON COLUMN "user_quest"."status" IS 'in_process,expired,completed,un_claimed';
+COMMENT ON COLUMN "user_quest"."status" IS 'in_process,expired,completed';
 CREATE unique index "idx_user_request_account_quest" ON "user_quest" ("account_id","quest_id");
 CREATE INDEX "idx_user_request_account_campaign_creat" ON "user_quest" ("account_id","quest_campaign_id","created_at");
 CREATE INDEX "idx_user_request_quest_id" ON "user_quest" ("quest_id");
@@ -121,10 +121,11 @@ CREATE TABLE "quest_campaign_reward" (
     "account_id" INT NOT NULL,
     "quest_campaign_id" INT NOT NULL,
     "reward" INT NOT NULL,
+    "rank" INT NOT NULL DEFAULT 0,
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
---CREATE INDEX "idx_quest_campaign_reward_campaign_rank" ON "quest_campaign_reward" ("quest_campaign_id","rank");
+CREATE INDEX "idx_quest_campaign_reward_campaign_rank" ON "quest_campaign_reward" ("quest_campaign_id","rank");
 CREATE unique INDEX "idx_quest_campaign_reward_account_campaign" ON "quest_campaign_reward" ("account_id","quest_campaign_id");
 CREATE INDEX "idx_quest_campaign_reward_campaign_reward_update" ON "quest_campaign_reward" ("quest_campaign_id","reward","updated_at")
 
