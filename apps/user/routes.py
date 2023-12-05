@@ -38,7 +38,7 @@ async def user(request: Request, campaign_id: int, user: UserInfo = Depends(get_
         'address': userInfo.address,
         'avatar': userInfo.avatar,
         'reward': rewardRank.reward,
-        #'rank': rewardRank.rank,
+        'rank': rewardRank.rank,
         'total_invited': inviteTotal['count'],
         'achieved': achieved
     })

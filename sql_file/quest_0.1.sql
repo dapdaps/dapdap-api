@@ -121,10 +121,11 @@ CREATE TABLE "quest_campaign_reward" (
     "account_id" INT NOT NULL,
     "quest_campaign_id" INT NOT NULL,
     "reward" INT NOT NULL,
+    "rank" INT NOT NULL DEFAULT 0,
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
---CREATE INDEX "idx_quest_campaign_reward_campaign_rank" ON "quest_campaign_reward" ("quest_campaign_id","rank");
+CREATE INDEX "idx_quest_campaign_reward_campaign_rank" ON "quest_campaign_reward" ("quest_campaign_id","rank");
 CREATE unique INDEX "idx_quest_campaign_reward_account_campaign" ON "quest_campaign_reward" ("account_id","quest_campaign_id");
 CREATE INDEX "idx_quest_campaign_reward_campaign_reward_update" ON "quest_campaign_reward" ("quest_campaign_id","reward","updated_at")
 
