@@ -58,9 +58,22 @@ async def quest_list(request: Request, campaign_id: int, user: UserInfo = Depend
 @router.get('/recommend_list', tags=['quest'])
 @limiter.limit('60/minute')
 async def recommend_list(request: Request, campaign_id: int, page: int = 1, page_size: int = 4, user: UserInfo = Depends(get_current_user)):
-    quests = await Quest.filter(quest_campaign_id=campaign_id).order_by('-priority').limit(page_size).offset((page-1)*page_size).values()
+    totalQuests = await Quest.filter(quest_campaign_id=campaign_id, priority__gte=1).annotate(count=Count('id')).first().values('count')
+    total = totalQuests['count']
+    total_page = math.ceil(total/page_size)
+    if total == 0:
+        return success({
+            'data': [],
+            'total_page': total_page,
+        })
+
+    quests = await Quest.filter(quest_campaign_id=campaign_id, priority__gte=1).order_by('-priority').limit(page_size).offset((page-1)*page_size).values()
     if len(quests) == 0:
-        return success()
+        return success({
+            'data': [],
+            'total_page': total_page,
+        })
+
     questIds = list()
     for quest in quests:
         questIds.append(quest['id'])
@@ -73,7 +86,10 @@ async def recommend_list(request: Request, campaign_id: int, page: int = 1, page
             if quest['id'] == userQuest['quest_id']:
                 quest['action_completed'] = userQuest['action_completed']
                 break
-    return success(quests)
+    return success({
+        'data': quests,
+        'total_page': total_page,
+    })
 
 
 @router.get('/participation_list', tags=['quest'])
@@ -231,11 +247,12 @@ async def leaderboard(request: Request, campaign_id: int, page: int, page_size: 
     if not campaign:
         return error("not find quest campaign")
     total = await QuestCampaignReward.filter(quest_campaign_id=campaign_id).annotate(count=Count('id')).first().values("count")
-    userRewards = await QuestCampaignReward.filter(quest_campaign_id=campaign_id).order_by("reward").offset((page-1)*page_size).limit(page_size).select_related("account")
+    userRewards = await QuestCampaignReward.filter(quest_campaign_id=campaign_id).order_by("rank").offset((page-1)*page_size).limit(page_size).select_related("account")
     data = list()
     for userReward in userRewards:
         data.append({
             'reward': userReward.reward,
+            'rank': userReward.rank,
             'account': {
                 'id': userReward.account.id,
                 'address': userReward.account.address,
