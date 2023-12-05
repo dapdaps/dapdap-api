@@ -14,7 +14,6 @@ import logging
 import datetime
 from tortoise.expressions import Q
 from core.utils.tool_util import success
-from tortoise.functions import Sum
 from fastapi_pagination.ext.tortoise import paginate
 from core.base.db_provider import query_special_action
 
@@ -109,6 +108,10 @@ async def add_action(request: Request, action_in: ActionIn):
     action_record.gas = ""
     action_record.timestamp = timestamp
     action_record.create_time = now_time
+    action_record.network_id = action_in.network_id
+    action_record.dapp_id = action_in.dapp_id
+    action_record.to_network_id = action_in.to_network_id
+    action_record.category_id = action_in.category_id
 
     await action_record.save()
 
