@@ -12,7 +12,7 @@ CREATE TABLE "quest_campaign" (
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-COMMENT ON COLUMN "quest_campaign"."status" IS 'un_start,ongoing,finished';
+COMMENT ON COLUMN "quest_campaign"."status" IS 'un_start,ongoing,ended';
 
 
 CREATE TABLE "quest_category" (
@@ -44,11 +44,11 @@ CREATE TABLE "quest" (
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-COMMENT ON COLUMN "quest"."status" IS 'un_start,ongoing,finished';
+COMMENT ON COLUMN "quest"."status" IS 'un_start,ongoing,ended';
 CREATE INDEX "idx_quest_campaign_id_create" ON "quest" ("quest_campaign_id","created_at");
 CREATE INDEX "idx_quest_campaign_id_priority_create" ON "quest" ("quest_campaign_id", "priority", "created_at");
 CREATE INDEX "idx_quest_category_create" ON "quest" ("quest_category_id","created_at");
-CREATE INDEX "idx_quest_campaign_id_status" ON "quest" ("quest_campaign_id","status");
+CREATE INDEX "idx_quest_status_campaign_id" ON "quest" ("status","quest_campaign_id");
 
 
 CREATE TABLE "quest_action" (
