@@ -45,6 +45,10 @@ class ActionRecord(BaseDBModel):
     gas = fields.CharField(max_length=255, null=True)
     timestamp = fields.BigIntField(index=True)
     create_time = fields.DatetimeField()
+    network_id = fields.IntField()
+    dapp_id = fields.IntField()
+    to_network_id = fields.IntField()
+    category_id = fields.IntField()
 
     def __str__(self):
         return self.action_id

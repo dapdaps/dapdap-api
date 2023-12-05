@@ -112,7 +112,6 @@ class UserRequestAction(BaseDBModel, BaseCreatedUpdatedAtModel):
 class QuestCampaignReward(BaseDBModel, BaseCreatedAtModel):
     quest_campaign_id = fields.IntField(null=False)
     reward = fields.IntField(null=False)
-    rank = fields.IntField(null=False)
     account = fields.ForeignKeyField(
         'models.UserInfo', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True, related_name="user",
     )

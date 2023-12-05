@@ -2,6 +2,7 @@ from datetime import datetime
 import json
 import logging
 
+import math
 from tortoise.functions import Sum, Count
 from starlette.requests import Request
 
@@ -222,16 +223,19 @@ async def quest(request: Request, id: int, user: UserInfo = Depends(get_current_
 @router.get('/leaderboard', tags=['quest'])
 @limiter.limit('60/minute')
 async def leaderboard(request: Request, campaign_id: int, page: int, page_size: int = 10):
+    if page <= 0:
+        page = 1
+    if page_size <= 0:
+        page_size = 10
     campaign = await QuestCampaign.filter(id=campaign_id).first().values("total_reward", "total_users", "total_quest_execution")
     if not campaign:
         return error("not find quest campaign")
     total = await QuestCampaignReward.filter(quest_campaign_id=campaign_id).annotate(count=Count('id')).first().values("count")
-    userRewards = await QuestCampaignReward.filter(quest_campaign_id=campaign_id).order_by("rank").offset((page-1)*page_size).limit(page_size).select_related("account")
+    userRewards = await QuestCampaignReward.filter(quest_campaign_id=campaign_id).order_by("reward").offset((page-1)*page_size).limit(page_size).select_related("account")
     data = list()
     for userReward in userRewards:
         data.append({
             'reward': userReward.reward,
-            'rank': userReward.rank,
             'account': {
                 'id': userReward.account.id,
                 'address': userReward.account.address,
@@ -243,7 +247,7 @@ async def leaderboard(request: Request, campaign_id: int, page: int, page_size: 
         'total_users': campaign['total_users'],
         'total_quest_execution': campaign['total_quest_execution'],
         'data': data,
-        'total': total['count'],
+        'total_page': math.ceil(total['count']/page_size),
     })
 
 

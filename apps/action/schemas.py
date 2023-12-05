@@ -35,6 +35,11 @@ class ActionIn(BaseModel):
    action_tokens: Optional[str] = ""
    action_amount: Optional[str] = ""
    template: Optional[str] = ""
+   source: Optional[str] = ""
+   network_id: Optional[int] = 0
+   dapp_id: Optional[int] = 0
+   to_network_id: Optional[int] = 0
+   category_id: Optional[int] = 0
    
    
 class DeleteActionIn(BaseModel):
