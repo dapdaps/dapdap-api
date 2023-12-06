@@ -11,6 +11,15 @@ class QuestCampaign(BaseDBModel, BaseCreatedUpdatedAtModel):
     end_time = fields.BigIntField(null=False)
     status = fields.CharField(max_length=20, null=False)
     favorite = fields.IntField(null=False)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'quest_campaign'
+
+
+class QuestCampaignInfo(BaseDBModel, BaseCreatedUpdatedAtModel):
     total_reward = fields.IntField()
     total_users = fields.IntField()
     total_quest_execution = fields.IntField()
@@ -19,7 +28,7 @@ class QuestCampaign(BaseDBModel, BaseCreatedUpdatedAtModel):
         return self.id
 
     class Meta:
-        table = 'quest_campaign'
+        table = 'quest_campaign_info'
 
 
 class Quest(BaseDBModel, BaseCreatedUpdatedAtModel):
@@ -150,3 +159,17 @@ class UserDailyCheckIn(BaseDBModel, BaseCreatedAtModel):
 
     class Meta:
         table = 'user_daily_check_in'
+
+
+class UserRewardRank(BaseDBModel, BaseCreatedAtModel):
+    reward = fields.IntField(null=False)
+    rank = fields.IntField(null=False)
+    account = fields.ForeignKeyField(
+        'models.UserInfo', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True, related_name="account",
+    )
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'user_reward_rank'
