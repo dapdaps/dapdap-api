@@ -6,13 +6,20 @@ CREATE TABLE "quest_campaign" (
     "end_time" BIGINT NOT NULL,
     "favorite" INT DEFAULT 0,
     "status" VARCHAR(20) NOT NULL,
+    "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+COMMENT ON COLUMN "quest_campaign"."status" IS 'un_start,ongoing,ended';
+
+
+CREATE TABLE "quest_campaign_info" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
     "total_reward" INT DEFAULT 0,
     "total_users" INT DEFAULT 0,
     "total_quest_execution" INT DEFAULT 0,
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-COMMENT ON COLUMN "quest_campaign"."status" IS 'un_start,ongoing,ended';
 
 
 CREATE TABLE "quest_category" (
@@ -116,20 +123,6 @@ CREATE INDEX "idx_user_quest_action_account_quest" ON "user_quest_action" ("acco
 CREATE INDEX "idx_user_quest_action_campaign_status" ON "user_quest_action" ("quest_campaign_id","status");
 
 
-CREATE TABLE "quest_campaign_reward" (
-    "id" SERIAL NOT NULL PRIMARY KEY,
-    "account_id" INT NOT NULL,
-    "quest_campaign_id" INT NOT NULL,
-    "reward" INT NOT NULL,
-    "rank" INT NOT NULL DEFAULT 0,
-    "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-CREATE INDEX "idx_quest_campaign_reward_campaign_rank" ON "quest_campaign_reward" ("quest_campaign_id","rank");
-CREATE unique INDEX "idx_quest_campaign_reward_account_campaign" ON "quest_campaign_reward" ("account_id","quest_campaign_id");
-CREATE INDEX "idx_quest_campaign_reward_campaign_reward_update" ON "quest_campaign_reward" ("quest_campaign_id","reward","updated_at")
-
-
 CREATE TABLE "user_reward" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "account_id" INT NOT NULL,
@@ -150,7 +143,8 @@ CREATE TABLE "user_reward_rank" (
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE unique INDEX "idx_user_reward_rank_account_rank" ON "user_reward_rank" ("account_id","rank");
+CREATE unique INDEX "idx_user_reward_rank_account" ON "user_reward_rank" ("account_id");
+CREATE INDEX "idx_user_reward_rank_rank" ON "user_reward_rank" ("rank");
 
 
 CREATE TABLE "user_favorite" (
