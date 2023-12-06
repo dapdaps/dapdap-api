@@ -21,6 +21,11 @@ class Action(Model):
     action_network_id = fields.CharField(max_length=255, null=True, index=True)
     timestamp = fields.BigIntField(index=True)
     create_time = fields.DatetimeField()
+    source = fields.CharField(max_length=50, null=True, index=True)
+    network_id = fields.IntField()
+    dapp_id = fields.IntField()
+    to_network_id = fields.IntField()
+    category_id = fields.IntField()
 
     def __str__(self):
         return self.id
