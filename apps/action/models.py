@@ -59,6 +59,7 @@ class ActionRecord(BaseDBModel):
 
 class ActionChain(BaseDBModel):
     count =  fields.IntField()
+    network_id = fields.IntField()
     action_title =  fields.CharField(max_length=512, null=False)
     template =  fields.CharField(max_length=255, null=False)
     action_network_id =  fields.CharField(max_length=128, null=False)
