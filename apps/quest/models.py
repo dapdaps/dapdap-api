@@ -3,6 +3,7 @@ from tortoise.fields import CASCADE
 from core.base.base_models import BaseDBModel, BaseCreatedUpdatedAtModel, BaseCreatedAtModel
 from tortoise import fields
 
+
 class QuestCampaign(BaseDBModel, BaseCreatedUpdatedAtModel):
     name = fields.CharField(max_length=50, null=False)
     description = fields.CharField(max_length=200, null=True)

@@ -59,7 +59,7 @@ def query_special_action():
 async def start_transaction(fun):
     async with in_transaction() as connection:
         # await connection.execute_query("YOUR SQL QUERY HERE")
-        await fun(connection)
+        return await fun(connection)
 
 
 if __name__ == '__main__':

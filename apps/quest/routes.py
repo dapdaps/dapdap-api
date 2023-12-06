@@ -7,8 +7,11 @@ from tortoise.functions import Sum, Count
 from starlette.requests import Request
 
 from apps.dapp.models import Network, Dapp, DappNetwork
+from apps.quest.dao import claimReward
 from apps.quest.models import QuestCampaign, Quest, UserQuest, QuestCategory, QuestAction, QuestCampaignReward, UserDailyCheckIn, QuestLong
+from apps.quest.schemas import ClaimIn
 from apps.user.models import UserInfo, UserFavorite
+from core.common.constants import STATUS_COMPLETED
 from core.utils.base_util import get_limiter
 from fastapi import APIRouter, Depends
 from core.auth.utils import get_current_user
@@ -439,3 +442,21 @@ async def claim_daily_check_in(request: Request, user: UserInfo = Depends(get_cu
             'day': dailyCheckIn.day,
             'reward': dailyCheckIn.reward,
         })
+
+
+@router.post('/claim', tags=['quest'])
+@limiter.limit('60/minute')
+async def claim_reward(request: Request, claimIn: ClaimIn, user: UserInfo = Depends(get_current_user)):
+    userQuest = await UserQuest.filter(quest_id=claimIn.id,account_id=user.id).first().select_related('quest')
+    if not userQuest:
+        return error("not find quest")
+    if userQuest.status != STATUS_COMPLETED:
+        return error("Cannot be claimed")
+    if userQuest.is_claimed:
+        return error("Already claimed,Cannot be claimed multiple times")
+
+    await claimReward(user.id, userQuest.id)
+    return success({
+        'reward': userQuest.quest.reward
+    })
+
