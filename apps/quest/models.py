@@ -143,7 +143,6 @@ class UserDailyCheckIn(BaseDBModel, BaseCreatedAtModel):
     account_id = fields.IntField(null=False)
     quest_long_id = fields.IntField(null=False)
     reward = fields.IntField(null=False)
-    day = fields.IntField(null=False)
     check_in_time = fields.BigIntField(null=False)
 
     def __str__(self):
