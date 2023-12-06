@@ -51,3 +51,15 @@ class UserFavorite(BaseDBModel, BaseCreatedUpdatedAtModel):
 
     class Meta:
         table = 'user_favorite'
+
+
+class UserReward(BaseDBModel, BaseCreatedUpdatedAtModel):
+    account_id = fields.IntField(null=False)
+    reward = fields.IntField(null=False)
+    claimed_reward = fields.IntField(null=False)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'user_reward'
