@@ -4,7 +4,7 @@ from core.base.db_provider import start_transaction
 async def updateUserFavorite(account_id: int, id: int, category: str, is_favorite: bool):
     async def local_function(connection):
         if category == "dapp":
-            dapp = await connection.execute_query(f"select * from dapp where id={id}")
+            dapp = await connection.execute_query(f"select * from dapp where id={id} for update")
             count = dapp[1][0]['favorite']
             if is_favorite:
                 count = count+1

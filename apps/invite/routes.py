@@ -7,6 +7,8 @@ from datetime import timedelta
 from fastapi import APIRouter, Depends
 from starlette.requests import Request
 from web3 import Web3
+
+from apps.invite.dao import claimInviteReward
 from apps.invite.schemas import ActivateCodeIn, GenerateCodeIn, GenerateCodeOut, InviteCodePoolDetailOut
 from apps.invite.utils import generate_invite_code, is_w3_address
 from core.auth.jwt import create_access_token, create_refresh_access_token
@@ -14,7 +16,7 @@ from core.auth.utils import get_current_user
 from core.utils.base_util import get_limiter
 import logging
 from apps.invite.models import InviteCodePool
-from apps.user.models import UserInfo
+from apps.user.models import UserInfo, UserReward
 from core.utils.tool_util import success,  error
 from settings.config import settings
 
@@ -152,17 +154,19 @@ async def get_invited_info(request: Request, address: str):
 
 @router.get('/list', tags=['invite'])
 @limiter.limit('100/minute')
-async def get_invited_info(request: Request, user: UserInfo = Depends(get_current_user)):
-    inviteds = await InviteCodePool.filter(creator_user_id=user.id, is_used=True).select_related("used_user").order_by("-updated_at")
-    if len(inviteds) == 0:
+async def invite_list(request: Request, user: UserInfo = Depends(get_current_user)):
+    invites = await InviteCodePool.filter(creator_user_id=user.id, is_used=True).select_related("used_user").order_by("-updated_at")
+    if len(invites) == 0:
         return success([])
 
     data = list()
-    for invite in inviteds:
+    claimeReward = 0
+    for invite in invites:
+        if invite.status == "Active" and not invite.is_claimed:
+            claimeReward += 10
         data.append({
             'code': invite.code,
-            'status': 'Pending',
-            'reward': 0,
+            'status': invite.status if invite.status else 'Pending',
             'invited_user': {
                 'address': invite.used_user.address,
                 'avatar': invite.used_user.avatar,
@@ -170,6 +174,24 @@ async def get_invited_info(request: Request, user: UserInfo = Depends(get_curren
             }
         })
     return success({
-        'unClaimed_reward': 10,
+        'reward': claimeReward,
+        'invite_reward': 10,
         'data': data,
+    })
+
+
+@router.post('/claim', tags=['invite'])
+@limiter.limit('60/minute')
+async def claim_reward(request: Request, user: UserInfo = Depends(get_current_user)):
+    invites = await InviteCodePool.filter(creator_user_id=user.id, status='Active', is_claimed=False)
+    if len(invites) == 0:
+        return error("Cannot be claimed")
+    totalReward = 0
+    inviteIds = list()
+    for invite in invites:
+        totalReward += 10
+        inviteIds.append(invite.id)
+    await claimInviteReward(user.id, totalReward, inviteIds)
+    return success({
+        'reward': totalReward
     })

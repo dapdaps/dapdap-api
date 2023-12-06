@@ -133,13 +133,24 @@ CREATE INDEX "idx_quest_campaign_reward_campaign_reward_update" ON "quest_campai
 CREATE TABLE "user_reward" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "account_id" INT NOT NULL,
-    "reward" INT NOT NULL,
+    "reward" INT NOT NULL DEFAULT 0,
+    "invite_reward" INT NULL DEFAULT 0,
     "claimed_reward" INT NULL DEFAULT 0,
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE unique INDEX "idx_user_reward_account" ON "user_reward" ("account_id");
-CREATE INDEX "idx_user_reward_reward" ON "user_reward" ("reward");
+
+
+CREATE TABLE "user_reward_rank" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "account_id" INT NOT NULL,
+    "reward" INT NOT NULL DEFAULT 0,
+    "rank" INT NOT NULL DEFAULT 0,
+    "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE unique INDEX "idx_user_reward_rank_account_rank" ON "user_reward_rank" ("account_id","rank");
 
 
 CREATE TABLE "user_favorite" (
@@ -155,16 +166,6 @@ COMMENT ON COLUMN "user_favorite"."category" IS 'dapp,quest_campaign,quest';
 CREATE INDEX "idx_user_favorite_category_relate_id" ON "user_favorite" ("category","relate_id");
 CREATE INDEX "idx_user_favorite_account_category_favorite_create" ON "user_favorite" ("account_id", "category", "is_favorite", "created_at");
 CREATE unique index "idx_user_favorite_account_category_relate" ON "user_favorite" ("account_id","relate_id","category");
-
-alter table user_info add column "avatar" varchar(200) NULL;
-alter table user_info add column "username" varchar(50) NULL;
-
-
-alter table t_action_record add column "source" varchar(50) NULL;
-alter table t_action_record add column "network_id" INT NULL;
-alter table t_action_record add column "dapp_id" INT NULL;
-alter table t_action_record add column "to_network_id" INT NULL;
-alter table t_action_record add column "category_id" INT NULL;
 
 
 CREATE TABLE "quest_long" (
@@ -186,11 +187,22 @@ CREATE TABLE "user_daily_check_in" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "quest_long_id" INT NOT NULL,
     "account_id" INT NOT NULL,
-    "day" INT NOT NULL,
     "reward" INT NOT NULL,
     "check_in_time" bigint NOT NULL,
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 COMMENT ON COLUMN "user_daily_check_in"."check_in_time" IS 'check in time/utc 0点';
-CREATE unique INDEX "idx_user_daily_check_in_account_quest_check_in_time" ON "user_daily_check_in" ("account_id","quest_long_id","check_in_time");
-CREATE unique INDEX "idx_user_daily_check_in_account_quest_day" ON "user_daily_check_in" ("account_id", "quest_long_id", "day");
+CREATE unique INDEX "idx_user_daily_check_in_account_check_in_time" ON "user_daily_check_in" ("account_id","check_in_time");
+
+
+alter table user_info add column "avatar" varchar(200) NULL;
+alter table user_info add column "username" varchar(50) NULL;
+alter table t_action_record add column "source" varchar(50) NULL;
+alter table t_action_record add column "network_id" INT NULL;
+alter table t_action_record add column "dapp_id" INT NULL;
+alter table t_action_record add column "to_network_id" INT NULL;
+alter table t_action_record add column "category_id" INT NULL;
+alter table invite_code_pool add column "is_claimed" BOOL DEFAULT false;
+alter table invite_code_pool add column "status" VARCHAR(20) NULL DEFAULT '';
+CREATE INDEX "idx_invite_code_pool_used_id_used_status" ON "invite_code_pool" ("used_user_id", "is_used", "status");
+CREATE INDEX "idx_invite_code_pool_creator_id_used_updated" ON "invite_code_pool" ("creator_user_id", "is_used", "updated_at");
