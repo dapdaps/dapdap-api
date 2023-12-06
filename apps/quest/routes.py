@@ -61,7 +61,6 @@ async def quest_list(request: Request, campaign_id: int, user: UserInfo = Depend
 @router.get('/recommend_list', tags=['quest'])
 @limiter.limit('60/minute')
 async def recommend_list(request: Request, campaign_id: int, page: int = 1, page_size: int = 4, user: UserInfo = Depends(get_current_user)):
-    logger.info(f"page:{page} page_size:{page_size}")
     totalQuests = await Quest.filter(quest_campaign_id=campaign_id, priority__gte=1).annotate(count=Count('id')).first().values('count')
     total = totalQuests['count']
     total_page = math.ceil(total/page_size)
@@ -119,6 +118,7 @@ async def participation_list(request: Request, user: UserInfo = Depends(get_curr
             'start_time': userQuest.quest.start_time,
             'end_time': userQuest.quest.end_time,
             'created_at': userQuest.quest.created_at,
+            'is_claimed': True if userQuest.is_claimed == True else False,
         })
     return success(data)
 
@@ -138,6 +138,7 @@ async def favorite_list(request: Request, user: UserInfo = Depends(get_current_u
     userQuests = await UserQuest.filter(account_id=user.id, quest_id__in=questIds)
     favoriteQuests.sort(key=lambda x: x['created_at'], reverse=True)
     for favoriteQuest in favoriteQuests:
+        favoriteQuest['is_claimed'] = False
         if len(userQuests) == 0:
             favoriteQuest['action_completed'] = 0
             favoriteQuest['participation_status'] = ''
@@ -146,6 +147,7 @@ async def favorite_list(request: Request, user: UserInfo = Depends(get_current_u
             if favoriteQuest['id'] == userQuest.quest_id:
                 favoriteQuest['action_completed'] = userQuest.action_completed
                 favoriteQuest['participation_status'] = userQuest.status
+                favoriteQuest['is_claimed'] = True if userQuest.is_claimed == True else False
                 break
     return success(favoriteQuests)
 
