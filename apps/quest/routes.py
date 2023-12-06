@@ -61,6 +61,7 @@ async def quest_list(request: Request, campaign_id: int, user: UserInfo = Depend
 @router.get('/recommend_list', tags=['quest'])
 @limiter.limit('60/minute')
 async def recommend_list(request: Request, campaign_id: int, page: int = 1, page_size: int = 4, user: UserInfo = Depends(get_current_user)):
+    logger.info(f"page:{page} page_size:{page_size}")
     totalQuests = await Quest.filter(quest_campaign_id=campaign_id, priority__gte=1).annotate(count=Count('id')).first().values('count')
     total = totalQuests['count']
     total_page = math.ceil(total/page_size)
