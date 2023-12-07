@@ -1,3 +1,5 @@
+import math
+
 from apps.dapp.models import Dapp
 from apps.quest.models import QuestAction
 from apps.user.models import UserFavorite
@@ -6,7 +8,7 @@ from apps.user.models import UserFavorite
 async def filterDapps(user_id: int, tbd_token: bool, is_favorite: bool, network_ids: str, category_ids: str, quest: int, page: int, page_size: int):
     data = {
         "data": [],
-        "total": 0,
+        "total_page": 0,
     }
     dapps = await Dapp.all().order_by("-created_at")
     if len(dapps) == 0:
@@ -71,7 +73,7 @@ async def filterDapps(user_id: int, tbd_token: bool, is_favorite: bool, network_
             continue
         dappsData.append(dapp)
 
-    data['total'] = len(dappsData)
+    data['total_page'] = math.ceil(len(dappsData)/page_size)
     offset = (page - 1) * page_size
     if offset >= len(dapps):
         return data
