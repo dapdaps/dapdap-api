@@ -114,6 +114,7 @@ async def add_action(request: Request, action_in: ActionIn):
     action_record.dapp_id = action_in.dapp_id
     action_record.to_network_id = action_in.to_network_id
     action_record.category_id = action_in.category_id
+    action_record.source = action_in.source
 
     await action_record.save()
 

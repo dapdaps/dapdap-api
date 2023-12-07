@@ -49,6 +49,7 @@ class ActionRecord(BaseDBModel):
     dapp_id = fields.IntField()
     to_network_id = fields.IntField()
     category_id = fields.IntField()
+    source = fields.CharField(max_length=20, null=True)
 
     def __str__(self):
         return self.action_id
