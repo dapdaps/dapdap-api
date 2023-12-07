@@ -11,7 +11,7 @@ from apps.quest.models import QuestCampaign, Quest, UserQuest, QuestCategory, Qu
     UserDailyCheckIn, QuestLong, QuestCampaignInfo, UserRewardRank
 from apps.quest.schemas import ClaimIn
 from apps.user.models import UserInfo, UserFavorite
-from core.common.constants import STATUS_COMPLETED
+from core.common.constants import STATUS_COMPLETED, STATUS_ENDED
 from core.utils.base_util import get_limiter
 from fastapi import APIRouter, Depends
 from core.auth.utils import get_current_user
@@ -170,6 +170,43 @@ async def claimed_list(request: Request, user: UserInfo = Depends(get_current_us
             'claimed_at': claimedQuest.claimed_at,
         })
     return success(data)
+
+
+@router.get('/list_by_dapp', tags=['quest'])
+@limiter.limit('60/minute')
+async def dapp_list(request: Request, dapp_id: int, user: UserInfo = Depends(get_current_user)):
+    if dapp_id <= 0:
+        return success()
+    questActions = await QuestAction.filter(dapps__contains=str(dapp_id)).all()
+    if len(questActions) == 0:
+        return success()
+
+    questIds = list()
+    questIdsDic = dict()
+    for questAction in questActions:
+        if questAction.quest_id in questIdsDic:
+            continue
+        dappIds = questAction.dapps.split(',')
+        for dappId in dappIds:
+            if dappId == str(dapp_id):
+                questIds.append(questAction.quest_id)
+                questIdsDic[questAction.quest_id] = questAction.quest_id
+                break
+    quests = await Quest.filter(id__in=questIds, status__not=STATUS_ENDED).order_by("-created_at").limit(3).values()
+    questIds = list()
+    for quest in quests:
+        questIds.append(quest['id'])
+    userQuests = await UserQuest.filter(account_id=user.id, quest_id__in=questIds).all().values('quest_id','action_completed')
+    for quest in quests:
+        quest['action_completed'] = 0
+        if len(userQuests) == 0:
+            continue
+        for userQuest in userQuests:
+            if quest['id'] == userQuest['quest_id']:
+                quest['action_completed'] = userQuest['action_completed']
+                break
+
+    return success(quests)
 
 
 @router.get('', tags=['quest'])
