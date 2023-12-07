@@ -15,9 +15,11 @@ async def filterDapps(user_id: int, tbd_token: bool, is_favorite: bool, network_
         return data
 
     if is_favorite:
+        if user_id == 0:
+            return [], 0
         userFavorites = await UserFavorite.filter(account_id=user_id, category="dapp", is_favorite=True).order_by("-created_at")
         if len(userFavorites) == 0:
-            return [],0
+            return [], 0
         dappFavorites = list()
         for userFavorite in userFavorites:
             for dapp in dapps:

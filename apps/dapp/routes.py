@@ -5,7 +5,7 @@ from starlette.requests import Request
 from apps.dapp.models import DappNetwork, DappCategory, Dapp, DappRelate
 from apps.dapp.service import filterDapps
 from apps.user.models import UserInfo, UserFavorite
-from core.auth.utils import get_current_user
+from core.auth.utils import get_current_user, get_current_user_optional
 from core.utils.base_util import get_limiter
 from fastapi import APIRouter, Depends
 from core.utils.tool_util import success
@@ -72,8 +72,8 @@ async def relate_list(request: Request, dapp_id: int):
 
 @router.get('/filter_list', tags=['dapp'])
 @limiter.limit('60/minute')
-async def filter_list(request: Request, tbd_token: bool = False, is_favorite: bool = False, network_ids: str = None, category_ids: str = None, quest: int = 0, page: int = 0, page_size: int = 100, user: UserInfo = Depends(get_current_user)):
-    data = await filterDapps(user.id, tbd_token, is_favorite, network_ids, category_ids, quest, page, page_size)
+async def filter_list(request: Request, tbd_token: bool = False, is_favorite: bool = False, network_ids: str = None, category_ids: str = None, quest: int = 0, page: int = 0, page_size: int = 100, user: UserInfo = Depends(get_current_user_optional)):
+    data = await filterDapps(user.id if user else 0, tbd_token, is_favorite, network_ids, category_ids, quest, page, page_size)
     return success(data)
 
 
