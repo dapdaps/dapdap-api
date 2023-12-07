@@ -20,7 +20,7 @@ async def claimReward(userId: int, userQuestId: int):
 async def claimDailyCheckIn(userId: int, data: UserDailyCheckIn):
     async def local_function(connection):
         await connection.execute_query(f"select * from user_info where id={userId} for update")
-        await connection.execute_query('insert into user_daily_check_in(account_id,quest_long_id,reward,day,check_in_time) VALUES($1,$2,$3,$4,$5)',(userId, data.quest_long_id, data.reward, data.day, data.check_in_time))
+        await connection.execute_query('insert into user_daily_check_in(account_id,quest_long_id,reward,check_in_time) VALUES($1,$2,$3,$4)',(userId, data.quest_long_id, data.reward, data.check_in_time))
         userReward = await UserReward.filter(account_id=userId).first()
         await connection.execute_query(f'update user_reward set reward={userReward.reward+data.reward},claimed_reward={userReward.claimed_reward+data.reward} where account_id={userId}')
     await start_transaction(local_function)
