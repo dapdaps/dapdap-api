@@ -329,8 +329,6 @@ async def daily_check_in(request: Request, user: UserInfo = Depends(get_current_
     dailyCheckInQuest = await QuestLong.filter(category='daily_check_in', status='ongoing').order_by("-id").first()
     if not dailyCheckInQuest:
         return success()
-
-    userDailyCheckIns = await UserDailyCheckIn.filter(account_id=user.id, quest_long_id=dailyCheckInQuest.id).all().order_by("-check_in_time").values("reward", "check_in_time")
     rule = json.loads(dailyCheckInQuest.rule)
     reward_single_day = rule['reward_single_day']
     reward_consecutive = rule['reward_consecutive']
@@ -338,6 +336,7 @@ async def daily_check_in(request: Request, user: UserInfo = Depends(get_current_
     todayHasClaimed = False
     oneDaySecond = 24 * 60 * 60
 
+    userDailyCheckIns = await UserDailyCheckIn.filter(account_id=user.id, quest_long_id=dailyCheckInQuest.id).all().order_by("-check_in_time").values("reward", "check_in_time")
     data = list()
     if len(userDailyCheckIns) > 0 and todayChecInTime - userDailyCheckIns[0]['check_in_time'] <= oneDaySecond:
         todayHasClaimed = todayChecInTime == userDailyCheckIns[0]['check_in_time']
@@ -346,13 +345,18 @@ async def daily_check_in(request: Request, user: UserInfo = Depends(get_current_
         index = 1
         while index < len(userDailyCheckIns):
             if userDailyCheckIns[index-1]['check_in_time']-userDailyCheckIns[index]['check_in_time'] <= oneDaySecond:
-                userDailyCheckIns['status'] = 'claimed'
-                data.insert(userDailyCheckIns[index])
+                userDailyCheckIns[index]['status'] = 'claimed'
+                data.insert(0, userDailyCheckIns[index])
             else:
                 break
             index += 1
 
-    nextDays = 1 if len(data) >= 7 else 7 - len(data)
+    beforeDays = 0
+    if len(data) > 7:
+        beforeDays = len(data) - len(data) % 7
+        data = data[-len(data) % 7:]
+
+    nextDays = 7 - len(data)
     nextDay = 1
     while nextDay <= nextDays:
         reward = 0
@@ -375,7 +379,7 @@ async def daily_check_in(request: Request, user: UserInfo = Depends(get_current_
         nextDay += 1
 
     for index, dailyCheckIn in enumerate(data):
-        dailyCheckIn['day'] = index+1
+        dailyCheckIn['day'] = beforeDays+index+1
     return success(data)
 
 
@@ -385,14 +389,13 @@ async def claim_daily_check_in(request: Request, user: UserInfo = Depends(get_cu
     dailyCheckInQuest = await QuestLong.filter(category='daily_check_in', status='ongoing').order_by("-id").first()
     if not dailyCheckInQuest:
         return error("Cannot check in")
-
-    userDailyCheckIns = await UserDailyCheckIn.filter(account_id=user.id, quest_long_id=dailyCheckInQuest.id).all().order_by("-check_in_time").values("reward", "check_in_time")
     rule = json.loads(dailyCheckInQuest.rule)
     reward_single_day = rule['reward_single_day']
     reward_consecutive = rule['reward_consecutive']
     todayChecInTime = getUtcSecond()
     oneDaySecond = 24 * 60 * 60
 
+    userDailyCheckIns = await UserDailyCheckIn.filter(account_id=user.id, quest_long_id=dailyCheckInQuest.id).all().order_by("-check_in_time").values("reward", "check_in_time")
     if len(userDailyCheckIns) > 0 and userDailyCheckIns[0]['check_in_time'] == todayChecInTime:
         return error("Already check in,Cannot be check in multiple times")
 
