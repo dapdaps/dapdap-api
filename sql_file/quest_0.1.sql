@@ -48,6 +48,7 @@ CREATE TABLE "quest" (
     "priority" INT DEFAULT 0,
     "favorite" INT DEFAULT 0,
     "status" VARCHAR(20) NOT NULL,
+    "tag" VARCHAR(200) NULL,
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
