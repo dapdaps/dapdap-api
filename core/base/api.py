@@ -6,6 +6,8 @@ import logging
 from fastapi import APIRouter, Depends, Response
 from starlette.requests import Request
 
+from apps.dapp.models import Network, Dapp
+from apps.quest.models import Quest
 from core.auth.utils import get_current_user
 from core.utils.base_util import get_limiter
 from core.utils.redis_provider import list_base_token_price
@@ -37,6 +39,7 @@ async def get_token_price_by_dapdap():
     result_data = list_base_token_price()
     return success(result_data)
 
+
 @router.get('/debank', tags=['other'], dependencies=[Depends(get_current_user)])
 @limiter.limit('10/second')
 def debank_api(request: Request, url: str, params: Json):
@@ -60,7 +63,36 @@ async def uniswap_api_check(request: Request, response: Response):
     rep = requests.get(full_url)
     response.status_code = rep.status_code
 
-# TEST FOR AUTH
-# @router.get('/test_auth', dependencies=[Depends(get_current_user)], tags=['other'])
-# def test_auth():
-#     return {"test": "ok"}
+
+@router.get('/api/search', tags=['base'])
+@limiter.limit('100/minute')
+async def uniswap_api_check(request: Request, content: str):
+    if len(content) == 0:
+        return success()
+    networks = await Network.filter(tag__contains=content).order_by("-created_at").all()
+    dapps = await Dapp.filter(tag__contains=content).order_by("-created_at").all()
+    quests = await Quest.filter(tag__contains=content).order_by("-created_at").all()
+
+    dappDatas = list()
+    if len(dapps) > 0:
+        for dapp in dapps:
+            dappData = {
+                'id': dapp.id,
+                'name': dapp.name,
+                'description': dapp.description,
+                'logo': dapp.logo,
+            }
+            if len(dapp.category_ids) > 0:
+                dappIds = dapp.category_ids.split(",")
+                dappData['category_ids'] = [int(item) for item in dappIds]
+            if len(dapp.network_ids) > 0:
+                networkIds = dapp.network_ids.split(",")
+                dappData['network_ids'] = [int(item) for item in networkIds]
+            dappDatas.append(dappData)
+
+    return success({
+        'networks': networks,
+        'dapps': dappDatas,
+        'quests': quests,
+    })
+
