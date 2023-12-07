@@ -2,8 +2,10 @@
 # @Author : ZQ
 # @Email : zq@ref.finance
 # @File : routes.py
+import math
 from fastapi import APIRouter, Depends
 from starlette.requests import Request
+from tortoise.functions import Count
 
 from apps.action.models import Action, ActionRecord, ActionChain
 from fastapi_pagination import Page
@@ -112,6 +114,7 @@ async def add_action(request: Request, action_in: ActionIn):
     action_record.dapp_id = action_in.dapp_id
     action_record.to_network_id = action_in.to_network_id
     action_record.category_id = action_in.category_id
+    action_record.source = action_in.source
 
     await action_record.save()
 
@@ -195,7 +198,21 @@ async def get_special_action():
     return success(query_special_action())
 
 
-@router.get('/get-action-by-chain', tags=['action'])
-async def get_action_by_chain(action_network_id: str, limit: int = 4):
-    result = await ActionChain().filter(action_network_id=action_network_id).order_by("-count").limit(limit)
-    return success(result)
+@router.get('/get-popular-actions-by-network', tags=['action'])
+async def get_actions_by_network(network_id: int, page: int = 1, page_size: int = 4):
+    total = await ActionChain.filter(network_id=network_id).annotate(count=Count("id")).first().values('count')
+    data = await ActionChain.filter(network_id=network_id).order_by("-count").offset((page-1)*page_size).limit(page_size)
+    return success({
+        'data': data,
+        'total_page':  math.ceil(total['count']/page_size)
+    })
+
+
+@router.get('/get-actions-by-dapp', tags=['action'])
+async def get_action_by_dapp(dapp_id: int, page: int = 1, page_size: int = 4):
+    total = await ActionRecord.filter(dapp_id=dapp_id).annotate(count=Count("id")).first().values('count')
+    data = await ActionRecord.filter(dapp_id=dapp_id).order_by('-id').offset((page-1)*page_size).limit(page_size)
+    return success({
+        'data': data,
+        'total_page': math.ceil(total['count'] / page_size)
+    })
