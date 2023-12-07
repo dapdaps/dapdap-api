@@ -193,10 +193,9 @@ CREATE unique INDEX "idx_user_daily_check_in_account_check_in_time" ON "user_dai
 alter table user_info add column "avatar" varchar(200) NULL;
 alter table user_info add column "username" varchar(50) NULL;
 alter table t_action_record add column "source" varchar(50) NULL;
-alter table t_action_record add column "network_id" INT NULL;
+alter table t_action_record add column "chain_id" INT NULL;
+alter table t_action_record add column "to_chain_id" INT NULL;
 alter table t_action_record add column "dapp_id" INT NULL;
-alter table t_action_record add column "to_network_id" INT NULL;
-alter table t_action_record add column "category_id" INT NULL;
 alter table invite_code_pool add column "is_claimed" BOOL DEFAULT false;
 alter table invite_code_pool add column "status" VARCHAR(20) NULL DEFAULT '';
 CREATE INDEX "idx_invite_code_pool_used_id_used_status" ON "invite_code_pool" ("used_user_id", "is_used", "status");

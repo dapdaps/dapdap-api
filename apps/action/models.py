@@ -46,10 +46,9 @@ class ActionRecord(BaseDBModel):
     timestamp = fields.BigIntField(index=True)
     create_time = fields.DatetimeField()
     source = fields.CharField(max_length=20, null=True)
-    network_id = fields.IntField(null=True)
     dapp_id = fields.IntField(null=True)
-    to_network_id = fields.IntField(null=True)
-    category_id = fields.IntField(null=True)
+    chain_id = fields.IntField(null=True)
+    to_chain_id = fields.IntField(null=True)
 
     def __str__(self):
         return self.action_id

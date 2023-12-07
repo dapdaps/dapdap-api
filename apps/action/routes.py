@@ -6,10 +6,13 @@ import math
 from fastapi import APIRouter, Depends
 from starlette.requests import Request
 from tortoise.functions import Count
+from web3 import Web3
 
 from apps.action.models import Action, ActionRecord, ActionChain
 from fastapi_pagination import Page
 from apps.action.schemas import ActionIn, DeleteActionIn, UpdateActionRecordIn, ActionRecordResultOut
+from apps.dapp.models import Dapp, Network
+from apps.invite.utils import is_w3_address
 from core.auth.utils import get_current_user
 from core.utils.base_util import get_limiter
 import logging
@@ -29,6 +32,18 @@ router = APIRouter(prefix="/api/action")
 async def add_action(request: Request, action_in: ActionIn):
     now_time = datetime.datetime.utcnow()
     timestamp = int(now_time.timestamp())
+
+    if is_w3_address(action_in.account_id):
+        action_in.account_id = Web3.to_checksum_address(action_in.account_id)
+    else:
+        action_in.account_id = action_in.account_id.lower()
+
+    dappId = 0
+    if len(action_in.template) > 0:
+        dapp = await Dapp.filter(name=action_in.template).first().values('id')
+        if dapp:
+            dappId = dapp['id']
+
 
     # search ActionRecord table
     if action_in.tx_id:
@@ -72,10 +87,10 @@ async def add_action(request: Request, action_in: ActionIn):
             if action_obj.status == "0":
                 action_obj.status = "1"  # update Status
         action_id = action_obj.action_id
-        await action_obj.save()  
+        await action_obj.save()
     else:
         action_obj = Action()
-    
+
         action_obj.action_title = action_in.action_title
         action_obj.action_type = action_in.action_type
         action_obj.action_tokens = action_in.action_tokens
@@ -88,13 +103,13 @@ async def add_action(request: Request, action_in: ActionIn):
         action_obj.action_network_id = action_in.action_network_id
         action_obj.timestamp = timestamp
         action_obj.create_time = now_time
-        await action_obj.save()        
-        
+        await action_obj.save()
+
         action_obj = await Action.all().order_by("-timestamp").first()
         action_id = action_obj.action_id
 
     action_record = ActionRecord()
-    
+
     action_record.action_id = action_id
     action_record.action_title = action_in.action_title
     action_record.action_type = action_in.action_type
@@ -110,11 +125,10 @@ async def add_action(request: Request, action_in: ActionIn):
     action_record.gas = ""
     action_record.timestamp = timestamp
     action_record.create_time = now_time
-    action_record.network_id = action_in.network_id
-    action_record.dapp_id = action_in.dapp_id
-    action_record.to_network_id = action_in.to_network_id
-    action_record.category_id = action_in.category_id
     action_record.source = action_in.source
+    action_record.chain_id = action_in.chain_id
+    action_record.to_chain_id = action_in.to_chain_id
+    action_record.dapp_id = dappId
 
     await action_record.save()
 
