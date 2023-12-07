@@ -11,6 +11,7 @@ DATABASE_USERNAME = os.getenv('DATABASE_USERNAME') or "postgres"
 DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD') or "postgres"
 REDIS_URL = os.getenv('REDIS_URL') or "redis://localhost:6379"
 ENV = os.getenv('ENV')
+INVITE_CODE_QUANTITY = os.getenv('INVITE_CODE_QUANTITY') or 3
 
 class Settings:
     VERSION = '0.1.0'
@@ -90,6 +91,8 @@ class Settings:
     ACTIVITY_REPORT_CHANGE = 0
 
     ENV = ENV
+
+    INVITE_CODE_QUANTITY = int(INVITE_CODE_QUANTITY)
 
 
 settings = Settings()
