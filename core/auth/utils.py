@@ -41,8 +41,16 @@ async def update_last_login(user_id: int) -> None:
 reusable_oauth2 = OAuth2AuthorizationCodeBearer(
     tokenUrl="/api/auth/access-token",
     authorizationUrl="/api/auth/access-token",
-    refreshUrl="/api/auth/refresh-access-token"
+    refreshUrl="/api/auth/refresh-access-token",
 )
+
+reusable_oauth2_optional = OAuth2AuthorizationCodeBearer(
+    tokenUrl="/api/auth/access-token",
+    authorizationUrl="/api/auth/access-token",
+    refreshUrl="/api/auth/refresh-access-token",
+    auto_error=False
+)
+
 async def get_current_user(token: str = Security(reusable_oauth2)) -> Optional[UserInfo]:
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
@@ -54,4 +62,18 @@ async def get_current_user(token: str = Security(reusable_oauth2)) -> Optional[U
     user = await UserInfo.get_or_none(id=token_data.user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
+    return user
+
+
+async def get_current_user_optional(token: str = Security(reusable_oauth2_optional)) -> Optional[UserInfo]:
+    if not token:
+        return None
+    try:
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.JWT_ALGORITHM])
+        token_data = JWTTokenPayload(**payload)
+    except JWTError:
+        return None
+    user = await UserInfo.get_or_none(id=token_data.user_id)
+    if not user:
+        return None
     return user

@@ -1,5 +1,6 @@
 import json
 import logging
+from typing import Optional
 
 import math
 from tortoise.functions import Sum, Count
@@ -14,7 +15,7 @@ from apps.user.models import UserInfo, UserFavorite
 from core.common.constants import STATUS_COMPLETED, STATUS_ENDED
 from core.utils.base_util import get_limiter
 from fastapi import APIRouter, Depends
-from core.auth.utils import get_current_user
+from core.auth.utils import get_current_user, get_current_user_optional
 from core.utils.time_util import getUtcSecond
 from core.utils.tool_util import success, error
 
@@ -38,12 +39,16 @@ async def campaign_list(request: Request):
 
 @router.get('/list', tags=['quest'])
 @limiter.limit('60/minute')
-async def quest_list(request: Request, campaign_id: int, user: UserInfo = Depends(get_current_user)):
+async def quest_list(request: Request, campaign_id: int, user: Optional[UserInfo] = Depends(get_current_user_optional)):
     quests = await Quest.filter(quest_campaign_id=campaign_id).order_by("-id").all().values()
     if len(quests) == 0:
         return success()
     questCategorys = await QuestCategory.all().values("id", "name")
-    userQuests = await UserQuest.filter(account_id=user.id, quest_campaign_id=campaign_id).order_by("created_at").all().values("quest_id","action_completed")
+
+    userQuests = list()
+    if user:
+        userQuests = await UserQuest.filter(account_id=user.id, quest_campaign_id=campaign_id).order_by("created_at").all().values("quest_id","action_completed")
+
     for quest in quests:
         for questCategory in questCategorys:
             if quest['quest_category_id'] == questCategory['id']:
@@ -60,7 +65,7 @@ async def quest_list(request: Request, campaign_id: int, user: UserInfo = Depend
 
 @router.get('/recommend_list', tags=['quest'])
 @limiter.limit('60/minute')
-async def recommend_list(request: Request, campaign_id: int, page: int = 1, page_size: int = 4, user: UserInfo = Depends(get_current_user)):
+async def recommend_list(request: Request, campaign_id: int, page: int = 1, page_size: int = 4, user: UserInfo = Depends(get_current_user_optional)):
     totalQuests = await Quest.filter(quest_campaign_id=campaign_id, priority__gte=1).annotate(count=Count('id')).first().values('count')
     total = totalQuests['count']
     total_page = math.ceil(total/page_size)
@@ -77,10 +82,13 @@ async def recommend_list(request: Request, campaign_id: int, page: int = 1, page
             'total_page': total_page,
         })
 
-    questIds = list()
-    for quest in quests:
-        questIds.append(quest['id'])
-    userQuests = await UserQuest.filter(account_id=user.id, quest_id__in=questIds).all().values('quest_id', 'action_completed')
+    userQuests = list()
+    if user:
+        questIds = list()
+        for quest in quests:
+            questIds.append(quest['id'])
+        userQuests = await UserQuest.filter(account_id=user.id, quest_id__in=questIds).all().values('quest_id', 'action_completed')
+
     for quest in quests:
         quest['action_completed'] = 0
         if len(userQuests) == 0:
@@ -174,7 +182,7 @@ async def claimed_list(request: Request, user: UserInfo = Depends(get_current_us
 
 @router.get('/list_by_dapp', tags=['quest'])
 @limiter.limit('60/minute')
-async def dapp_list(request: Request, dapp_id: int, user: UserInfo = Depends(get_current_user)):
+async def dapp_list(request: Request, dapp_id: int, user: UserInfo = Depends(get_current_user_optional)):
     if dapp_id <= 0:
         return success()
     questActions = await QuestAction.filter(dapps__contains=str(dapp_id)).all()
@@ -193,10 +201,14 @@ async def dapp_list(request: Request, dapp_id: int, user: UserInfo = Depends(get
                 questIdsDic[questAction.quest_id] = questAction.quest_id
                 break
     quests = await Quest.filter(id__in=questIds, status__not=STATUS_ENDED).order_by("-created_at").limit(3).values()
-    questIds = list()
-    for quest in quests:
-        questIds.append(quest['id'])
-    userQuests = await UserQuest.filter(account_id=user.id, quest_id__in=questIds).all().values('quest_id','action_completed')
+
+    userQuests = list()
+    if user:
+        questIds = list()
+        for quest in quests:
+            questIds.append(quest['id'])
+        userQuests = await UserQuest.filter(account_id=user.id, quest_id__in=questIds).all().values('quest_id','action_completed')
+
     for quest in quests:
         quest['action_completed'] = 0
         if len(userQuests) == 0:
@@ -211,7 +223,7 @@ async def dapp_list(request: Request, dapp_id: int, user: UserInfo = Depends(get
 
 @router.get('', tags=['quest'])
 @limiter.limit('60/minute')
-async def quest(request: Request, id: int, user: UserInfo = Depends(get_current_user)):
+async def quest(request: Request, id: int, user: UserInfo = Depends(get_current_user_optional)):
     quest = await Quest.filter(id=id).first().values()
     if not quest:
         return error("quest not find")
@@ -222,9 +234,11 @@ async def quest(request: Request, id: int, user: UserInfo = Depends(get_current_
     if total_user and total_user['total_user']:
         quest['total_user'] = total_user['total_user']
 
-    userQuest = await UserQuest.filter(account_id=user.id, quest_id=id).first().values()
-    if userQuest:
-        quest['action_completed'] = userQuest['action_completed']
+    quest['action_completed'] = 0
+    if user:
+        userQuest = await UserQuest.filter(account_id=user.id, quest_id=id).first().values()
+        if userQuest:
+            quest['action_completed'] = userQuest['action_completed']
 
     actions = await QuestAction.filter(quest_id=id).order_by("id").all().values()
     networks = []
@@ -417,7 +431,7 @@ async def claim_daily_check_in(request: Request, user: UserInfo = Depends(get_cu
 @router.post('/claim', tags=['quest'])
 @limiter.limit('60/minute')
 async def claim_reward(request: Request, claimIn: ClaimIn, user: UserInfo = Depends(get_current_user)):
-    userQuest = await UserQuest.filter(quest_id=claimIn.id,account_id=user.id).first().select_related('quest')
+    userQuest = await UserQuest.filter(quest_id=claimIn.id, account_id=user.id).first().select_related('quest')
     if not userQuest:
         return error("not find quest")
     if userQuest.status != STATUS_COMPLETED:
