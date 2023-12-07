@@ -15,6 +15,7 @@ class Network(BaseDBModel, BaseCreatedUpdatedAtModel):
     rpc = fields.CharField(max_length=500, null=True)
     block_explorer = fields.CharField(max_length=100, null=True)
     milestones = fields.TextField(null=True)
+    tag = fields.CharField(max_length=200, null=True)
 
     def __str__(self):
         return self.id
@@ -36,6 +37,7 @@ class Dapp(BaseDBModel, BaseCreatedUpdatedAtModel):
     recommend_icon = fields.CharField(max_length=100, null=True)
     category_ids = fields.CharField(max_length=100, null=True)
     network_ids = fields.CharField(max_length=100, null=True)
+    tag = fields.CharField(max_length=200, null=True)
 
     def __str__(self):
         return self.id

@@ -48,6 +48,7 @@ class Quest(BaseDBModel, BaseCreatedUpdatedAtModel):
     time_required = fields.CharField(max_length=20, null=True)
     status = fields.CharField(max_length=20, null=False)
     total_action = fields.IntField(null=False)
+    tag = fields.CharField(max_length=200, null=True)
 
     def __str__(self):
         return self.id
