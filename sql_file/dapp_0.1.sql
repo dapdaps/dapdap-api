@@ -10,6 +10,7 @@ CREATE TABLE "network" (
     "rpc" VARCHAR(500) NULL,
     "block_explorer" VARCHAR(100) NULL,
     "milestones" TEXT NULL,
+    "tag" VARCHAR(200) NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -29,6 +30,7 @@ CREATE TABLE "dapp" (
     "recommend_icon" VARCHAR(100) NULL,
     "category_ids" VARCHAR(100) NULL,
     "network_ids" VARCHAR(100) NULL,
+    "tag" VARCHAR(200) NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
