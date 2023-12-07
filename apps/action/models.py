@@ -45,12 +45,11 @@ class ActionRecord(BaseDBModel):
     gas = fields.CharField(max_length=255, null=True)
     timestamp = fields.BigIntField(index=True)
     create_time = fields.DatetimeField()
-    source = fields.CharField(max_length=50, null=True, index=True)
-    network_id = fields.IntField()
-    dapp_id = fields.IntField()
-    to_network_id = fields.IntField()
-    category_id = fields.IntField()
     source = fields.CharField(max_length=20, null=True)
+    network_id = fields.IntField(null=True)
+    dapp_id = fields.IntField(null=True)
+    to_network_id = fields.IntField(null=True)
+    category_id = fields.IntField(null=True)
 
     def __str__(self):
         return self.action_id
