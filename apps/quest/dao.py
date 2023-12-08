@@ -9,7 +9,7 @@ from core.common.constants import STATUS_COMPLETED, STATUS_INPROCESS
 async def claimReward(userId: int, userQuestId: int):
     now = datetime.now()
     async def local_function(connection):
-        await connection.execute_query("select * from user_info where id=$1 for update", userId)
+        await connection.execute_query(f"select * from user_info where id={userId} for update")
         userQuest = await UserQuest.filter(id=userQuestId).first().select_related('quest')
         if userQuest.is_claimed:
             raise Exception("Already claimed,Cannot be claimed multiple times")
@@ -26,13 +26,13 @@ async def claimReward(userId: int, userQuestId: int):
 async def claimDailyCheckIn(userId: int, data: UserDailyCheckIn):
     now = datetime.now()
     async def local_function(connection):
-        await connection.execute_query("select * from user_info where id=$1 for update", userId)
+        await connection.execute_query(f"select * from user_info where id={userId} for update")
         await connection.execute_query(
             'insert into user_daily_check_in(account_id,quest_long_id,reward,check_in_time) VALUES($1,$2,$3,$4)',
             (userId, data.quest_long_id, data.reward, data.check_in_time))
         userReward = await UserReward.filter(account_id=userId).first()
         await connection.execute_query(
-            'insert into user_reward(account_id,reward,claimed_reward,updated_at) VALUES($1,$2,$3) ON CONFLICT (account_id) DO UPDATE SET reward=EXCLUDED.reward,claimed_reward=EXCLUDED.claimed_reward,updated_at=EXCLUDED.updated_at',
+            'insert into user_reward(account_id,reward,claimed_reward,updated_at) VALUES($1,$2,$3,$4) ON CONFLICT (account_id) DO UPDATE SET reward=EXCLUDED.reward,claimed_reward=EXCLUDED.claimed_reward,updated_at=EXCLUDED.updated_at',
             (userId, userReward.reward+data.reward, userReward.claimed_reward+data.reward, now)
         )
     await start_transaction(local_function)
@@ -53,7 +53,7 @@ async def actionCompleted(userId: int, questAction: QuestAction, quest: Quest):
 
     async def local_function(connection):
         if userQuestStatus == STATUS_COMPLETED:
-            await connection.execute_query("select * from user_info where id=$1 for update", userId)
+            await connection.execute_query(f"select * from user_info where id={userId} for update")
             userReward = await UserReward.filter(account_id=userId).first()
             await connection.execute_query(
                 'insert into user_reward(account_id,reward,updated_at) VALUES($1,$2,$3) ON CONFLICT (account_id) DO UPDATE SET reward=EXCLUDED.reward,updated_at=EXCLUDED.updated_at',
