@@ -7,7 +7,7 @@ from tortoise.functions import Sum, Count
 from starlette.requests import Request
 
 from apps.dapp.models import Network, Dapp, DappNetwork
-from apps.quest.dao import claimReward, claimDailyCheckIn
+from apps.quest.dao import claimReward, claimDailyCheckIn, actionCompleted
 from apps.quest.models import QuestCampaign, Quest, UserQuest, QuestCategory, QuestAction, \
     UserDailyCheckIn, QuestLong, QuestCampaignInfo, UserRewardRank, UserQuestAction, QuestSourceRecord
 from apps.quest.schemas import ClaimIn, SourceIn
@@ -223,24 +223,32 @@ async def dapp_list(request: Request, dapp_id: int, user: UserInfo = Depends(get
 
 @router.get('', tags=['quest'])
 @limiter.limit('60/minute')
-async def quest(request: Request, id: int, user: UserInfo = Depends(get_current_user_optional)):
-    quest = await Quest.filter(id=id).first().values()
-    if not quest:
-        return error("quest not find")
+async def quest(request: Request, id: int = None, source: str = None, user: UserInfo = Depends(get_current_user_optional)):
+    quest = None
+    if id and id > 0:
+        quest = await Quest.filter(id=id).first().values()
+        if not quest:
+            return error("quest not find")
+    elif len(source) > 0:
+        questAction = await QuestAction.filter(source=source).order_by("-id").first()
+        if questAction:
+            quest = await Quest.filter(id=questAction.quest_id).first().values()
+            if not quest:
+                return error("quest not find")
     quest['total_user'] = 0
     quest['action_completed'] = 0
 
-    total_user = await UserQuest.filter(quest_id=id).all().annotate(total_user=Count("id")).first().values("total_user")
+    total_user = await UserQuest.filter(quest_id=quest['id']).all().annotate(total_user=Count("id")).first().values("total_user")
     if total_user and total_user['total_user']:
         quest['total_user'] = total_user['total_user']
 
     quest['action_completed'] = 0
     if user:
-        userQuest = await UserQuest.filter(account_id=user.id, quest_id=id).first().values()
+        userQuest = await UserQuest.filter(account_id=user.id, quest_id=quest['id']).first().values()
         if userQuest:
             quest['action_completed'] = userQuest['action_completed']
 
-    actions = await QuestAction.filter(quest_id=id).order_by("id").all().values()
+    actions = await QuestAction.filter(quest_id=quest['id']).order_by("id").all().values()
     networks = []
     dapps = []
     if actions:
@@ -454,21 +462,16 @@ async def action_completed(request: Request, sourceIn: SourceIn, user: UserInfo 
     if len(sourceIn.source) == 0:
         return error("source is empty")
 
-    questActions = await QuestAction.filter(source=sourceIn.source).all()
+    questActions = await QuestAction.filter(source=sourceIn.source, category='dapp').all()
     if len(questActions) == 0:
-        return error("not find quest")
+        return success("not find quest")
 
     for questAction in questActions:
-        questsourceRecord = await QuestSourceRecord.filter(account_id=user.id, quest_action_id=questAction.id, source=sourceIn.source).all()
-        if len(questsourceRecord) > 0:
+        quest = await Quest.filter(id=questAction.quest_id).first()
+        if quest.status != STATUS_ONGOING:
             continue
-        quests = await Quest.filter(id=questAction.quest_id, status=STATUS_ONGOING).all()
-        if len(quests) == 0:
+        userQuestAction = await UserQuestAction.filter(account_id=user.id, quest_action_id=questAction.id).first()
+        if userQuestAction:
             continue
-        questSourceRecord = QuestSourceRecord()
-        questSourceRecord.source = sourceIn.source
-        questSourceRecord.account_id = user.id
-        questSourceRecord.quest_action_id = questAction.id
-        await questSourceRecord.save()
-
+        await actionCompleted(user.id, questAction, quest)
     return success()
