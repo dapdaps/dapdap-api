@@ -459,20 +459,20 @@ async def claim_reward(request: Request, claimIn: ClaimIn, user: UserInfo = Depe
 
 @router.post('/source', tags=['quest'])
 @limiter.limit('60/minute')
-async def action_completed(request: Request, sourceIn: SourceIn, user: UserInfo = Depends(get_current_user)):
+async def source(request: Request, sourceIn: SourceIn, user: UserInfo = Depends(get_current_user)):
     if len(sourceIn.source) == 0:
         return error("source is empty")
 
-    questActions = await QuestAction.filter(source=sourceIn.source, category='dapp').all()
+    questActions = await QuestAction.filter(source=sourceIn.source, category__not='dapp').all()
     if len(questActions) == 0:
         return success("not find quest")
 
     for questAction in questActions:
-        quest = await Quest.filter(id=questAction.quest_id).first()
-        if quest.status != STATUS_ONGOING:
-            continue
         userQuestAction = await UserQuestAction.filter(account_id=user.id, quest_action_id=questAction.id).first()
         if userQuestAction:
+            continue
+        quest = await Quest.filter(id=questAction.quest_id).first()
+        if quest.status != STATUS_ONGOING:
             continue
         await actionCompleted(user.id, questAction, quest)
     return success()
