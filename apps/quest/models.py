@@ -117,7 +117,7 @@ class UserQuestAction(BaseDBModel, BaseCreatedUpdatedAtModel):
         return self.id
 
     class Meta:
-        table = 'user_action'
+        table = 'user_quest_action'
 
 
 class QuestCampaignReward(BaseDBModel, BaseCreatedAtModel):
@@ -180,6 +180,8 @@ class QuestSourceRecord(BaseDBModel, BaseCreatedAtModel):
     source = fields.CharField(max_length=20, null=False)
     account_id = fields.IntField(null=False)
     quest_action_id = fields.IntField(null=False)
+    quest_id = fields.IntField(null=False)
+    quest_campaign_id = fields.IntField(null=False)
 
     def __str__(self):
         return self.id

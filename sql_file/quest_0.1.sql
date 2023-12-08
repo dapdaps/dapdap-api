@@ -105,6 +105,7 @@ CREATE INDEX "idx_user_request_account_campaign_creat" ON "user_quest" ("account
 CREATE INDEX "idx_user_request_quest_id" ON "user_quest" ("quest_id");
 CREATE INDEX "idx_user_request_quest_campaign_id" ON "user_quest" ("quest_campaign_id");
 CREATE INDEX "idx_user_request_account_claimed_create" ON "user_quest" ("account_id","is_claimed","claimed_at");
+CREATE INDEX "idx_user_request_status" ON "user_quest" ("status");
 
 
 CREATE TABLE "user_quest_action" (
@@ -188,16 +189,6 @@ CREATE TABLE "user_daily_check_in" (
 );
 COMMENT ON COLUMN "user_daily_check_in"."check_in_time" IS 'check in time/utc 0点';
 CREATE unique INDEX "idx_user_daily_check_in_account_check_in_time" ON "user_daily_check_in" ("account_id","check_in_time");
-
-
-CREATE TABLE "quest_source_record" (
-    "id" SERIAL NOT NULL PRIMARY KEY,
-    "source" VARCHAR(20) NULL,
-    "account_id" INT NOT NULL,
-    "quest_action_id" INT NOT NULL,
-    "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-CREATE unique INDEX "idx_quest_source_record_account_action_source" ON "quest_source_record" ("account_id", "quest_action_id", "source");
 
 
 alter table user_info add column "avatar" varchar(200) NULL;
