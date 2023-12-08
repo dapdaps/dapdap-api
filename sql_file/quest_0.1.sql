@@ -83,8 +83,8 @@ COMMENT ON COLUMN "quest_action"."to_networks" IS '如果是bridge,指定另外�
 COMMENT ON COLUMN "quest_action"."times" IS '需要完成几次';
 CREATE INDEX "idx_quest_action_quest_id" ON "quest_action" ("quest_id");
 CREATE INDEX "idx_quest_action_quest_campaign_id" ON "quest_action" ("quest_campaign_id");
-CREATE INDEX "idx_quest_action_name_create" ON "quest_action" ("name","created_at");
 CREATE INDEX "idx_quest_action_category_quest_campaign_id" ON "quest_action" ("category","quest_campaign_id");
+CREATE INDEX "idx_quest_action_source" ON "quest_action" ("source");
 
 
 CREATE TABLE "user_quest" (
@@ -188,6 +188,16 @@ CREATE TABLE "user_daily_check_in" (
 );
 COMMENT ON COLUMN "user_daily_check_in"."check_in_time" IS 'check in time/utc 0点';
 CREATE unique INDEX "idx_user_daily_check_in_account_check_in_time" ON "user_daily_check_in" ("account_id","check_in_time");
+
+
+CREATE TABLE "quest_source_record" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "source" VARCHAR(20) NULL,
+    "account_id" INT NOT NULL,
+    "quest_action_id" INT NOT NULL,
+    "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE unique INDEX "idx_quest_source_record_account_action_source" ON "quest_source_record" ("account_id", "quest_action_id", "source");
 
 
 alter table user_info add column "avatar" varchar(200) NULL;

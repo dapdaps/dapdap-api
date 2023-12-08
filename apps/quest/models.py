@@ -105,7 +105,7 @@ class UserQuest(BaseDBModel, BaseCreatedUpdatedAtModel):
         table = 'user_quest'
 
 
-class UserRequestAction(BaseDBModel, BaseCreatedUpdatedAtModel):
+class UserQuestAction(BaseDBModel, BaseCreatedUpdatedAtModel):
     account_id = fields.IntField(null=False)
     quest_id = fields.IntField(null=False)
     quest_action_id = fields.IntField(null=False)
@@ -174,3 +174,15 @@ class UserRewardRank(BaseDBModel, BaseCreatedAtModel):
 
     class Meta:
         table = 'user_reward_rank'
+
+
+class QuestSourceRecord(BaseDBModel, BaseCreatedAtModel):
+    source = fields.CharField(max_length=20, null=False)
+    account_id = fields.IntField(null=False)
+    quest_action_id = fields.IntField(null=False)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'quest_source_record'

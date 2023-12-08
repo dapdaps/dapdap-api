@@ -9,10 +9,10 @@ from starlette.requests import Request
 from apps.dapp.models import Network, Dapp, DappNetwork
 from apps.quest.dao import claimReward, claimDailyCheckIn
 from apps.quest.models import QuestCampaign, Quest, UserQuest, QuestCategory, QuestAction, \
-    UserDailyCheckIn, QuestLong, QuestCampaignInfo, UserRewardRank
-from apps.quest.schemas import ClaimIn
+    UserDailyCheckIn, QuestLong, QuestCampaignInfo, UserRewardRank, UserQuestAction, QuestSourceRecord
+from apps.quest.schemas import ClaimIn, SourceIn
 from apps.user.models import UserInfo, UserFavorite
-from core.common.constants import STATUS_COMPLETED, STATUS_ENDED
+from core.common.constants import STATUS_COMPLETED, STATUS_ENDED, STATUS_ONGOING
 from core.utils.base_util import get_limiter
 from fastapi import APIRouter, Depends
 from core.auth.utils import get_current_user, get_current_user_optional
@@ -447,3 +447,28 @@ async def claim_reward(request: Request, claimIn: ClaimIn, user: UserInfo = Depe
         'reward': userQuest.quest.reward
     })
 
+
+@router.post('/source', tags=['quest'])
+@limiter.limit('60/minute')
+async def action_completed(request: Request, sourceIn: SourceIn, user: UserInfo = Depends(get_current_user)):
+    if len(sourceIn.source) == 0:
+        return error("source is empty")
+
+    questActions = await QuestAction.filter(source=sourceIn.source).all()
+    if len(questActions) == 0:
+        return error("not find quest")
+
+    for questAction in questActions:
+        questsourceRecord = await QuestSourceRecord.filter(account_id=user.id, quest_action_id=questAction.id, source=sourceIn.source).all()
+        if len(questsourceRecord) > 0:
+            continue
+        quests = await Quest.filter(id=questAction.quest_id, status=STATUS_ONGOING).all()
+        if len(quests) == 0:
+            continue
+        questSourceRecord = QuestSourceRecord()
+        questSourceRecord.source = sourceIn.source
+        questSourceRecord.account_id = user.id
+        questSourceRecord.quest_action_id = questAction.id
+        await questSourceRecord.save()
+
+    return success()
