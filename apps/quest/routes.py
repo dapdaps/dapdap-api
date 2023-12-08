@@ -231,10 +231,11 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
             return error("quest not find")
     elif len(source) > 0:
         questAction = await QuestAction.filter(source=source).order_by("-id").first()
-        if questAction:
-            quest = await Quest.filter(id=questAction.quest_id).first().values()
-            if not quest:
-                return error("quest not find")
+        if not questAction:
+            return error("quest not find")
+        quest = await Quest.filter(id=questAction.quest_id).first().values()
+        if not quest:
+            return error("quest not find")
     quest['total_user'] = 0
     quest['action_completed'] = 0
 
