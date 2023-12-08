@@ -270,11 +270,13 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
             if len(dappNetworks) == 0:
                 continue
             for dappNetwork in dappNetworks:
+                dappRoute = ""
                 dappName = ""
                 dappLogo = ""
                 networkName = ""
                 for dapp in dapps:
                     if dapp['id'] == dappNetwork['dapp_id']:
+                        dappRoute = dapp['route']
                         dappName = dapp['name']
                         dappLogo = dapp['logo']
                         break
@@ -289,6 +291,7 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
                     'dapp_src': dappNetwork['dapp_src'],
                     'network_name': networkName,
                     'dapp_logo': dappLogo,
+                    'route': dappRoute,
                 })
 
         for action in actions:
