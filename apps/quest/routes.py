@@ -242,18 +242,26 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
     total_user = await UserQuest.filter(quest_id=quest['id']).all().annotate(total_user=Count("id")).first().values("total_user")
     if total_user and total_user['total_user']:
         quest['total_user'] = total_user['total_user']
-
     quest['action_completed'] = 0
+
+    userQuestActions = list()
     if user:
         userQuest = await UserQuest.filter(account_id=user.id, quest_id=quest['id']).first().values()
         if userQuest:
             quest['action_completed'] = userQuest['action_completed']
+        userQuestActions = await UserQuestAction.filter(account_id=user.id, quest_id=quest['id']).all()
 
     actions = await QuestAction.filter(quest_id=quest['id']).order_by("id").all().values()
+
     networks = []
     dapps = []
     if actions:
         for action in actions:
+            if len(userQuestActions) > 0:
+                for userQuestAction in userQuestActions:
+                    if userQuestAction.quest_action_id == action['id']:
+                        action['status'] = userQuestAction.status
+                        break
             if action['category'] != "dapp":
                 continue
             if not networks or len(networks) == 0:
