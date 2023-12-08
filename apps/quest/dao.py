@@ -14,12 +14,15 @@ async def claimReward(userId: int, userQuestId: int):
         if userQuest.is_claimed:
             raise Exception("Already claimed,Cannot be claimed multiple times")
         userReward = await UserReward.filter(account_id=userId).first()
+        claimReward = userQuest.quest.reward
+        if userReward:
+            claimReward += userReward.claimed_reward
         await connection.execute_query(
             'update user_quest set is_claimed=$1,claimed_at=$2 where id=$3',
             (True, now, userQuestId))
         await connection.execute_query(
             'update user_reward set claimed_reward=$1, set updated_at=$2 where account_id=$3',
-            (userReward.claimed_reward+userQuest.quest.reward, now, userId))
+            (claimReward, now, userId))
     await start_transaction(local_function)
 
 
@@ -31,9 +34,14 @@ async def claimDailyCheckIn(userId: int, data: UserDailyCheckIn):
             'insert into user_daily_check_in(account_id,quest_long_id,reward,check_in_time) VALUES($1,$2,$3,$4)',
             (userId, data.quest_long_id, data.reward, data.check_in_time))
         userReward = await UserReward.filter(account_id=userId).first()
+        reward = data.reward
+        claimReward = data.reward
+        if userReward:
+            reward += userReward.reward
+            claimReward += userReward.claimed_reward
         await connection.execute_query(
             'insert into user_reward(account_id,reward,claimed_reward,updated_at) VALUES($1,$2,$3,$4) ON CONFLICT (account_id) DO UPDATE SET reward=EXCLUDED.reward,claimed_reward=EXCLUDED.claimed_reward,updated_at=EXCLUDED.updated_at',
-            (userId, userReward.reward+data.reward, userReward.claimed_reward+data.reward, now)
+            (userId, reward, claimReward, now)
         )
     await start_transaction(local_function)
 

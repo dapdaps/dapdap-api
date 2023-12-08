@@ -20,8 +20,10 @@ async def claimInviteReward(userId: int):
                 (True, invite.id)
             )
         userReward = await UserReward.filter(account_id=userId).first()
+        if userReward:
+            totalReward += userReward.claimed_reward
         await connection.execute_query(
             'update user_reward set claimed_reward=$1,updated_at=$2 where account_id=$3',
-            (userReward.claimed_reward+totalReward, now, userId)
+            (totalReward, now, userId)
         )
     await start_transaction(local_function)
