@@ -187,12 +187,5 @@ async def claim_reward(request: Request, user: UserInfo = Depends(get_current_us
     invites = await InviteCodePool.filter(creator_user_id=user.id, status='Active', is_claimed=False)
     if len(invites) == 0:
         return error("Cannot be claimed")
-    totalReward = 0
-    inviteIds = list()
-    for invite in invites:
-        totalReward += 10
-        inviteIds.append(invite.id)
-    await claimInviteReward(user.id, totalReward, inviteIds)
-    return success({
-        'reward': totalReward
-    })
+    await claimInviteReward(user.id)
+    return success()
