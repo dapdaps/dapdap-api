@@ -120,21 +120,6 @@ class UserQuestAction(BaseDBModel, BaseCreatedUpdatedAtModel):
         table = 'user_quest_action'
 
 
-class QuestCampaignReward(BaseDBModel, BaseCreatedAtModel):
-    quest_campaign_id = fields.IntField(null=False)
-    reward = fields.IntField(null=False)
-    rank = fields.IntField(null=False)
-    account = fields.ForeignKeyField(
-        'models.UserInfo', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True, related_name="user",
-    )
-
-    def __str__(self):
-        return self.id
-
-    class Meta:
-        table = 'quest_campaign_reward'
-
-
 class QuestLong(BaseDBModel, BaseCreatedUpdatedAtModel):
     name = fields.CharField(max_length=50, null=False)
     description = fields.CharField(max_length=200, null=True)

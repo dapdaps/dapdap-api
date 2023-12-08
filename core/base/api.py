@@ -7,8 +7,11 @@ from fastapi import APIRouter, Depends, Response
 from starlette.requests import Request
 
 from apps.dapp.models import Network, Dapp
-from apps.quest.models import Quest
-from core.auth.utils import get_current_user
+from apps.quest.dao import actionCompleted
+from apps.quest.models import Quest, QuestAction, UserQuestAction
+from apps.user.models import UserInfo
+from core.auth.utils import get_current_user, get_current_user_optional
+from core.common.constants import STATUS_ONGOING
 from core.utils.base_util import get_limiter
 from core.utils.redis_provider import list_base_token_price
 from core.utils.tool_util import success, error
@@ -66,9 +69,22 @@ async def uniswap_api_check(request: Request, response: Response):
 
 @router.get('/api/search', tags=['base'])
 @limiter.limit('100/minute')
-async def uniswap_api_check(request: Request, content: str):
+async def search(request: Request, content: str, user: UserInfo = Depends(get_current_user_optional)):
     if len(content) == 0:
         return success()
+
+    if user:
+        questActions = await QuestAction.filter(source='search', category__not='dapp').all()
+        if len(questActions) > 0:
+            for questAction in questActions:
+                userQuestAction = await UserQuestAction.filter(account_id=user.id, quest_action_id=questAction.id).first()
+                if userQuestAction:
+                    continue
+                quest = await Quest.filter(id=questAction.quest_id).first()
+                if quest.status != STATUS_ONGOING:
+                    continue
+                await actionCompleted(user.id, questAction, quest)
+
     networks = await Network.filter(tag__contains=content).order_by("-created_at").all()
     dapps = await Dapp.filter(tag__contains=content).order_by("-created_at").all()
     quests = await Quest.filter(tag__contains=content).order_by("-created_at").all()
