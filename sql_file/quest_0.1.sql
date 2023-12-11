@@ -2,6 +2,8 @@ CREATE TABLE "quest_campaign" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "name" VARCHAR(100) NOT NULL,
     "description" VARCHAR(200) NULL,
+    "banner" VARCHAR(100) NULL,
+    "link" VARCHAR(100) NULL,
     "start_time" BIGINT NOT NULL,
     "end_time" BIGINT NOT NULL,
     "favorite" INT DEFAULT 0,
