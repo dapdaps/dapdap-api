@@ -27,6 +27,7 @@ class Mint(BaseDBModel, BaseCreatedAtModel):
     pool_address = fields.CharField(max_length=66)
     pool_fee = fields.IntField()
     timestamp = fields.BigIntField(index=True)
+    chain_id = fields.IntField()
 
     def __str__(self):
         return self.id
