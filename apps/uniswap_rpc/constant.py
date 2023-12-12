@@ -64,6 +64,7 @@ USE_QUOTER_V2 = [
 UNISWAP_API = "http://127.0.0.1:9101"
 
 GraphApi = {
-    "testnet": "https://graph-query.goerli.linea.build/subgraphs/name/dapdap/uniswap-v3-test",
-    "prd": "https://graph-query.linea.build/subgraphs/name/dapdap/uniswap-v3-prd",
+    "linea_testnet": "https://graph-query.goerli.linea.build/subgraphs/name/dapdap/uniswap-v3-test",
+    "linea_mainnet": "https://graph-query.linea.build/subgraphs/name/dapdap/uniswap-v3-prd",
+    "scroll_mainnet": "https://api.studio.thegraph.com/query/61090/uniswap/v0.2.8",
 }
