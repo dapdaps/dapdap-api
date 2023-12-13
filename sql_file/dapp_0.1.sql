@@ -21,6 +21,7 @@ CREATE TABLE "dapp" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "name" VARCHAR(128) NOT NULL,
     "route" VARCHAR(200) NULL,
+    "native_currency" VARCHAR(200) NULL,
     "tbd_token" VARCHAR(10) NOT NULL,
     "priority" INT NULL DEFAULT 0,
     "logo" VARCHAR(100) NULL,
