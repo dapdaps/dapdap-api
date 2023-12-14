@@ -19,6 +19,9 @@ from apps.uniswap_rpc.constant import UNISWAP_API
 from pydantic.types import Json
 from urllib.parse import urljoin
 import requests
+
+from settings.config import settings
+
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
 router = APIRouter()
@@ -112,3 +115,13 @@ async def search(request: Request, content: str, user: UserInfo = Depends(get_cu
         'quests': quests,
     })
 
+
+@router.get('/config', tags=['base'])
+@limiter.limit('100/minute')
+async def search(request: Request):
+    return success({
+        'twitter_client_id': settings.TWITTER_CLIENT_ID,
+        'twitter_redirect_url': settings.TWITTER_REDIRECT_URL,
+        'telegram_bot_id': settings.TELEGRAM_BOT_ID,
+        'telegram_bot_domain': settings.TELEGRAM_BOT_DOMAIN,
+    })
