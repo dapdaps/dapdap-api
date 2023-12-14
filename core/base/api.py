@@ -6,7 +6,8 @@ import logging
 from fastapi import APIRouter, Depends, Response
 from starlette.requests import Request
 
-from apps.dapp.models import Network, Dapp
+from apps.network.models import Network
+from apps.dapp.models import Dapp
 from apps.quest.dao import actionCompleted
 from apps.quest.models import Quest, QuestAction, UserQuestAction
 from apps.user.models import UserInfo
