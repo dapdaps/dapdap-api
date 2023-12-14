@@ -18,7 +18,7 @@ class UserInfo(BaseDBModel, BaseCreatedAtModel):
     account_info = fields.CharField(max_length=25, null=True)
     chain_type = fields.CharEnumField(ChainTypeEnum, default=ChainTypeEnum.ETH)
     last_login = fields.DatetimeField(null=True)
-    avatar = fields.CharField(max_length=50, null=True)
+    avatar = fields.CharField(max_length=200, null=True)
     username = fields.CharField(max_length=50, null=True)
 
     def __str__(self):
@@ -63,3 +63,19 @@ class UserReward(BaseDBModel, BaseCreatedUpdatedAtModel):
 
     class Meta:
         table = 'user_reward'
+
+
+class UserInfoExt(BaseDBModel, BaseCreatedAtModel):
+    account_id = fields.IntField(null=False, unique=True)
+    twitter_user_id = fields.CharField(max_length=20, null=True)
+    twitter_access_token_expires = fields.BigIntField(null=True)
+    twitter_access_token_type = fields.CharField(max_length=50, null=True)
+    twitter_access_token = fields.CharField(max_length=200, null=True)
+    twitter_refresh_token = fields.CharField(max_length=200, null=True)
+    telegram_user_id = fields.CharField(max_length=20, null=True)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'user_info_ext'

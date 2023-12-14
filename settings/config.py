@@ -10,7 +10,10 @@ DATABASE_NAME = os.getenv('DATABASE_NAME') or "dapdap"
 DATABASE_USERNAME = os.getenv('DATABASE_USERNAME') or "postgres"
 DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD') or "postgres"
 REDIS_URL = os.getenv('REDIS_URL') or "redis://localhost:6379"
-ENV = os.getenv('ENV')
+TWITTER_CLIENT_ID = os.getenv('TWITTER_CLIENT_ID') or "T0lJRUl3UHFmMGFHbkFpVC1OLVk6MTpjaQ"
+TWITTER_CLIENT_SECRET = os.getenv('TWITTER_CLIENT_SECRET') or "4FYthiBfJHSi1xb66ow2GHGzMYTCX9xwPFW92MdiANPPxs-Deq"
+TWITTER_REDIRECT_URL = os.getenv('TWITTER_REDIRECT_URL') or "http://localhost:3000/quest/profile"
+
 
 class Settings:
     VERSION = '0.1.0'
@@ -91,7 +94,9 @@ class Settings:
 
     ACTIVITY_REPORT_CHANGE = 0
 
-    ENV = ENV
+    TWITTER_CLIENT_ID = TWITTER_CLIENT_ID
+    TWITTER_CLIENT_SECRET = TWITTER_CLIENT_SECRET
+    TWITTER_REDIRECT_URL = TWITTER_REDIRECT_URL
 
 
 settings = Settings()
