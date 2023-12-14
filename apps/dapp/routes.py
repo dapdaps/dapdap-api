@@ -1,18 +1,106 @@
 import logging
 
+import math
 from starlette.requests import Request
+from tortoise.functions import Count
 
-from apps.dapp.models import DappNetwork, DappCategory, Dapp, DappRelate
+from apps.dapp.models import DappNetwork, DappCategory, Dapp, DappRelate, Category
 from apps.dapp.service import filterDapps
 from apps.user.models import UserInfo, UserFavorite
 from core.auth.utils import get_current_user, get_current_user_optional
 from core.utils.base_util import get_limiter
 from fastapi import APIRouter, Depends
-from core.utils.tool_util import success
+from core.utils.tool_util import success, error
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
 router = APIRouter(prefix="/api/dapp")
+
+
+@router.get('/category_list', tags=['dapp'])
+@limiter.limit('60/minute')
+async def category_list(request: Request):
+    data = await Category.all().order_by('-id')
+    return success(data)
+
+
+@router.get('/list', tags=['dapp'])
+@limiter.limit('60/minute')
+async def dapp_list(request: Request, page: int = 0, page_size: int = 20):
+    offset = (page - 1) * page_size
+    total = await Dapp.all().annotate(count=Count('id')).first().values('count')
+    data = await Dapp.all().order_by('-created_at').offset(offset).limit(page_size).values()
+    if len(data) > 0:
+        for dapp in data:
+            dappNetworks = await DappNetwork.filter(dapp_id=dapp['id']).all()
+            if len(dapp['category_ids']) > 0:
+                dappCategoryList = list()
+                categoryIds = dapp['category_ids'].split(",")
+                for id in categoryIds:
+                        dappCategoryList.append({
+                            'dapp_id': dapp['id'],
+                            'category_id': int(id),
+                        })
+                dapp['dapp_category'] = dappCategoryList
+            if len(dapp['network_ids']) > 0:
+                dappNetworkList = list()
+                networkIds = dapp['network_ids'].split(",")
+                for id in networkIds:
+                    dappSrc = ""
+                    for dappNetwork in dappNetworks:
+                        if dappNetwork.network_id == int(id):
+                            dappSrc = dappNetwork.dapp_src
+                            break
+                    dappNetworkList.append({
+                        'dapp_id': dapp['id'],
+                        'network_id': int(id),
+                        'dapp_src': dappSrc,
+                    })
+                dapp['dapp_network'] = dappNetworkList
+            del dapp['category_ids']
+            del dapp['network_ids']
+    return success({
+        'data': data,
+        'total': total['count'],
+        'total_page':  math.ceil(total['count']/page_size)
+    })
+
+
+@router.get('', tags=['dapp'])
+@limiter.limit('60/minute')
+async def get_one(request: Request, id: int):
+    dapp = await Dapp.filter(id=id).first().values()
+    if not dapp:
+        return error("not find")
+
+    dappNetworks = await DappNetwork.filter(dapp_id=dapp['id']).all()
+    if len(dapp['category_ids']) > 0:
+        dappCategoryList = list()
+        categoryIds = dapp['category_ids'].split(",")
+        for id in categoryIds:
+            dappCategoryList.append({
+                'dapp_id': dapp['id'],
+                'category_id': int(id),
+            })
+        dapp['dapp_category'] = dappCategoryList
+    if len(dapp['network_ids']) > 0:
+        dappNetworkList = list()
+        networkIds = dapp['network_ids'].split(",")
+        for id in networkIds:
+            dappSrc = ""
+            for dappNetwork in dappNetworks:
+                if dappNetwork.network_id == int(id):
+                    dappSrc = dappNetwork.dapp_src
+                    break
+            dappNetworkList.append({
+                'dapp_id': dapp['id'],
+                'network_id': int(id),
+                'dapp_src': dappSrc,
+            })
+        dapp['dapp_network'] = dappNetworkList
+    del dapp['category_ids']
+    del dapp['network_ids']
+    return success(dapp)
 
 
 @router.get('/hot_list', tags=['dapp'])

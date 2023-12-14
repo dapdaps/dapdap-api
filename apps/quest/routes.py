@@ -6,7 +6,8 @@ import math
 from tortoise.functions import Sum, Count
 from starlette.requests import Request
 
-from apps.dapp.models import Network, Dapp, DappNetwork
+from apps.network.models import Network
+from apps.dapp.models import Dapp, DappNetwork
 from apps.quest.dao import claimReward, claimDailyCheckIn, actionCompleted
 from apps.quest.models import QuestCampaign, Quest, UserQuest, QuestCategory, QuestAction, \
     UserDailyCheckIn, QuestLong, QuestCampaignInfo, UserRewardRank, UserQuestAction, QuestSourceRecord
