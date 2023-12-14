@@ -1,12 +1,12 @@
-import asyncio
 import base64
 import json
 import logging
 import time
+import hashlib
+import hmac
 
 import math
 import requests
-from tortoise import Tortoise
 
 from tortoise.functions import Count
 
@@ -15,13 +15,13 @@ from apps.invite.models import InviteCodePool
 from apps.quest.models import QuestCampaign, Quest, UserQuest, UserRewardRank
 from apps.user.dao import updateUserFavorite
 from apps.user.models import UserInfo, UserFavorite, UserInfoExt
-from apps.user.schemas import FavoriteIn, BindTwitterIn
+from apps.user.schemas import FavoriteIn, BindTwitterIn, BindTelegramIn
 from core.utils.base_util import get_limiter
 from fastapi import APIRouter, Depends
 from core.auth.utils import get_current_user
 from starlette.requests import Request
 from core.utils.tool_util import success, error
-from settings.config import Settings
+from settings.config import settings
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
@@ -105,12 +105,12 @@ async def bind_twitter(request: Request, param: BindTwitterIn, user: UserInfo = 
     if not userInfo:
         return error("user not exist")
     headers = {
-        "Authorization": "Basic "+base64.b64encode((Settings.TWITTER_CLIENT_ID+":"+Settings.TWITTER_CLIENT_SECRET).encode()).decode(),
+        "Authorization": "Basic "+base64.b64encode((settings.TWITTER_CLIENT_ID+":"+settings.TWITTER_CLIENT_SECRET).encode()).decode(),
     }
     data = {
         'code': param.code,
         'grant_type': "authorization_code",
-        'redirect_uri': Settings.TWITTER_REDIRECT_URL,
+        'redirect_uri': settings.TWITTER_REDIRECT_URL,
         'code_verifier': "challenge",
     }
     rep = requests.post("https://api.twitter.com/2/oauth2/token", params=data, headers=headers, verify=False)
@@ -144,11 +144,35 @@ async def bind_twitter(request: Request, param: BindTwitterIn, user: UserInfo = 
     userInfo.avatar = avatar
     userInfo.username = username
     await userInfo.save()
-    await UserInfoExt.update_or_create(defaults={
-        'twitter_user_id': id,
-        'twitter_access_token': accessToken,
-        'twitter_refresh_token': refreshToken,
-        'twitter_access_token_type': tokenType,
-        'twitter_access_token_expires': int(time.time())+expiresIn,
-    }, account_id=user.id)
+    await UserInfoExt.update_or_create(
+        defaults={
+            'twitter_user_id': id,
+            'twitter_access_token': accessToken,
+            'twitter_refresh_token': refreshToken,
+            'twitter_access_token_type': tokenType,
+            'twitter_access_token_expires': int(time.time())+expiresIn,
+        },
+        account_id=user.id
+    )
+    return success()
+
+
+@router.post('/bind/telegram', tags=['user'])
+@limiter.limit('60/minute')
+async def bind_telegram(request: Request, param: BindTelegramIn, user: UserInfo = Depends(get_current_user)):
+    userInfo = await UserInfo.filter(id=user.id).first()
+    if not userInfo:
+        return error("user not exist")
+    data_check_string = f"auth_date={param.auth_date}\nfirst_name={param.first_name}\nid={param.first_name}\nlast_name={param.last_name}\nphoto_url={param.photo_url}\nusername={param.username}"
+    hash_object = hashlib.sha256()
+    hash_object.update(settings.TELEGRAM_BOT_TOKEN.encode())
+    hmac_object = hmac.new(hash_object.hexdigest().encode(), data_check_string.encode(), hashlib.sha256)
+    if hmac_object.hexdigest() != param.hash:
+        return error("illegal")
+    await UserInfoExt.update_or_create(
+        defaults={
+            'telegram_user_id': param.id,
+        },
+        account_id=user.id
+    )
     return success()
