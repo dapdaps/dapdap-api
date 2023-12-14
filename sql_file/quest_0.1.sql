@@ -193,6 +193,20 @@ COMMENT ON COLUMN "user_daily_check_in"."check_in_time" IS 'check in time/utc 0ç
 CREATE unique INDEX "idx_user_daily_check_in_account_check_in_time" ON "user_daily_check_in" ("account_id","check_in_time");
 
 
+CREATE TABLE "user_info_ext" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "account_id" INT NOT NULL,
+    "twitter_user_id" VARCHAR(20) NULL,
+    "twitter_access_token_type" VARCHAR(50) NULL,
+    "twitter_access_token_expires" BIGINT NULL,
+    "twitter_access_token" VARCHAR(200) NULL,
+    "twitter_refresh_token" VARCHAR(200) NULL,
+    "telegram_user_id" VARCHAR(20) NULL,
+    "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE unique INDEX "idx_user_info_ext_account" ON "user_info_ext" ("account_id");
+
 alter table user_info add column "avatar" varchar(200) NULL;
 alter table user_info add column "username" varchar(50) NULL;
 alter table t_action_record add column "source" varchar(50) NULL;
