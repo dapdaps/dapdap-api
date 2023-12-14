@@ -11,6 +11,8 @@ class QuestCampaign(BaseDBModel, BaseCreatedUpdatedAtModel):
     end_time = fields.BigIntField(null=False)
     status = fields.CharField(max_length=20, null=False)
     favorite = fields.IntField(null=False)
+    banner = fields.CharField(max_length=100, null=True)
+    link = fields.CharField(max_length=100, null=True)
 
     def __str__(self):
         return self.id

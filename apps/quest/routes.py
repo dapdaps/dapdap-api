@@ -3,14 +3,14 @@ import logging
 from typing import Optional
 
 import math
-from tortoise.functions import Sum, Count
+from tortoise.functions import Count
 from starlette.requests import Request
 
 from apps.network.models import Network
 from apps.dapp.models import Dapp, DappNetwork
 from apps.quest.dao import claimReward, claimDailyCheckIn, actionCompleted
 from apps.quest.models import QuestCampaign, Quest, UserQuest, QuestCategory, QuestAction, \
-    UserDailyCheckIn, QuestLong, QuestCampaignInfo, UserRewardRank, UserQuestAction, QuestSourceRecord
+    UserDailyCheckIn, QuestLong, QuestCampaignInfo, UserRewardRank, UserQuestAction
 from apps.quest.schemas import ClaimIn, SourceIn
 from apps.user.models import UserInfo, UserFavorite
 from core.common.constants import STATUS_COMPLETED, STATUS_ENDED, STATUS_ONGOING
@@ -29,13 +29,48 @@ router = APIRouter(prefix="/api/quest")
 @router.get('/campaign_list', tags=['quest'])
 @limiter.limit('60/minute')
 async def campaign_list(request: Request):
-    campaigns = await QuestCampaign.all().values()
+    campaigns = await QuestCampaign.all().order_by('-created_at').values()
     if len(campaigns) == 0:
         return success()
     for campaign in campaigns:
-        totalReward = await Quest.filter(quest_campaign_id=campaign['id']).annotate(total_reward=Sum("reward")).first().values("total_reward")
-        campaign['reward'] = totalReward['total_reward']
+        allQuest = await Quest.filter(quest_campaign_id=campaign['id']).all()
+        if len(allQuest) == 0:
+            campaign['reward'] = 0
+            campaign['quests'] = {
+                'total': 0,
+                'total_category': [],
+            }
+            continue
+        totalReward = 0
+        allQuestCategory = list()
+        for quest in allQuest:
+            totalReward += quest.reward
+            qc = None
+            for questCategory in allQuestCategory:
+                if questCategory['quest_category_id'] == quest.quest_category_id:
+                    qc = questCategory
+                    break
+            if not qc:
+                qc = {
+                    'quest_category_id': quest.quest_category_id,
+                    'total': 1,
+                }
+                allQuestCategory.append(qc)
+            else:
+                qc['total'] += 1
+        campaign['reward'] = totalReward
+        campaign['quests'] = {
+            'total': len(allQuest),
+            'total_category': allQuestCategory,
+        }
     return success(campaigns)
+
+
+@router.get('/category_list', tags=['quest'])
+@limiter.limit('60/minute')
+async def category_list(request: Request):
+    data = await QuestCategory.all().order_by('-created_at')
+    return success(data)
 
 
 @router.get('/list', tags=['quest'])
