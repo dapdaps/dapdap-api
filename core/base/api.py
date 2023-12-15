@@ -125,4 +125,6 @@ async def search(request: Request):
         'twitter_redirect_url': settings.TWITTER_REDIRECT_URL,
         'telegram_bot_id': settings.TELEGRAM_BOT_ID,
         'telegram_bot_domain': settings.TELEGRAM_BOT_DOMAIN,
+        'discord_client_id': settings.DISCORD_CLIENT_ID,
+        'discord_redirect_url': settings.DISCORD_REDIRECT_URL,
     })
