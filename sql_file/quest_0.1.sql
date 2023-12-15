@@ -202,6 +202,7 @@ CREATE TABLE "user_info_ext" (
     "twitter_access_token" VARCHAR(200) NULL,
     "twitter_refresh_token" VARCHAR(200) NULL,
     "telegram_user_id" VARCHAR(20) NULL,
+    "discord_user_id" VARCHAR(30) NULL,
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
