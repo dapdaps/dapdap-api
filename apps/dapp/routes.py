@@ -1,4 +1,5 @@
 import logging
+import time
 
 import math
 from starlette.requests import Request
@@ -31,8 +32,11 @@ async def dapp_list(request: Request, page: int = 0, page_size: int = 20):
     total = await Dapp.all().annotate(count=Count('id')).first().values('count')
     data = await Dapp.all().order_by('-created_at').offset(offset).limit(page_size).values()
     if len(data) > 0:
+        dappIds = list()
         for dapp in data:
-            dappNetworks = await DappNetwork.filter(dapp_id=dapp['id']).all()
+            dappIds.append(dapp['id'])
+        dappNetworks = await DappNetwork.filter(dapp_id__in=dappIds).all()
+        for dapp in data:
             if len(dapp['category_ids']) > 0:
                 dappCategoryList = list()
                 categoryIds = dapp['category_ids'].split(",")
@@ -48,7 +52,7 @@ async def dapp_list(request: Request, page: int = 0, page_size: int = 20):
                 for id in networkIds:
                     dappSrc = ""
                     for dappNetwork in dappNetworks:
-                        if dappNetwork.network_id == int(id):
+                        if dappNetwork.dapp_id == dapp['id'] and dappNetwork.network_id == int(id):
                             dappSrc = dappNetwork.dapp_src
                             break
                     dappNetworkList.append({
