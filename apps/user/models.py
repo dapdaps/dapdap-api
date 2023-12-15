@@ -73,6 +73,7 @@ class UserInfoExt(BaseDBModel, BaseCreatedAtModel):
     twitter_access_token = fields.CharField(max_length=200, null=True)
     twitter_refresh_token = fields.CharField(max_length=200, null=True)
     telegram_user_id = fields.CharField(max_length=20, null=True)
+    discord_user_id = fields.CharField(max_length=30, null=True)
 
     def __str__(self):
         return self.id

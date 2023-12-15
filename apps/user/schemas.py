@@ -19,3 +19,7 @@ class BindTelegramIn(BaseModel):
     photo_url: str
     auth_date: str
     hash: str
+
+
+class BindDiscordIn(BaseModel):
+    code: str

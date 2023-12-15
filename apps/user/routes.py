@@ -15,7 +15,7 @@ from apps.invite.models import InviteCodePool
 from apps.quest.models import QuestCampaign, Quest, UserQuest, UserRewardRank
 from apps.user.dao import updateUserFavorite
 from apps.user.models import UserInfo, UserFavorite, UserInfoExt
-from apps.user.schemas import FavoriteIn, BindTwitterIn, BindTelegramIn
+from apps.user.schemas import FavoriteIn, BindTwitterIn, BindTelegramIn, BindDiscordIn
 from core.utils.base_util import get_limiter
 from fastapi import APIRouter, Depends
 from core.auth.utils import get_current_user
@@ -172,6 +172,56 @@ async def bind_telegram(request: Request, param: BindTelegramIn, user: UserInfo 
     await UserInfoExt.update_or_create(
         defaults={
             'telegram_user_id': param.id,
+        },
+        account_id=user.id
+    )
+    return success()
+
+
+@router.post('/bind/discord', tags=['user'])
+@limiter.limit('60/minute')
+async def bind_discord(request: Request, param: BindDiscordIn, user: UserInfo = Depends(get_current_user)):
+    userInfo = await UserInfo.filter(id=user.id).first()
+    if not userInfo:
+        return error("user not exist")
+    headers = {'Content-Type': 'application/x-www-form-urlencoded'}
+    data = {
+        'code': param.code,
+        'grant_type': "authorization_code",
+        'redirect_uri': settings.DISCORD_REDIRECT_URL,
+        'client_id': settings.DISCORD_CLIENT_ID,
+        'client_secret': settings.DISCORD_CLIENT_SECRET,
+    }
+    rep = requests.post("https://discord.com/api/oauth2/token", data=data, headers=headers, verify=False)
+    if rep.status_code != 200:
+        logger.error(f"bind_discord failed getToken status_code:{rep.status_code} text:{rep.text}")
+        return error('bind failed')
+    response = json.loads(rep.text)
+    accessToken = response['access_token']
+    refreshToken = response['refresh_token']
+    tokenType = response['token_type']
+    expiresIn = response['expires_in']
+    if len(accessToken) <= 0 or len(tokenType) <= 0 or expiresIn <= 0:
+        logger.error(f"bind_discord failed accessToken:{accessToken} tokenType:{tokenType} expiresIn:{expiresIn}")
+        return error('bind failed')
+
+    headers = {
+        "Authorization": f"{tokenType} {accessToken}",
+    }
+    rep = requests.get("https://discord.com/api/users/@me", headers=headers, verify=False)
+    if rep.status_code != 200:
+        logger.error(f"bind_discord failed getUserInfo status_code:{rep.status_code} text:{rep.text}")
+        return error('bind failed')
+    response = json.loads(rep.text)
+    username = response['username']
+    id = response['id']
+    if len(id) == 0:
+        logger.error(f"bind_discord failed getUserInfo id is empty")
+        return error('bind failed')
+
+    await UserInfoExt.update_or_create(
+        defaults={
+            'discord_user_id': id,
         },
         account_id=user.id
     )
