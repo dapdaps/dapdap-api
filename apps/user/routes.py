@@ -1,3 +1,4 @@
+from datetime import datetime
 import base64
 import json
 import logging
@@ -153,6 +154,7 @@ async def bind_twitter(request: Request, param: BindTwitterIn, user: UserInfo = 
             'twitter_refresh_token': refreshToken,
             'twitter_access_token_type': tokenType,
             'twitter_access_token_expires': int(time.time())+expiresIn,
+            'updated_at': datetime.now(),
         },
         account_id=user.id
     )
@@ -174,6 +176,7 @@ async def bind_telegram(request: Request, param: BindTelegramIn, user: UserInfo 
     await UserInfoExt.update_or_create(
         defaults={
             'telegram_user_id': param.id,
+            'updated_at': datetime.now(),
         },
         account_id=user.id
     )
@@ -224,6 +227,7 @@ async def bind_discord(request: Request, param: BindDiscordIn, user: UserInfo = 
     await UserInfoExt.update_or_create(
         defaults={
             'discord_user_id': id,
+            'updated_at': datetime.now(),
         },
         account_id=user.id
     )
