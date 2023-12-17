@@ -207,6 +207,7 @@ CREATE TABLE "user_info_ext" (
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE unique INDEX "idx_user_info_ext_account" ON "user_info_ext" ("account_id");
+CREATE INDEX "idx_user_info_ext_updated_at" ON "user_info_ext" ("updated_at");
 
 alter table user_info add column "avatar" varchar(200) NULL;
 alter table user_info add column "username" varchar(50) NULL;
