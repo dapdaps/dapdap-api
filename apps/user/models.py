@@ -65,7 +65,7 @@ class UserReward(BaseDBModel, BaseCreatedUpdatedAtModel):
         table = 'user_reward'
 
 
-class UserInfoExt(BaseDBModel, BaseCreatedAtModel):
+class UserInfoExt(BaseDBModel, BaseCreatedUpdatedAtModel):
     account_id = fields.IntField(null=False, unique=True)
     twitter_user_id = fields.CharField(max_length=20, null=True)
     twitter_access_token_expires = fields.BigIntField(null=True)

@@ -1,3 +1,4 @@
+from datetime import datetime
 import base64
 import json
 import logging
@@ -46,6 +47,7 @@ async def user(request: Request, campaign_id: int = None, user: UserInfo = Depen
         'id': userInfo.id,
         'address': userInfo.address,
         'avatar': userInfo.avatar,
+        'username': userInfo.username,
         'reward': rewardRank.reward,
         'rank': rewardRank.rank,
         'total_invited': inviteTotal['count'],
@@ -105,6 +107,7 @@ async def bind_twitter(request: Request, param: BindTwitterIn, user: UserInfo = 
     if not userInfo:
         return error("user not exist")
     headers = {
+        'Content-Type': 'application/x-www-form-urlencoded',
         "Authorization": "Basic "+base64.b64encode((settings.TWITTER_CLIENT_ID+":"+settings.TWITTER_CLIENT_SECRET).encode()).decode(),
     }
     data = {
@@ -113,7 +116,7 @@ async def bind_twitter(request: Request, param: BindTwitterIn, user: UserInfo = 
         'redirect_uri': settings.TWITTER_REDIRECT_URL,
         'code_verifier': "challenge",
     }
-    rep = requests.post("https://api.twitter.com/2/oauth2/token", params=data, headers=headers, verify=False)
+    rep = requests.post("https://api.twitter.com/2/oauth2/token", data=data, headers=headers, verify=False)
     if rep.status_code != 200:
         logger.error(f"bind_twitter failed getToken status_code:{rep.status_code} text:{rep.text}")
         return error('bind failed')
@@ -151,6 +154,7 @@ async def bind_twitter(request: Request, param: BindTwitterIn, user: UserInfo = 
             'twitter_refresh_token': refreshToken,
             'twitter_access_token_type': tokenType,
             'twitter_access_token_expires': int(time.time())+expiresIn,
+            'updated_at': datetime.now(),
         },
         account_id=user.id
     )
@@ -172,6 +176,7 @@ async def bind_telegram(request: Request, param: BindTelegramIn, user: UserInfo 
     await UserInfoExt.update_or_create(
         defaults={
             'telegram_user_id': param.id,
+            'updated_at': datetime.now(),
         },
         account_id=user.id
     )
@@ -222,6 +227,7 @@ async def bind_discord(request: Request, param: BindDiscordIn, user: UserInfo = 
     await UserInfoExt.update_or_create(
         defaults={
             'discord_user_id': id,
+            'updated_at': datetime.now(),
         },
         account_id=user.id
     )
