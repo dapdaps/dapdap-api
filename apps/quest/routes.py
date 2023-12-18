@@ -484,7 +484,7 @@ async def claim_daily_check_in(request: Request, user: UserInfo = Depends(get_cu
     dailyCheckIn.reward = reward
     dailyCheckIn.day = days+1
     dailyCheckIn.check_in_time = todayChecInTime
-    await claimDailyCheckIn(user.id, dailyCheckIn)
+    await claimDailyCheckIn(user.id, dailyCheckIn, days+1)
     return success({
             'day': dailyCheckIn.day,
             'reward': dailyCheckIn.reward,
