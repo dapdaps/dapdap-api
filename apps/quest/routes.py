@@ -407,6 +407,7 @@ async def daily_check_in(request: Request, user: UserInfo = Depends(get_current_
                 break
             index += 1
 
+    consecutive_days = len(data)
     beforeDays = 0
     if len(data) > 7:
         beforeDays = len(data) - len(data) % 7
@@ -436,7 +437,10 @@ async def daily_check_in(request: Request, user: UserInfo = Depends(get_current_
 
     for index, dailyCheckIn in enumerate(data):
         dailyCheckIn['day'] = beforeDays+index+1
-    return success(data)
+    return success({
+        'consecutive_days': consecutive_days,
+        'data': data
+    })
 
 
 @router.post('/daily_check_in', tags=['quest'])
