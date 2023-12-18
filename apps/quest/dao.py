@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from apps.quest.models import UserQuest, UserDailyCheckIn, QuestAction, Quest
+from apps.quest.models import UserQuest, UserDailyCheckIn, QuestAction, Quest, UserQuestAction
 from apps.user.models import UserReward
 from core.base.db_provider import start_transaction
 from core.common.constants import STATUS_COMPLETED, STATUS_INPROCESS
@@ -26,8 +26,24 @@ async def claimReward(userId: int, userQuestId: int):
     await start_transaction(local_function)
 
 
-async def claimDailyCheckIn(userId: int, data: UserDailyCheckIn):
+async def claimDailyCheckIn(userId: int, data: UserDailyCheckIn, consecutiveDays: int):
     now = datetime.now()
+    questActions = await QuestAction.filter(category__in=['daily_check_in_day_1', 'daily_check_in_day_3']).all()
+    userNotCompletedQuestActions = list()
+    if questActions:
+        questActionIds = list()
+        for questAction in questActions:
+            questActionIds.append(questAction.id)
+        userQuestActions = await UserQuestAction.filter(account_id=userId, quest_action_id__in=questActionIds).all()
+        for questAction in questActions:
+            hasCompleted = False
+            if userQuestActions:
+                for userQuestAction in userQuestActions:
+                    if questAction.id == userQuestAction.quest_action_id:
+                        hasCompleted = True
+            if not hasCompleted:
+                userNotCompletedQuestActions.append(questAction)
+
     async def local_function(connection):
         await connection.execute_query(f"select * from user_info where id={userId} for update")
         await connection.execute_query(
@@ -39,6 +55,29 @@ async def claimDailyCheckIn(userId: int, data: UserDailyCheckIn):
         if userReward:
             reward += userReward.reward
             claimReward += userReward.claimed_reward
+        if len(userNotCompletedQuestActions) > 0:
+            for questAction in userNotCompletedQuestActions:
+                if questAction.category == "daily_check_in_day_1" or (questAction.category == "daily_check_in_day_3" and consecutiveDays >= 3):
+                    completedAction = 0
+                    userQuestStatus = ""
+                    quest = await Quest.filter(id=questAction.quest_id, status='ongoing').first()
+                    if not quest:
+                        continue
+                    userQuest = await UserQuest.filter(account_id=userId, quest_id=questAction.quest_id).first()
+                    if userQuest:
+                        completedAction = userQuest.action_completed
+                    completedAction += 1
+                    if completedAction < quest.total_action:
+                        userQuestStatus = STATUS_INPROCESS
+                    else:
+                        userQuestStatus = STATUS_COMPLETED
+                        reward += quest.reward
+                    await connection.execute_query(
+                        "insert into user_quest_action(account_id,quest_action_id,quest_id,quest_campaign_id,times,status) VALUES($1,$2,$3,$4,$5,$6)",
+                        (userId, questAction.id, quest.id, quest.quest_campaign_id, 1, STATUS_COMPLETED))
+                    await connection.execute_query(
+                        "insert into user_quest(account_id,quest_id,quest_campaign_id,action_completed,status,updated_at) VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT (account_id,quest_id) DO UPDATE SET action_completed=EXCLUDED.action_completed,status=EXCLUDED.status,updated_at=EXCLUDED.updated_at",
+                        (userId, quest.id, quest.quest_campaign_id, completedAction, userQuestStatus, now))
         await connection.execute_query(
             'insert into user_reward(account_id,reward,claimed_reward,updated_at) VALUES($1,$2,$3,$4) ON CONFLICT (account_id) DO UPDATE SET reward=EXCLUDED.reward,claimed_reward=EXCLUDED.claimed_reward,updated_at=EXCLUDED.updated_at',
             (userId, reward, claimReward, now)
@@ -74,3 +113,4 @@ async def actionCompleted(userId: int, questAction: QuestAction, quest: Quest):
             "insert into user_quest(account_id,quest_id,quest_campaign_id,action_completed,status,updated_at) VALUES($1,$2,$3,$4,$5,$6) ON CONFLICT (account_id,quest_id) DO UPDATE SET action_completed=EXCLUDED.action_completed,status=EXCLUDED.status,updated_at=EXCLUDED.updated_at",
             (userId, quest.id, quest.quest_campaign_id, completedAction, userQuestStatus, now))
     await start_transaction(local_function)
+

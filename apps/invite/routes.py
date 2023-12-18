@@ -16,13 +16,14 @@ from core.auth.utils import get_current_user
 from core.utils.base_util import get_limiter
 import logging
 from apps.invite.models import InviteCodePool
-from apps.user.models import UserInfo, UserReward
+from apps.user.models import UserInfo
 from core.utils.tool_util import success,  error
 from settings.config import settings
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
 router = APIRouter(prefix="/api/invite")
+
 
 @router.get('/check-code/{code}', tags=['invite'], dependencies=[Depends(get_current_user)])
 @limiter.limit('100/minute')
