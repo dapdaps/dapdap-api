@@ -13,10 +13,10 @@ class BindTwitterIn(BaseModel):
 
 class BindTelegramIn(BaseModel):
     id: str
-    first_name: str
-    last_name: str
-    username: str
-    photo_url: str
+    first_name: str = None
+    last_name: str = None
+    username: str = None
+    photo_url: str = None
     auth_date: str
     hash: str
 

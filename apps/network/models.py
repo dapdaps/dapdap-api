@@ -4,6 +4,7 @@ from tortoise import fields
 
 class Network(BaseDBModel, BaseCreatedUpdatedAtModel):
     chain_id = fields.IntField(null=False, unique=True)
+    priority = fields.IntField(null=True)
     name = fields.CharField(max_length=128, null=False)
     technology = fields.CharField(max_length=100, null=False)
     description = fields.CharField(max_length=1000, null=True)

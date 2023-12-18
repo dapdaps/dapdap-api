@@ -181,7 +181,16 @@ async def bind_telegram(request: Request, param: BindTelegramIn, user: UserInfo 
     userInfo = await UserInfo.filter(id=user.id).first()
     if not userInfo:
         return error("user not exist")
-    data_check_string = f"auth_date={param.auth_date}\nfirst_name={param.first_name}\nid={param.first_name}\nlast_name={param.last_name}\nphoto_url={param.photo_url}\nusername={param.username}"
+    data_check_string = f"auth_date={param.auth_date}"
+    if param.first_name and len(param.first_name) > 0:
+        data_check_string += f"\nfirst_name={param.first_name}"
+    data_check_string += f"\nid={param.id}"
+    if param.last_name and len(param.last_name) > 0:
+        data_check_string += f"\nlast_name={param.last_name}"
+    if param.photo_url and len(param.photo_url) > 0:
+        data_check_string += f"\nphoto_url={param.photo_url}"
+    if param.username and len(param.username) > 0:
+        data_check_string += f"\nusername={param.username}"
     hash_object = hashlib.sha256()
     hash_object.update(settings.TELEGRAM_BOT_TOKEN.encode())
     hmac_object = hmac.new(hash_object.hexdigest().encode(), data_check_string.encode(), hashlib.sha256)
