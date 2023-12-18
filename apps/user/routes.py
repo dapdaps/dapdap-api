@@ -93,14 +93,6 @@ async def favorite(request: Request, param: FavoriteIn, user: UserInfo = Depends
         return success()
 
     await updateUserFavorite(user.id, param.id, param.category, param.favorite)
-    # await UserFavorite.update_or_create(
-    #     defaults={
-    #         "is_favorite": param.favorite,
-    #     },
-    #     account_id=user.id,
-    #     relate_id=param.id,
-    #     category=param.category,
-    # )
     return success()
 
 
@@ -178,6 +170,8 @@ async def bind_twitter(request: Request, param: BindTwitterIn, user: UserInfo = 
 @router.post('/bind/telegram', tags=['user'])
 @limiter.limit('60/minute')
 async def bind_telegram(request: Request, param: BindTelegramIn, user: UserInfo = Depends(get_current_user)):
+    if param.auth_date <= int(time.time()):
+        return error("illegal auth_date")
     userInfo = await UserInfo.filter(id=user.id).first()
     if not userInfo:
         return error("user not exist")
@@ -191,9 +185,8 @@ async def bind_telegram(request: Request, param: BindTelegramIn, user: UserInfo 
         data_check_string += f"\nphoto_url={param.photo_url}"
     if param.username and len(param.username) > 0:
         data_check_string += f"\nusername={param.username}"
-    hash_object = hashlib.sha256()
-    hash_object.update(settings.TELEGRAM_BOT_TOKEN.encode())
-    hmac_object = hmac.new(hash_object.hexdigest().encode(), data_check_string.encode(), hashlib.sha256)
+    hashed_key = hashlib.sha256(settings.TELEGRAM_BOT_TOKEN.encode()).digest()
+    hmac_object = hmac.new(hashed_key, data_check_string.encode(), hashlib.sha256)
     if hmac_object.hexdigest() != param.hash:
         return error("illegal")
     await UserInfoExt.update_or_create(

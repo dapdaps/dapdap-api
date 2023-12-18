@@ -17,7 +17,7 @@ class BindTelegramIn(BaseModel):
     last_name: str = None
     username: str = None
     photo_url: str = None
-    auth_date: str
+    auth_date: int
     hash: str
 
 
