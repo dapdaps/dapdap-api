@@ -33,6 +33,7 @@ router = APIRouter(prefix="/api/user")
 @limiter.limit('60/minute')
 async def user(request: Request, campaign_id: int = None, user: UserInfo = Depends(get_current_user)):
     userInfo = await UserInfo.filter(id=user.id).first()
+    userInfoExt = await UserInfoExt.filter(account_id=user.id).first()
     inviteTotal = await InviteCodePool.filter(creator_user_id=user.id, is_used=True).all().annotate(count=Count('id')).first().values("count")
     rewardRank = await UserRewardRank.filter(account_id=user.id).first()
 
@@ -48,6 +49,7 @@ async def user(request: Request, campaign_id: int = None, user: UserInfo = Depen
         'address': userInfo.address,
         'avatar': userInfo.avatar,
         'username': userInfo.username,
+        'twitter_username': userInfoExt.twitter_username if userInfoExt else "",
         'reward': rewardRank.reward,
         'rank': rewardRank.rank,
         'total_invited': inviteTotal['count'],
@@ -150,6 +152,7 @@ async def bind_twitter(request: Request, param: BindTwitterIn, user: UserInfo = 
     await UserInfoExt.update_or_create(
         defaults={
             'twitter_user_id': id,
+            'twitter_username': username,
             'twitter_access_token': accessToken,
             'twitter_refresh_token': refreshToken,
             'twitter_access_token_type': tokenType,
