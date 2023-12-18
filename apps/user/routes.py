@@ -190,6 +190,7 @@ async def bind_telegram(request: Request, param: BindTelegramIn, user: UserInfo 
     await UserInfoExt.update_or_create(
         defaults={
             'telegram_user_id': param.id,
+            'telegram_username': param.username,
             'updated_at': datetime.now(),
         },
         account_id=user.id
@@ -241,6 +242,7 @@ async def bind_discord(request: Request, param: BindDiscordIn, user: UserInfo = 
     await UserInfoExt.update_or_create(
         defaults={
             'discord_user_id': id,
+            'discord_username': username,
             'updated_at': datetime.now(),
         },
         account_id=user.id
