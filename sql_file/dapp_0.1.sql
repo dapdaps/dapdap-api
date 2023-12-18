@@ -1,6 +1,7 @@
 CREATE TABLE "network" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "chain_id" INT NOT NULL UNIQUE,
+    "priority" INT NULL DEFAULT 0,
     "name" VARCHAR(128) NOT NULL,
     "native_currency" VARCHAR(200) NOT NULL,
     "tbd_token" VARCHAR(10) NOT NULL,
@@ -15,6 +16,7 @@ CREATE TABLE "network" (
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE unique INDEX "idx_network_chain_id" ON "network" ("chain_id");
+CREATE INDEX "idx_network_priority" ON "network" ("priority");
 
 
 CREATE TABLE "dapp" (
