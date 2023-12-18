@@ -49,7 +49,18 @@ async def user(request: Request, campaign_id: int = None, user: UserInfo = Depen
         'address': userInfo.address,
         'avatar': userInfo.avatar,
         'username': userInfo.username,
-        'twitter_username': userInfoExt.twitter_username if userInfoExt else "",
+        'twitter': {
+            'is_bind': True if userInfoExt and userInfoExt.twitter_user_id and len(userInfoExt.twitter_user_id)>0 else False,
+            'twitter_username': userInfoExt.twitter_username if userInfoExt else "",
+        },
+        'discord': {
+            'is_bind': True if userInfoExt and userInfoExt.discord_user_id and len(userInfoExt.discord_user_id) > 0 else False,
+            'discord_username': userInfoExt.discord_username if userInfoExt else "",
+        },
+        'telegram': {
+            'is_bind': True if userInfoExt and userInfoExt.telegram_user_id and len(userInfoExt.telegram_user_id) > 0 else False,
+            'telegram_username': userInfoExt.telegram_username if userInfoExt else "",
+        },
         'reward': rewardRank.reward,
         'rank': rewardRank.rank,
         'total_invited': inviteTotal['count'],
