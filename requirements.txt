@@ -16,3 +16,4 @@ aioredis==2.0.1
 python_jose==3.3.0
 gql==3.4.1
 requests_toolbelt==1.0.0
+boto3==1.28.80

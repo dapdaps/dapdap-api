@@ -3,7 +3,9 @@
 # @Email : rainman@ref.finance
 # @File : api.py
 import logging
-from fastapi import APIRouter, Depends, Response
+
+import boto3
+from fastapi import APIRouter, Depends, Response, UploadFile, File
 from starlette.requests import Request
 
 from apps.network.models import Network
@@ -20,17 +22,13 @@ from apps.uniswap_rpc.constant import UNISWAP_API
 from pydantic.types import Json
 from urllib.parse import urljoin
 import requests
+from typing import Annotated, List
 
 from settings.config import settings
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
 router = APIRouter()
-
-
-# @router.get('/', tags=['invite check code'])
-# async def root():
-#     return {"message": "welcome to dapdap"}
 
 
 @router.get('/health_check', tags=['base'])
@@ -119,7 +117,7 @@ async def search(request: Request, content: str, user: UserInfo = Depends(get_cu
 
 @router.get('/config', tags=['base'])
 @limiter.limit('100/minute')
-async def search(request: Request):
+async def config(request: Request):
     return success({
         'twitter_client_id': settings.TWITTER_CLIENT_ID,
         'twitter_redirect_url': settings.TWITTER_REDIRECT_URL,
@@ -128,3 +126,36 @@ async def search(request: Request):
         'discord_client_id': settings.DISCORD_CLIENT_ID,
         'discord_redirect_url': settings.DISCORD_REDIRECT_URL,
     })
+
+
+@router.post('/s3/upload', tags=['base'])
+@limiter.limit('100/minute')
+async def upload(request: Request, file: Annotated[UploadFile, File()] = None, files: List[Annotated[UploadFile, File()]] = None):
+    def uploadFile(f):
+        fileName = f.filename.lower()
+        contentType = f.content_type.lower()
+        s3 = boto3.client('s3', region_name=settings.AWS_REGION_NAME, aws_access_key_id=settings.AWS_S3_AKI,
+                          aws_secret_access_key=settings.AWS_S3_SAK)
+        s3.upload_fileobj(file.file, settings.AWS_BUCKET_NAME, "images/" + fileName,
+                          ExtraArgs={'ACL': 'public-read', 'ContentType': contentType})
+
+    if file:
+        try:
+            uploadFile(file)
+        except Exception as e:
+            logger.error(f'upload error: {e}')
+            return error("error upload")
+        return success({"url": settings.AWS_PATH + "/" + file.filename.lower()})
+    if files:
+        data = list()
+        for file in files:
+            try:
+                uploadFile(file)
+                data.append({
+                    "url": settings.AWS_PATH + "/" + file.filename.lower(),
+                })
+            except Exception as e:
+                logger.error(f'upload error: {e}')
+                return error("error upload")
+
+        return success(data)
