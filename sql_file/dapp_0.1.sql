@@ -12,6 +12,7 @@ CREATE TABLE "network" (
     "block_explorer" VARCHAR(100) NULL,
     "milestones" TEXT NULL,
     "tag" VARCHAR(200) NULL,
+    "deepdive" BOOL NULL DEFAULT False,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
