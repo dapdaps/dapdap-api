@@ -102,9 +102,12 @@ async def actionCompleted(userId: int, questAction: QuestAction, quest: Quest):
         if userQuestStatus == STATUS_COMPLETED:
             await connection.execute_query(f"select * from user_info where id={userId} for update")
             userReward = await UserReward.filter(account_id=userId).first()
+            reward = quest.reward
+            if userReward:
+                reward += userReward.reward
             await connection.execute_query(
                 'insert into user_reward(account_id,reward,updated_at) VALUES($1,$2,$3) ON CONFLICT (account_id) DO UPDATE SET reward=EXCLUDED.reward,updated_at=EXCLUDED.updated_at',
-                (userId, userReward.reward+quest.reward, now)
+                (userId, reward, now)
             )
         await connection.execute_query(
             "insert into user_quest_action(account_id,quest_action_id,quest_id,quest_campaign_id,times,status) VALUES($1,$2,$3,$4,$5,$6)",
