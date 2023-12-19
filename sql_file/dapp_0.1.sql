@@ -46,16 +46,15 @@ CREATE unique INDEX "idx_dapp_name" ON "dapp" ("name");
 
 CREATE TABLE "ad" (
     "id" SERIAL NOT NULL PRIMARY KEY,
-    "category_id" INT NOT NULL,
+    "category_id" INT NULL DEFAULT 0,
     "category"  VARCHAR(50) NOT NULL,
     "ad_link" VARCHAR(200) NULL,
     "ad_images" TEXT NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE UNIQUE INDEX "idx_ad_category_id" ON "ad" ("category","category_id");
+CREATE INDEX "idx_ad_category_id" ON "ad" ("category","category_id");
 CREATE INDEX "idx_ad_category_update" ON "ad" ("category","updated_at");
-CREATE INDEX "idx_ad_update" ON "ad" ("updated_at");
 
 
 CREATE TABLE "category" (
