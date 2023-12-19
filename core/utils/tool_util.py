@@ -1,7 +1,7 @@
 
 def success(data=None, msg="success"):
     ret = {
-        "code": "0",
+        "code": 0,
         "msg": msg,
         "data": data
     }
