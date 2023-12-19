@@ -108,7 +108,7 @@ async def get_one(request: Request, id: int):
 
 @router.get('/hot_list', tags=['dapp'])
 @limiter.limit('60/minute')
-async def hot_list(request: Request, network_id: int):
+async def hot_list(request: Request, network_id: int, size: int = 100):
     dappNetworks = await DappNetwork.filter(network_id=network_id).select_related("dapp")
     for index, dappNetwork in enumerate(dappNetworks):
         if dappNetwork.dapp.priority <= 0:
@@ -119,6 +119,7 @@ async def hot_list(request: Request, network_id: int):
         return success(dapps)
 
     dappNetworks.sort(key=lambda x: x.dapp.priority, reverse=True)
+    dappNetworks = dappNetworks[0:size]
     dappIds = list()
     for dappNetwork in dappNetworks:
         dappIds.append(dappNetwork.dapp.id)
