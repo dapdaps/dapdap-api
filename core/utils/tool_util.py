@@ -8,7 +8,7 @@ def success(data=None, msg="success"):
     return ret
 
 
-def error(msg, code=None, data=None):
+def error(msg, code=1, data=None):
     ret = {
         "code": code,
         "msg": msg,
