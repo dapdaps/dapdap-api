@@ -159,7 +159,11 @@ async def get_invited_info(request: Request, address: str):
 async def invite_list(request: Request, user: UserInfo = Depends(get_current_user)):
     invites = await InviteCodePool.filter(creator_user_id=user.id, is_used=True).select_related("used_user").order_by("-updated_at")
     if len(invites) == 0:
-        return success([])
+        return success({
+            'reward': 0,
+            'invite_reward': 10,
+            'data': [],
+        })
 
     data = list()
     claimeReward = 0
