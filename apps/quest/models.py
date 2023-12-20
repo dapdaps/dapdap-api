@@ -13,6 +13,7 @@ class QuestCampaign(BaseDBModel, BaseCreatedUpdatedAtModel):
     favorite = fields.IntField(null=False)
     banner = fields.CharField(max_length=100, null=True)
     link = fields.CharField(max_length=100, null=True)
+    total_users = fields.IntField()
 
     def __str__(self):
         return self.id

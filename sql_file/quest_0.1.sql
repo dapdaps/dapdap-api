@@ -8,6 +8,7 @@ CREATE TABLE "quest_campaign" (
     "end_time" BIGINT NOT NULL,
     "favorite" INT DEFAULT 0,
     "status" VARCHAR(20) NOT NULL,
+    "total_users" INT DEFAULT 0,
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -69,7 +70,7 @@ CREATE TABLE "quest_action" (
     "category" VARCHAR(100) NULL,
     "quest_id" INT NOT NULL,
     "category_id" INT NOT NULL DEFAULT 0,
-    "source" VARCHAR(50) NULL,
+    "source" VARCHAR(200) NULL,
     "dapps" VARCHAR(200) NULL,
     "networks" VARCHAR(100) NULL,
     "to_networks" VARCHAR(200) NULL,
