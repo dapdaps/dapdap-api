@@ -12,6 +12,8 @@ from apps.quest.dao import claimReward, claimDailyCheckIn, actionCompleted
 from apps.quest.models import QuestCampaign, Quest, UserQuest, QuestCategory, QuestAction, \
     UserDailyCheckIn, QuestLong, QuestCampaignInfo, UserRewardRank, UserQuestAction
 from apps.quest.schemas import ClaimIn, SourceIn
+from apps.quest.service import checkTwitterCreate, checkTwitterQuote, checkTwitterLike, checkTwitterRetweet, \
+    checkTwitterFollow
 from apps.user.models import UserInfo, UserFavorite
 from core.common.constants import STATUS_COMPLETED, STATUS_ENDED, STATUS_ONGOING
 from core.utils.base_util import get_limiter
@@ -527,3 +529,75 @@ async def source(request: Request, sourceIn: SourceIn, user: UserInfo = Depends(
             continue
         await actionCompleted(user.id, questAction, quest)
     return success()
+
+
+# @router.get('/checkTwitterFollow', tags=['quest'])
+# @limiter.limit('60/minute')
+# async def check_twitter_follow(request: Request, user: UserInfo = Depends(get_current_user)):
+#     completed = await checkTwitterFollow(user.id)
+#     return success({
+#         'completed': completed,
+#     })
+#
+#
+# @router.get('/checkTwitterCreate', tags=['quest'])
+# @limiter.limit('60/minute')
+# async def check_twitter_create(request: Request, user: UserInfo = Depends(get_current_user)):
+#     completed = await checkTwitterCreate(user.id)
+#     return success({
+#         'completed': completed,
+#     })
+#
+#
+# @router.get('/checkTwitterRetweet', tags=['quest'])
+# @limiter.limit('60/minute')
+# async def check_twitter_retweet(request: Request, user: UserInfo = Depends(get_current_user)):
+#     completed = await checkTwitterRetweet(user.id)
+#     return success({
+#         'completed': completed,
+#     })
+#
+#
+# @router.get('/checkTwitterQuote', tags=['quest'])
+# @limiter.limit('60/minute')
+# async def check_twitter_quote(request: Request, user: UserInfo = Depends(get_current_user)):
+#     completed = await checkTwitterQuote(user.id)
+#     return success({
+#         'completed': completed,
+#     })
+#
+#
+# @router.get('/checkTwitterLike', tags=['quest'])
+# @limiter.limit('60/minute')
+# async def check_twitter_like(request: Request, user: UserInfo = Depends(get_current_user)):
+#     completed = await checkTwitterLike(user.id)
+#     return success({
+#         'completed': completed,
+#     })
+
+
+@router.get('/check_action', tags=['quest'])
+@limiter.limit('60/minute')
+async def check_action(request: Request, id: int, user: UserInfo = Depends(get_current_user)):
+   userQuestAction = await UserQuestAction.filter(account_id=user.id, quest_action_id=id).first()
+   if userQuestAction:
+       return success({'status': userQuestAction.status})
+   questAction = await QuestAction.filter(id=id).first()
+   if not questAction:
+       return error("not find action")
+   completed = False
+   if questAction.category == "twitter_follow":
+       completed = await checkTwitterFollow(user.id, questAction)
+   elif questAction.category == "twitter_create":
+       completed = await checkTwitterCreate(user.id, questAction)
+   elif questAction.category == "twitter_quote":
+       completed = await checkTwitterQuote(user.id, questAction)
+   elif questAction.category == "twitter_like":
+       completed = await checkTwitterLike(user.id, questAction)
+   elif questAction.category == "twitter_retweet":
+       completed = await checkTwitterRetweet(user.id, questAction)
+   if not completed:
+        return success()
+   return success({'status': 'completed'})
+
+
