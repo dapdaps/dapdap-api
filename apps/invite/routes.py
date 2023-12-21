@@ -206,7 +206,12 @@ async def invite_list(request: Request, user: UserInfo = Depends(get_current_use
 @limiter.limit('60/minute')
 async def claim_reward(request: Request, user: UserInfo = Depends(get_current_user)):
     invites = await InviteCodePool.filter(creator_user_id=user.id, status='Active', is_claimed=False)
-    if len(invites) == 0:
+    if not invites or len(invites) == 0:
+        return success()
+    totalReward = 0
+    for invite in invites:
+        totalReward += invite.reward
+    if totalReward <= 0:
         return success()
     await claimInviteReward(user.id)
     return success()

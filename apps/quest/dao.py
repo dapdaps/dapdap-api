@@ -1,3 +1,4 @@
+import time
 from datetime import datetime
 
 from apps.quest.models import UserQuest, UserDailyCheckIn, QuestAction, Quest, UserQuestAction
@@ -13,15 +14,19 @@ async def claimReward(userId: int, userQuestId: int):
         userQuest = await UserQuest.filter(id=userQuestId).first().select_related('quest')
         if userQuest.is_claimed:
             raise Exception("Already claimed,Cannot be claimed multiple times")
-        userReward = await UserReward.filter(account_id=userId).first()
         claimReward = userQuest.quest.reward
+        await connection.execute_query(
+            'insert into user_reward_claim(reward, account_id, category, obj_id, name, description, logo, claim_time) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',
+            (claimReward, userId, 'quest', userQuest.quest.id, userQuest.quest.name, userQuest.quest.description, userQuest.quest.logo, int(time.mktime(now.timetuple())))
+        )
+        userReward = await UserReward.filter(account_id=userId).first()
         if userReward:
             claimReward += userReward.claimed_reward
         await connection.execute_query(
             'update user_quest set is_claimed=$1,claimed_at=$2 where id=$3',
             (True, now, userQuestId))
         await connection.execute_query(
-            'update user_reward set claimed_reward=$1, set updated_at=$2 where account_id=$3',
+            'update user_reward set claimed_reward=$1,updated_at=$2 where account_id=$3',
             (claimReward, now, userId))
     await start_transaction(local_function)
 
@@ -45,12 +50,16 @@ async def claimDailyCheckIn(userId: int, data: UserDailyCheckIn, consecutiveDays
                 userNotCompletedQuestActions.append(questAction)
 
     async def local_function(connection):
+        claimReward = data.reward
         await connection.execute_query(f"select * from user_info where id={userId} for update")
         await connection.execute_query(
             'insert into user_daily_check_in(account_id,quest_long_id,reward,check_in_time) VALUES($1,$2,$3,$4)',
             (userId, data.quest_long_id, data.reward, data.check_in_time))
+        await connection.execute_query(
+            'insert into user_reward_claim(reward,account_id,category,name,description,claim_time) VALUES($1,$2,$3,$4,$5,$6)',
+            (claimReward, userId, 'daily_check_in', 'daily check in', '', int(time.mktime(now.timetuple())))
+        )
         userReward = await UserReward.filter(account_id=userId).first()
-        claimReward = data.reward
         if userReward:
             claimReward += userReward.claimed_reward
         if len(userNotCompletedQuestActions) > 0:
