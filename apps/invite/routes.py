@@ -67,17 +67,18 @@ async def activate(request: Request, active_in: ActivateCodeIn):
     code_obj.is_used = True
     await code_obj.save()
 
-    code_list = generate_invite_code(3)
-    create_list = [
-        InviteCodePool(
-            code=code,
-            creator_user=pre_address_obj,
-            creator_type=InviteCodePool.CreatorTypeEnum.SYSTEM
-        )
-        for code in code_list
-    ]
-
-    result = await InviteCodePool.bulk_create(create_list)
+    result = None
+    if settings.INVITE_CODE_QUANTITY > 0:
+        code_list = generate_invite_code(settings.INVITE_CODE_QUANTITY)
+        create_list = [
+            InviteCodePool(
+                code=code,
+                creator_user=pre_address_obj,
+                creator_type=InviteCodePool.CreatorTypeEnum.SYSTEM
+            )
+            for code in code_list
+        ]
+        result = await InviteCodePool.bulk_create(create_list)
 
     access_token_expires = timedelta(minutes=settings.JWT_ACCESS_TOKEN_EXPIRE_MINUTES)
     refresh_access_token_expires = timedelta(minutes=settings.JWT_REFRESH_ACCESS_TOKEN_EXPIRE_MINUTES)
