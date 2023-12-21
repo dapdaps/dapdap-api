@@ -42,6 +42,7 @@ class InviteCodePool(BaseDBModel, BaseCreatedUpdatedAtModel):
     is_used = fields.BooleanField(default=False, description="code is used")
     is_claimed = fields.BooleanField(default=False)
     status = fields.CharField(max_length=20, null=True)
+    reward = fields.IntField(null=True)
 
     def __str__(self):
         return self.code

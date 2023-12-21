@@ -221,6 +221,7 @@ alter table t_action_record add column "to_chain_id" INT NULL;
 alter table t_action_record add column "dapp_id" INT NULL;
 alter table invite_code_pool add column "is_claimed" BOOL DEFAULT false;
 alter table invite_code_pool add column "status" VARCHAR(20) NULL DEFAULT '';
+alter table invite_code_pool add column "reward" INT NULL DEFAULT 0;
 CREATE INDEX "idx_invite_code_pool_used_id_used_status" ON "invite_code_pool" ("used_user_id", "is_used", "status");
 CREATE INDEX "idx_invite_code_pool_creator_id_used_updated" ON "invite_code_pool" ("creator_user_id", "is_used", "updated_at");
 CREATE INDEX "idx_t_action_record_dapp_id" ON "t_action_record" ("dapp_id", "id");
