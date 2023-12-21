@@ -10,7 +10,7 @@ DATABASE_NAME = os.getenv('DATABASE_NAME') or "dapdap"
 DATABASE_USERNAME = os.getenv('DATABASE_USERNAME') or "postgres"
 DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD') or "postgres"
 REDIS_HOST = os.getenv('REDIS_HOST') or "localhost"
-REDIS_PORT = os.getenv('REDIS_PORT') or "6379"
+REDIS_PORT = os.getenv('REDIS_PORT') or 6379
 ENV = os.getenv('ENV')
 
 class Settings:
