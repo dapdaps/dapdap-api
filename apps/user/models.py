@@ -55,7 +55,6 @@ class UserFavorite(BaseDBModel, BaseCreatedUpdatedAtModel):
 
 class UserReward(BaseDBModel, BaseCreatedUpdatedAtModel):
     account_id = fields.IntField(null=False)
-    reward = fields.IntField(null=False)
     claimed_reward = fields.IntField(null=False)
 
     def __str__(self):

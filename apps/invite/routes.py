@@ -2,6 +2,7 @@
 # @Author : HanyuLiu/Rainman
 # @Email : rainman@ref.finance
 # @File : routes.py
+import json
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends
@@ -11,6 +12,7 @@ from web3 import Web3
 from apps.invite.dao import claimInviteReward
 from apps.invite.schemas import ActivateCodeIn, GenerateCodeIn, GenerateCodeOut, InviteCodePoolDetailOut
 from apps.invite.utils import generate_invite_code, is_w3_address
+from apps.quest.models import QuestLong
 from core.auth.jwt import create_access_token, create_refresh_access_token
 from core.auth.utils import get_current_user
 from core.utils.base_util import get_limiter
@@ -66,7 +68,11 @@ async def activate(request: Request, active_in: ActivateCodeIn):
     code_obj.used_user = pre_address_obj
     code_obj.is_used = True
     await code_obj.save()
-
+    await InviteCodePool(
+        code=generate_invite_code(1)[0],
+        creator_user=code_obj.creator_user,
+        creator_type=InviteCodePool.CreatorTypeEnum.SYSTEM
+    ).save()
     result = None
     if settings.INVITE_CODE_QUANTITY > 0:
         code_list = generate_invite_code(settings.INVITE_CODE_QUANTITY)
@@ -158,21 +164,31 @@ async def get_invited_info(request: Request, address: str):
 @limiter.limit('100/minute')
 async def invite_list(request: Request, user: UserInfo = Depends(get_current_user)):
     invites = await InviteCodePool.filter(creator_user_id=user.id, is_used=True).select_related("used_user").order_by("-updated_at")
+    inviteQuest = await QuestLong.filter(category='invite').first()
+    inviteReward = 0
+    if inviteQuest and inviteQuest.rule:
+        try:
+            inviteRule = json.loads(inviteQuest.rule)
+            inviteReward = inviteRule['reward']
+        except Exception as e:
+            logger.error(f"invite_list error: {e}")
+
     if len(invites) == 0:
         return success({
             'reward': 0,
-            'invite_reward': 10,
+            'invite_reward': inviteReward,
             'data': [],
         })
 
     data = list()
     claimeReward = 0
     for invite in invites:
-        if invite.status == "Active" and not invite.is_claimed:
-            claimeReward += 10
+        if invite.reward > 0 and not invite.is_claimed:
+            claimeReward += invite.reward
         data.append({
             'code': invite.code,
             'status': invite.status if invite.status else 'Pending',
+            'reward': invite.reward,
             'invited_user': {
                 'address': invite.used_user.address,
                 'avatar': invite.used_user.avatar,
@@ -181,7 +197,7 @@ async def invite_list(request: Request, user: UserInfo = Depends(get_current_use
         })
     return success({
         'reward': claimeReward,
-        'invite_reward': 10,
+        'invite_reward': inviteReward,
         'data': data,
     })
 
@@ -191,6 +207,6 @@ async def invite_list(request: Request, user: UserInfo = Depends(get_current_use
 async def claim_reward(request: Request, user: UserInfo = Depends(get_current_user)):
     invites = await InviteCodePool.filter(creator_user_id=user.id, status='Active', is_claimed=False)
     if len(invites) == 0:
-        return error("Cannot be claimed")
+        return success()
     await claimInviteReward(user.id)
     return success()

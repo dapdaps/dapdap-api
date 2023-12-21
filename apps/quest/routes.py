@@ -15,7 +15,7 @@ from apps.quest.schemas import ClaimIn, SourceIn
 from apps.quest.service import checkTwitterCreate, checkTwitterQuote, checkTwitterLike, checkTwitterRetweet, \
     checkTwitterFollow
 from apps.user.models import UserInfo, UserFavorite
-from core.common.constants import STATUS_COMPLETED, STATUS_ENDED, STATUS_ONGOING
+from core.common.constants import STATUS_COMPLETED, STATUS_ENDED, STATUS_ONGOING, STATUS_EXPIRED
 from core.utils.base_util import get_limiter
 from fastapi import APIRouter, Depends
 from core.auth.utils import get_current_user, get_current_user_optional
@@ -384,7 +384,7 @@ async def leaderboard(request: Request, page: int, page_size: int = 10):
 @router.get('/daily_check_in', tags=['quest'])
 @limiter.limit('60/minute')
 async def daily_check_in(request: Request, user: UserInfo = Depends(get_current_user)):
-    dailyCheckInQuest = await QuestLong.filter(category='daily_check_in', status='ongoing').order_by("-id").first()
+    dailyCheckInQuest = await QuestLong.filter(category='daily_check_in', status=STATUS_ONGOING).order_by("-id").first()
     if not dailyCheckInQuest:
         return success()
     rule = json.loads(dailyCheckInQuest.rule)
@@ -448,7 +448,7 @@ async def daily_check_in(request: Request, user: UserInfo = Depends(get_current_
 @router.post('/daily_check_in', tags=['quest'])
 @limiter.limit('60/minute')
 async def claim_daily_check_in(request: Request, user: UserInfo = Depends(get_current_user)):
-    dailyCheckInQuest = await QuestLong.filter(category='daily_check_in', status='ongoing').order_by("-id").first()
+    dailyCheckInQuest = await QuestLong.filter(category='daily_check_in', status=STATUS_ONGOING).order_by("-id").first()
     if not dailyCheckInQuest:
         return error("Cannot check in")
     rule = json.loads(dailyCheckInQuest.rule)
@@ -522,10 +522,10 @@ async def source(request: Request, sourceIn: SourceIn, user: UserInfo = Depends(
 
     for questAction in questActions:
         userQuestAction = await UserQuestAction.filter(account_id=user.id, quest_action_id=questAction.id).first()
-        if userQuestAction:
+        if userQuestAction and (userQuestAction.status == STATUS_COMPLETED or userQuestAction.status == STATUS_EXPIRED):
             continue
-        quest = await Quest.filter(id=questAction.quest_id).first()
-        if quest.status != STATUS_ONGOING:
+        quest = await Quest.filter(id=questAction.quest_id, status=STATUS_ONGOING).first()
+        if not quest:
             continue
         await actionCompleted(user.id, questAction, quest)
     return success()

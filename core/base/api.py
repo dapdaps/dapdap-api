@@ -82,8 +82,8 @@ async def search(request: Request, content: str, user: UserInfo = Depends(get_cu
                 userQuestAction = await UserQuestAction.filter(account_id=user.id, quest_action_id=questAction.id).first()
                 if userQuestAction:
                     continue
-                quest = await Quest.filter(id=questAction.quest_id).first()
-                if quest.status != STATUS_ONGOING:
+                quest = await Quest.filter(id=questAction.quest_id, status=STATUS_ONGOING).first()
+                if not quest:
                     continue
                 await actionCompleted(user.id, questAction, quest)
 
