@@ -14,9 +14,6 @@ async def checkTwitterFollow(userId: int, questAction: QuestAction) -> bool:
     userInfoExt = await UserInfoExt.filter(account_id=userId).first()
     if not userInfoExt or not userInfoExt.twitter_access_token or len(userInfoExt.twitter_access_token) == 0:
         return completed
-    questAction = await QuestAction.filter(category='twitter_follow').order_by('-id').first()
-    if not questAction:
-        return completed
     quest = await Quest.filter(id=questAction.quest_id, status='ongoing').first()
     if not quest:
         return completed
