@@ -353,11 +353,7 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
 
 @router.get('/leaderboard', tags=['quest'])
 @limiter.limit('60/minute')
-async def leaderboard(request: Request, page: int, page_size: int = 10):
-    if page <= 0:
-        page = 1
-    if page_size <= 0:
-        page_size = 10
+async def leaderboard(request: Request, page: int = 1, page_size: int = 10):
     campaign = await QuestCampaignInfo.first().values("total_reward", "total_users", "total_quest_execution")
     total = await UserRewardRank.annotate(count=Count('id')).first().values("count")
     userRewards = await UserRewardRank.all().order_by("rank").offset((page-1)*page_size).limit(page_size).select_related("account")
