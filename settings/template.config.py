@@ -9,8 +9,8 @@ DATABASE_HOST = os.getenv('DATABASE_HOST') or "127.0.0.1"
 DATABASE_NAME = os.getenv('DATABASE_NAME') or "dapdap"
 DATABASE_USERNAME = os.getenv('DATABASE_USERNAME') or "postgres"
 DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD') or "postgres"
-
-REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379")
+REDIS_HOST = os.getenv('REDIS_HOST') or "localhost"
+REDIS_PORT = os.getenv('REDIS_PORT') or 6379
 
 class Settings:
     VERSION = '0.1.0'
@@ -65,7 +65,8 @@ class Settings:
     RABBIT_PASSWORD = ''
     RABBIT_HOST = 'localhost'
 
-    REDIS_URL = REDIS_URL
+    REDIS_HOST = REDIS_HOST
+    REDIS_PORT = REDIS_PORT
 
     # APPLICATIONS_MODULE = 'apps'
     APPLICATIONS_MODULE = 'apps'

@@ -1,6 +1,8 @@
 import redis
 
-pool = redis.ConnectionPool(host="127.0.0.1", port=int(6379), decode_responses=True)
+from settings.config import settings
+
+pool = redis.ConnectionPool(host=settings.REDIS_HOST, port=int(settings.REDIS_PORT), decode_responses=True)
 
 
 def list_base_token_price():
