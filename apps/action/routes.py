@@ -139,6 +139,10 @@ async def add_action(request: Request, action_in: ActionIn):
 async def get_action_by_account(account_id: str = "", account_info: str = "", action_network_id: str = ""):
     if account_id == "" and account_info == "":
         return success()
+    if is_w3_address(account_id):
+        account_id = Web3.to_checksum_address(account_id)
+    else:
+        account_id = account_id.lower()
     sql = "select (ARRAY_AGG(action_id))[1] as action_id, (ARRAY_AGG(account_id))[1] as account_id,action_title," \
           "(ARRAY_AGG(timestamp))[1] as timestamp,(ARRAY_AGG(template))[1] as template, (ARRAY_AGG(action_tokens))[1] as action_tokens, " \
           "(ARRAY_AGG(account_info))[1] as account_info, sum(count_number) as count_number from t_action " \
@@ -186,6 +190,10 @@ async def update_action_by_id(update_action_record: UpdateActionRecordIn):
 
 @router.get('/get-action-records-by-account', tags=['action'], response_model=Page[ActionRecordResultOut])
 async def get_action_records_by_account(action_network_id: str = "", account_id: str = "", account_info: str = "", action_type: str = "", template: str = "", action_status: str = ""):
+    if is_w3_address(account_id):
+        account_id = Web3.to_checksum_address(account_id)
+    else:
+        account_id = account_id.lower()
     account_q = Q(account_id=account_id) | Q(account_info=account_info)
     action_network_id_q = Q(action_network_id=action_network_id)
     action_type_q = Q()
