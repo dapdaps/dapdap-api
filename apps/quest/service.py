@@ -11,29 +11,26 @@ logger = logging.getLogger(__name__)
 
 async def checkTwitterFollow(userId: int, questAction: QuestAction) -> bool:
     completed = False
-    # userInfoExt = await UserInfoExt.filter(account_id=userId).first()
-    # if not userInfoExt or not userInfoExt.twitter_access_token or len(userInfoExt.twitter_access_token) == 0:
-    #     return completed
-    # questAction = await QuestAction.filter(category='twitter_follow').order_by('-id').first()
-    # if not questAction:
-    #     return completed
-    # quest = await Quest.filter(id=questAction.quest_id, status='ongoing').first()
-    # if not quest:
-    #     return completed
-    # try:
-    #     auth = tweepy.OAuthHandler("", "")
-    #     auth.set_access_token("",
-    #                           "")
-    #     api = tweepy.API(auth)
-    #     username = 'DapDapMeUp'
-    #     result = api.get_friendship(source_screen_name=username, target_screen_name='Jaki_Android')
-    #     if result[0].followed_by:
-    #         completed = True
-    # except tweepy.TweepyException as e:
-    #     logger.error(f"checkTwitterFollow error:{e}")
-    # if not completed:
-    #     return completed
-    # await dao.actionCompleted(userId, questAction, quest)
+    userInfoExt = await UserInfoExt.filter(account_id=userId).first()
+    if not userInfoExt or not userInfoExt.twitter_access_token or len(userInfoExt.twitter_access_token) == 0:
+        return completed
+    questAction = await QuestAction.filter(category='twitter_follow').order_by('-id').first()
+    if not questAction:
+        return completed
+    quest = await Quest.filter(id=questAction.quest_id, status='ongoing').first()
+    if not quest:
+        return completed
+    try:
+        client = tweepy.Client(userInfoExt.twitter_access_token)
+        response = client.get_users_following(userInfoExt.twitter_user_id)
+        for user in response.data:
+            if user.id == settings.TWITTER_USER_ID:
+                completed = True
+    except tweepy.TweepyException as e:
+        logger.error(f"checkTwitterFollow error:{e}")
+    if not completed:
+        return completed
+    await dao.actionCompleted(userId, questAction, quest)
     return completed
 
 
