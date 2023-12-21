@@ -213,6 +213,22 @@ CREATE TABLE "user_info_ext" (
 CREATE unique INDEX "idx_user_info_ext_account" ON "user_info_ext" ("account_id");
 CREATE INDEX "idx_user_info_ext_updated_at" ON "user_info_ext" ("updated_at");
 
+
+CREATE TABLE "user_reward_claim" (
+    "id" SERIAL NOT NULL PRIMARY KEY,
+    "account_id" INT NOT NULL,
+    "category" VARCHAR(20) NOT NULL,
+    "obj_id" INT NULL DEFAULT 0,
+    "name" VARCHAR(100) NULL,
+    "description" VARCHAR(100) NULL,
+    "logo" VARCHAR(200) NULL,
+    "reward" INT NOT NULL,
+    "claim_time" BIGINT NOT NULL,
+    "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX "idx_user_reward_claim_account" ON "user_reward_claim" ("account_id");
+
+
 alter table user_info add column "avatar" varchar(200) NULL;
 alter table user_info add column "username" varchar(50) NULL;
 alter table t_action_record add column "source" varchar(50) NULL;

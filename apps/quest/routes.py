@@ -499,7 +499,6 @@ async def claim_reward(request: Request, claimIn: ClaimIn, user: UserInfo = Depe
         return error("Cannot be claimed")
     if userQuest.is_claimed:
         return error("Already claimed,Cannot be claimed multiple times")
-
     await claimReward(user.id, userQuest.id)
     return success({
         'reward': userQuest.quest.reward

@@ -164,15 +164,19 @@ class UserRewardRank(BaseDBModel, BaseCreatedAtModel):
         table = 'user_reward_rank'
 
 
-class QuestSourceRecord(BaseDBModel, BaseCreatedAtModel):
-    source = fields.CharField(max_length=20, null=False)
+
+class UserRewardClaim(BaseDBModel, BaseCreatedAtModel):
     account_id = fields.IntField(null=False)
-    quest_action_id = fields.IntField(null=False)
-    quest_id = fields.IntField(null=False)
-    quest_campaign_id = fields.IntField(null=False)
+    reward = fields.IntField(null=False)
+    claim_time = fields.BigIntField(null=True)
+    category = fields.CharField(max_length=20, null=False)
+    obj_id = fields.IntField(null=True)
+    name = fields.CharField(max_length=100, null=False)
+    description = fields.CharField(max_length=100, null=True)
+    logo = fields.CharField(max_length=200, null=True)
 
     def __str__(self):
         return self.id
 
     class Meta:
-        table = 'quest_source_record'
+        table = 'user_reward_claim'
