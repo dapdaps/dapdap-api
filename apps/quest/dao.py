@@ -16,8 +16,8 @@ async def claimReward(userId: int, userQuestId: int):
             raise Exception("Already claimed,Cannot be claimed multiple times")
         claimReward = userQuest.quest.reward
         await connection.execute_query(
-            'insert into user_reward_claim(reward, account_id, category, obj_id, name, description, logo, claim_time) VALUES($1,$2,$3,$4,$5,$6,$7,$8)',
-            (claimReward, userId, 'quest', userQuest.quest.id, userQuest.quest.name, userQuest.quest.description, userQuest.quest.logo, int(time.mktime(now.timetuple())))
+            'insert into user_reward_claim(reward, account_id, category, obj_id, claim_time) VALUES($1,$2,$3,$4,$5)',
+            (claimReward, userId, 'quest', userQuest.quest.id, int(time.mktime(now.timetuple())))
         )
         userReward = await UserReward.filter(account_id=userId).first()
         if userReward:
@@ -53,11 +53,11 @@ async def claimDailyCheckIn(userId: int, data: UserDailyCheckIn, consecutiveDays
         claimReward = data.reward
         await connection.execute_query(f"select * from user_info where id={userId} for update")
         await connection.execute_query(
-            'insert into user_daily_check_in(account_id,quest_long_id,reward,check_in_time) VALUES($1,$2,$3,$4)',
+            'insert into user_daily_check_in(account_id, quest_long_id, reward, check_in_time) VALUES($1,$2,$3,$4)',
             (userId, data.quest_long_id, data.reward, data.check_in_time))
         await connection.execute_query(
-            'insert into user_reward_claim(reward,account_id,category,name,description,claim_time) VALUES($1,$2,$3,$4,$5,$6)',
-            (claimReward, userId, 'daily_check_in', 'daily check in', '', int(time.mktime(now.timetuple())))
+            'insert into user_reward_claim(reward, account_id, category, claim_time) VALUES($1,$2,$3,$4)',
+            (claimReward, userId, 'daily_check_in', int(time.mktime(now.timetuple())))
         )
         userReward = await UserReward.filter(account_id=userId).first()
         if userReward:
