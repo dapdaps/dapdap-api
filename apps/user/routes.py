@@ -127,7 +127,6 @@ async def bind_twitter(request: Request, param: BindTwitterIn, user: UserInfo = 
         return error('bind failed')
     response = json.loads(rep.text)
     accessToken = response['access_token']
-    refreshToken = response['refresh_token']
     tokenType = response['token_type']
     expiresIn = response['expires_in']
     if len(accessToken) <= 0 or len(tokenType) <= 0 or expiresIn <= 0:
@@ -157,7 +156,6 @@ async def bind_twitter(request: Request, param: BindTwitterIn, user: UserInfo = 
             'twitter_user_id': id,
             'twitter_username': username,
             'twitter_access_token': accessToken,
-            'twitter_refresh_token': refreshToken,
             'twitter_access_token_type': tokenType,
             'twitter_access_token_expires': int(time.time())+expiresIn,
             'updated_at': datetime.now(),
