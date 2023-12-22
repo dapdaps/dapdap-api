@@ -171,9 +171,6 @@ class UserRewardClaim(BaseDBModel, BaseCreatedAtModel):
     claim_time = fields.BigIntField(null=True)
     category = fields.CharField(max_length=20, null=False)
     obj_id = fields.IntField(null=True)
-    name = fields.CharField(max_length=100, null=False)
-    description = fields.CharField(max_length=100, null=True)
-    logo = fields.CharField(max_length=200, null=True)
 
     def __str__(self):
         return self.id

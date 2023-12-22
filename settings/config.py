@@ -29,6 +29,10 @@ AWS_BUCKET_NAME = os.getenv('AWS_BUCKET_NAME') or ""
 AWS_S3_AKI = os.getenv('AWS_S3_AKI') or ""
 AWS_S3_SAK = os.getenv('AWS_S3_SAK') or ""
 AWS_PATH = os.getenv('AWS_PATH') or ""
+INVITE_LOGO = os.getenv('INVITE_LOGO') or ""
+INVITE_TITLE = os.getenv('INVITE_TITLE') or "Invite Friends"
+DAILY_CHECK_IN_LOGO = os.getenv('DAILY_CHECK_IN_LOGO') or ""
+DAILY_CHECK_IN_TITLE = os.getenv('DAILY_CHECK_IN_TITLE') or "Daily Check In"
 
 
 class Settings:
@@ -133,6 +137,11 @@ class Settings:
     AWS_S3_AKI = AWS_S3_AKI
     AWS_S3_SAK = AWS_S3_SAK
     AWS_PATH = AWS_PATH
+
+    INVITE_LOGO = INVITE_LOGO
+    INVITE_TITLE = INVITE_TITLE
+    DAILY_CHECK_IN_LOGO = DAILY_CHECK_IN_LOGO
+    DAILY_CHECK_IN_TITLE = DAILY_CHECK_IN_TITLE
 
 
 

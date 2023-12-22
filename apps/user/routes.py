@@ -50,9 +50,8 @@ async def user(request: Request, campaign_id: int = None, user: UserInfo = Depen
         'avatar': userInfo.avatar,
         'username': userInfo.username,
         'twitter': {
-            'is_bind': True if userInfoExt and userInfoExt.twitter_user_id and len(userInfoExt.twitter_user_id)>0 else False,
+            'is_bind': True if userInfoExt and userInfoExt.twitter_access_token_expires and userInfoExt.twitter_access_token_expires > int(time.time()) else False,
             'twitter_username': userInfoExt.twitter_username if userInfoExt else "",
-            'expires': userInfoExt.twitter_access_token_expires if userInfoExt else 0,
         },
         'discord': {
             'is_bind': True if userInfoExt and userInfoExt.discord_user_id and len(userInfoExt.discord_user_id) > 0 else False,
