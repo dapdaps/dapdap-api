@@ -209,7 +209,7 @@ async def claimed_list(request: Request, page: int = 1, page_size: int = 10, use
             'data': [],
             'total_page': total_page,
         })
-    data = await UserRewardClaim.filter(account_id=user.id).order_by('-id').limit(page_size).offset((page-1)*page_size).values()
+    data = await UserRewardClaim.filter(account_id=user.id).order_by('-claim_time').limit(page_size).offset((page-1)*page_size).values()
     if not data or len(data) == 0:
         return success({
             'data': [],
