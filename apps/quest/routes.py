@@ -10,7 +10,7 @@ from apps.network.models import Network
 from apps.dapp.models import Dapp, DappNetwork
 from apps.quest.dao import claimReward, claimDailyCheckIn, actionCompleted
 from apps.quest.models import QuestCampaign, Quest, UserQuest, QuestCategory, QuestAction, \
-    UserDailyCheckIn, QuestLong, QuestCampaignInfo, UserRewardRank, UserQuestAction
+    UserDailyCheckIn, QuestLong, QuestCampaignInfo, UserRewardRank, UserQuestAction, UserRewardClaim
 from apps.quest.schemas import ClaimIn, SourceIn
 from apps.quest.service import checkTwitterCreate, checkTwitterQuote, checkTwitterLike, checkTwitterRetweet, \
     checkTwitterFollow
@@ -21,7 +21,7 @@ from fastapi import APIRouter, Depends
 from core.auth.utils import get_current_user, get_current_user_optional
 from core.utils.time_util import getUtcSecond
 from core.utils.tool_util import success, error
-
+from settings.config import settings
 
 logger = logging.getLogger(__name__)
 limiter = get_limiter()
@@ -200,22 +200,54 @@ async def favorite_list(request: Request, user: UserInfo = Depends(get_current_u
 
 @router.get('/claimed_list', tags=['quest'])
 @limiter.limit('60/minute')
-async def claimed_list(request: Request, user: UserInfo = Depends(get_current_user)):
-    claimedQuests = await UserQuest.filter(account_id=user.id, is_claimed=True).order_by("-claimed_at").select_related("quest")
-    if len(claimedQuests) == 0:
-        return success([])
-    data = list()
-    for claimedQuest in claimedQuests:
-        data.append({
-            'id': claimedQuest.quest_id,
-            'name': claimedQuest.quest.name,
-            'description': claimedQuest.quest.description,
-            'logo': claimedQuest.quest.logo,
-            'total_action': claimedQuest.quest.total_action,
-            'reward': claimedQuest.quest.reward,
-            'claimed_at': claimedQuest.claimed_at,
+async def claimed_list(request: Request, page: int = 1, page_size: int = 10, user: UserInfo = Depends(get_current_user)):
+    totalClaim = await UserRewardClaim.filter(account_id=user.id).annotate(count=Count('id')).first().values('count')
+    total = totalClaim['count']
+    total_page = math.ceil(total / page_size)
+    if total == 0:
+        return success({
+            'data': [],
+            'total_page': total_page,
         })
-    return success(data)
+    data = await UserRewardClaim.filter(account_id=user.id).order_by('-id').limit(page_size).offset((page-1)*page_size).values()
+    if not data or len(data) == 0:
+        return success({
+            'data': [],
+            'total_page': total_page,
+        })
+    questIds = set()
+    for claim in data:
+        if claim['category'] == 'invite':
+            claim['name'] = settings.INVITE_TITLE
+            claim['logo'] = settings.INVITE_LOGO
+        elif claim['category'] == 'daily_check_in':
+            claim['name'] = settings.DAILY_CHECK_IN_TITLE
+            claim['logo'] = settings.DAILY_CHECK_IN_LOGO
+        elif claim['category'] == 'quest':
+            questIds.add(claim['obj_id'])
+    if len(questIds) > 0:
+        quests = await Quest.filter(id__in=questIds).all().values('id','quest_campaign_id','name','logo')
+        questCampaignIds = set()
+        if quests and len(quests) > 0:
+            for quest in quests:
+                questCampaignIds.add(quest['quest_campaign_id'])
+            questCampaigns = await QuestCampaign.filter(id__in=questCampaignIds).all().values('id', 'name')
+            for quest in quests:
+                campaignName = ""
+                for campaign in questCampaigns:
+                    if campaign['id'] == quest['quest_campaign_id']:
+                        campaignName = campaign['name']
+                        break
+                for claim in data:
+                    if claim['category'] == 'quest' and claim['obj_id'] == quest['id']:
+                        claim['name'] = quest['name']
+                        claim['logo'] = quest['logo']
+                        claim['source'] = campaignName
+
+    return success({
+            'data': data,
+            'total_page': total_page,
+        })
 
 
 @router.get('/list_by_dapp', tags=['quest'])
@@ -572,7 +604,7 @@ async def source(request: Request, sourceIn: SourceIn, user: UserInfo = Depends(
 
 
 @router.get('/check_action', tags=['quest'])
-@limiter.limit('60/minute')
+@limiter.limit('1/minute')
 async def check_action(request: Request, id: int, user: UserInfo = Depends(get_current_user)):
    userQuestAction = await UserQuestAction.filter(account_id=user.id, quest_action_id=id).first()
    if userQuestAction:
