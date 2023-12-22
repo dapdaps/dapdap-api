@@ -226,7 +226,7 @@ CREATE TABLE "user_reward_claim" (
     "claim_time" BIGINT NOT NULL,
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-CREATE INDEX "idx_user_reward_claim_account" ON "user_reward_claim" ("account_id");
+CREATE INDEX "idx_user_reward_claim_account" ON "user_reward_claim" ("account_id","id");
 
 
 alter table user_info add column "avatar" varchar(200) NULL;

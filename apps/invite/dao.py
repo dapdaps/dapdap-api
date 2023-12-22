@@ -25,8 +25,8 @@ async def claimInviteReward(userId: int):
         if totalReward <= 0:
             return
         await connection.execute_query(
-            'insert into user_reward_claim(reward, account_id, category, name, description, claim_time) VALUES($1, $2, $3, $4, $5, $6)',
-            (totalReward, userId, 'invite', 'invite', '', int(time.mktime(now.timetuple())))
+            'insert into user_reward_claim(reward, account_id, category, claim_time) VALUES($1, $2, $3, $4)',
+            (totalReward, userId, 'invite', int(time.mktime(now.timetuple())))
         )
         userReward = await UserReward.filter(account_id=userId).first()
         if userReward:
