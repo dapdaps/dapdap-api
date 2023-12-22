@@ -219,9 +219,6 @@ CREATE TABLE "user_reward_claim" (
     "account_id" INT NOT NULL,
     "category" VARCHAR(20) NOT NULL,
     "obj_id" INT NULL DEFAULT 0,
-    "name" VARCHAR(100) NULL,
-    "description" VARCHAR(100) NULL,
-    "logo" VARCHAR(200) NULL,
     "reward" INT NOT NULL,
     "claim_time" BIGINT NOT NULL,
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
