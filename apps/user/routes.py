@@ -61,8 +61,8 @@ async def user(request: Request, campaign_id: int = None, user: UserInfo = Depen
             'is_bind': True if userInfoExt and userInfoExt.telegram_user_id and len(userInfoExt.telegram_user_id) > 0 else False,
             'telegram_username': userInfoExt.telegram_username if userInfoExt else "",
         },
-        'reward': rewardRank.reward,
-        'rank': rewardRank.rank,
+        'reward': rewardRank.reward if rewardRank else 0,
+        'rank': rewardRank.rank if rewardRank else 0,
         'total_invited': inviteTotal['count'],
         'achieved': achieved
     })
