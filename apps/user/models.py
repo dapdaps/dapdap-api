@@ -71,7 +71,6 @@ class UserInfoExt(BaseDBModel, BaseCreatedUpdatedAtModel):
     twitter_access_token_expires = fields.BigIntField(null=True)
     twitter_access_token_type = fields.CharField(max_length=50, null=True)
     twitter_access_token = fields.CharField(max_length=200, null=True)
-    twitter_refresh_token = fields.CharField(max_length=200, null=True)
     telegram_user_id = fields.CharField(max_length=20, null=True)
     telegram_username = fields.CharField(max_length=100, null=True)
     discord_user_id = fields.CharField(max_length=30, null=True)
