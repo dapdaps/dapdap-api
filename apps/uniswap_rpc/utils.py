@@ -8,13 +8,7 @@ import json
 from web3 import Web3, AsyncWeb3
 from web3.exceptions import TooManyRequests, Web3Exception
 from settings.config import settings
-import ssl
 
-
-ssl_context = ssl.create_default_context()
-ssl_context.check_hostname = False
-ssl_context.verify_mode = ssl.CERT_NONE
-#session = aiohttp.ClientSession(connector=aiohttp.TCPConnector(ssl=ssl_context))
 
 with open(f"{settings.PROJECT_ROOT}/apps/uniswap_rpc/uniswap-v3/quoter.abi") as f:
     QUOTER_ABI: str = json.load(f)
