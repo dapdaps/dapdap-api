@@ -4,13 +4,10 @@
 # @File : utils.py
 import asyncio
 import json
-import ssl
 
 from web3 import Web3, AsyncWeb3
 from web3.exceptions import TooManyRequests, Web3Exception
 from settings.config import settings
-
-ssl._create_default_https_context = ssl._create_unverified_context
 
 with open(f"{settings.PROJECT_ROOT}/apps/uniswap_rpc/uniswap-v3/quoter.abi") as f:
     QUOTER_ABI: str = json.load(f)
