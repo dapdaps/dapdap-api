@@ -14,46 +14,46 @@ celery_app.autodiscover_tasks(['core'])
 
 
 celery_app.conf.beat_schedule = {
-    'eth_beat_quote': {
-        'task': 'uniswap_quote_task',
-        'schedule': 20,
-        'args': (ChainEnum.Ethereum, )
-    },
-    'arb_beat_quote': {
-        'task': 'uniswap_quote_task',
-        'schedule': 20,
-        'args': (ChainEnum.Arbitrum, )
-    },
-    'op_beat_quote': {
-        'task': 'uniswap_quote_task',
-        'schedule': 20,
-        'args': (ChainEnum.Optimisim, )
-    },
-    'polygon_beat_quote': {
-        'task': 'uniswap_quote_task',
-        'schedule': 20,
-        'args': (ChainEnum.Polygon, )
-    },
-    'base_beat_quote': {
-        'task': 'uniswap_quote_task',
-        'schedule': 20,
-        'args': (ChainEnum.Base, )
-    },
-    'bsc_beat_quote': {
-        'task': 'uniswap_quote_task',
-        'schedule': 20,
-        'args': (ChainEnum.BSC, )
-    },
-    'ava_beat_quote': {
-        'task': 'uniswap_quote_task',
-        'schedule': 20,
-        'args': (ChainEnum.Avalanche, )
-    },
-    'celo_beat_quote': {
-        'task': 'uniswap_quote_task',
-        'schedule': 20,
-        'args': (ChainEnum.Celo, )
-    },
+    # 'eth_beat_quote': {
+    #     'task': 'uniswap_quote_task',
+    #     'schedule': 20,
+    #     'args': (ChainEnum.Ethereum, )
+    # },
+    # 'arb_beat_quote': {
+    #     'task': 'uniswap_quote_task',
+    #     'schedule': 20,
+    #     'args': (ChainEnum.Arbitrum, )
+    # },
+    # 'op_beat_quote': {
+    #     'task': 'uniswap_quote_task',
+    #     'schedule': 20,
+    #     'args': (ChainEnum.Optimisim, )
+    # },
+    # 'polygon_beat_quote': {
+    #     'task': 'uniswap_quote_task',
+    #     'schedule': 20,
+    #     'args': (ChainEnum.Polygon, )
+    # },
+    # 'base_beat_quote': {
+    #     'task': 'uniswap_quote_task',
+    #     'schedule': 20,
+    #     'args': (ChainEnum.Base, )
+    # },
+    # 'bsc_beat_quote': {
+    #     'task': 'uniswap_quote_task',
+    #     'schedule': 20,
+    #     'args': (ChainEnum.BSC, )
+    # },
+    # 'ava_beat_quote': {
+    #     'task': 'uniswap_quote_task',
+    #     'schedule': 20,
+    #     'args': (ChainEnum.Avalanche, )
+    # },
+    # 'celo_beat_quote': {
+    #     'task': 'uniswap_quote_task',
+    #     'schedule': 20,
+    #     'args': (ChainEnum.Celo, )
+    # },
     'uniswap_beat_mint': {
         'task': 'uniswap_mint_task',
         'schedule': 20,
