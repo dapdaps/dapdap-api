@@ -21,24 +21,21 @@ logger = get_logger(__name__)
 #     return f"test task return {word}"
 
 
-@celery_app.task(name="uniswap_quote_task")
-def uniswap_quote_task(chian_id):
-    from apps.uniswap_rpc.tasks.quote_task import update_swap
-    # print("*********** uniswap_eth_task **********")
-    logger.info("*********** START uniswap_quote_task **********")
-    start_time = time.time()
-    # asyncio.run(update_eth_swap())
-    run_async(update_swap(chian_id))
-    # await update_eth_swap()
-    end_time = time.time()
-    logger.info(f"TOTAL RUN TIME sec {end_time - start_time}")
-    logger.info("*********** END uniswap_quote_task **********")
-    return {"done": "ok"}
+# @celery_app.task(name="uniswap_quote_task")
+# def uniswap_quote_task(chian_id):
+#     from apps.uniswap_rpc.tasks.quote_task import update_swap
+#     logger.info("*********** START uniswap_quote_task **********")
+#     start_time = time.time()
+#     run_async(update_swap(chian_id))
+#     end_time = time.time()
+#     logger.info(f"TOTAL RUN TIME sec {end_time - start_time}")
+#     logger.info("*********** END uniswap_quote_task **********")
+#     return {"done": "ok"}
+
 
 @celery_app.task(name="uniswap_mint_task")
 def uniswap_mint_task():
     from apps.uniswap_rpc.tasks.mint_task import update_mints
-    # print("*********** uniswap_eth_task **********")
     logger.info("*********** START uniswap_mint_task **********")
     start_time = time.time()
     run_async(update_mints(GraphApi['linea_mainnet'], 59144))
