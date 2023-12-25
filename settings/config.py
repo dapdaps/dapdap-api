@@ -7,8 +7,8 @@ import os
 
 DATABASE_HOST = os.getenv('DATABASE_HOST') or "127.0.0.1"
 DATABASE_NAME = os.getenv('DATABASE_NAME') or "dapdap"
-DATABASE_USERNAME = os.getenv('DATABASE_USERNAME') or "postgres"
-DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD') or "postgres"
+DATABASE_USERNAME = os.getenv('DATABASE_USERNAME') or "jaki"
+DATABASE_PASSWORD = os.getenv('DATABASE_PASSWORD') or "root"
 REDIS_HOST = os.getenv('REDIS_HOST') or "localhost"
 REDIS_PORT = os.getenv('REDIS_PORT') or 6379
 ENV = os.getenv('ENV')
