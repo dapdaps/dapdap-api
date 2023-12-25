@@ -3,12 +3,16 @@
 # @Email : rainman@ref.finance
 # @File : tasks.py
 import time
+
+import redis
 from celery.utils.log import get_logger
 
 from apps.uniswap_rpc.constant import GraphApi
 from apps.uniswap_rpc.tasks.pair_task import update_pairs
 from core.celery_app import celery_app
 from tortoise import run_async
+
+from core.utils.redis_provider import pool
 
 logger = get_logger(__name__)
 
@@ -49,10 +53,21 @@ def uniswap_mint_task():
 
 @celery_app.task(name="uniswap_pair_task")
 def uniswap_pair_task():
-    logger.info("*********** START uniswap_pair_task **********")
-    start_time = time.time()
-    run_async(update_pairs())
-    end_time = time.time()
-    logger.info(f"TOTAL RUN TIME sec {end_time - start_time}")
-    logger.info("*********** END uniswap_pair_task **********")
+    lock_id = "uniswap_pair_task-lock"
+    have_lock = False
+    lock_redis = redis.StrictRedis(connection_pool=pool)
+    try:
+        have_lock = lock_redis.set(lock_id, "true", nx=True, ex=60 * 60)  # lock expires in 5 minutes
+        if have_lock:
+            logger.info("*********** START uniswap_pair_task **********")
+            start_time = time.time()
+            run_async(update_pairs())
+            end_time = time.time()
+            logger.info(f"TOTAL RUN TIME sec {end_time - start_time}")
+            logger.info("*********** END uniswap_pair_task **********")
+        else:
+            logger.info("uniswap_pair_task is already running, skipping")
+    finally:
+        if have_lock:
+            lock_redis.delete(lock_id)
     return {"done": "ok"}

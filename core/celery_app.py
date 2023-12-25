@@ -4,7 +4,6 @@
 # @File : celery_app.py
 from celery import Celery
 from settings.config import settings
-from apps.uniswap_rpc.constant import ChainEnum
 broker_url = f'redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/0'
 backend_url = f'redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/1'
 
