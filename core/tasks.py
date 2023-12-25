@@ -6,6 +6,7 @@ import time
 from celery.utils.log import get_logger
 
 from apps.uniswap_rpc.constant import GraphApi
+from apps.uniswap_rpc.tasks.pair_task import update_pairs
 from core.celery_app import celery_app
 from tortoise import run_async
 
@@ -43,4 +44,15 @@ def uniswap_mint_task():
     end_time = time.time()
     logger.info(f"TOTAL RUN TIME sec {end_time - start_time}")
     logger.info("*********** END uniswap_mint_task **********")
+    return {"done": "ok"}
+
+
+@celery_app.task(name="uniswap_pair_task")
+def uniswap_pair_task():
+    logger.info("*********** START uniswap_pair_task **********")
+    start_time = time.time()
+    run_async(update_pairs())
+    end_time = time.time()
+    logger.info(f"TOTAL RUN TIME sec {end_time - start_time}")
+    logger.info("*********** END uniswap_pair_task **********")
     return {"done": "ok"}

@@ -5,8 +5,10 @@
 
 from fastapi import APIRouter
 from starlette.requests import Request
+from tortoise.expressions import Q
+
 from apps.uniswap_rpc.constant import CHAIN_RPC, QUOTER_V2_CONTRACT_ADDRESS, USE_QUOTER_V2, QUOTER_CONTRACT_ADDRESS, UNISWAP_API
-from apps.uniswap_rpc.models import ChainTokenSwap, Mint, SwapRecord
+from apps.uniswap_rpc.models import ChainTokenSwap, Mint, SwapRecord, RoutePair
 from apps.uniswap_rpc.utils import quoter_v2_check, quoter_check
 from apps.uniswap_rpc.schemas import Router, SwapRecordIn, AddSwapRecordIn
 from core.utils.base_util import get_limiter
@@ -39,13 +41,14 @@ async def quote_check(request: Request, token_in: str, token_out:str, chain_id: 
     return result
 
 @router.get('/quote-local', tags=['uniswap'])
-async def quote_local(token_in: str, token_out:str, chain_id: int):
+@limiter.limit('100/minute')
+async def quote_local(request: Request, token_in: str, token_out:str, chain_id: int):
     result = await ChainTokenSwap.filter(chain_id=chain_id, token_in=token_in, token_out=token_out).values(
         "quote_price", "quote_fee", "updated_timestamp",
     )
     return success(result)
 
-@router.post('/v2/quote', tags=['uniswap'], status_code=200)
+@router.api_route('/v2/quote', tags=['uniswap'], methods=["GET", "POST"])
 @limiter.limit('100/minute')
 async def quote_router(request: Request, router: Router=None):
     if not router:
@@ -72,7 +75,8 @@ async def quote_router(request: Request, router: Router=None):
         return successByInTract(result['data'])
 
 @router.get('/mint', tags=['uniswap'])
-async def mint_info(token0: str, token1: str):
+@limiter.limit('100/minute')
+async def mint_info(request: Request, token0: str, token1: str):
     mints = await Mint.filter(token0=token0.lower(), token1=token1.lower()).values("pool_fee")
     if not mints or len(mints) == 0:
         return success({"100": "0", "500": "0", "3000": "0", "10000": "0"})
@@ -97,6 +101,7 @@ async def mint_info(token0: str, token1: str):
 
 
 @router.post('/records/add', tags=['uniswap'])
+@limiter.limit('100/minute')
 async def add_records(request: Request, swapRecordIn: AddSwapRecordIn):
     sender = swapRecordIn.sender.lower()
     txHash = swapRecordIn.tx_hash.lower()
@@ -117,7 +122,7 @@ async def add_records(request: Request, swapRecordIn: AddSwapRecordIn):
 
 
 @router.post('/records', tags=['uniswap'], status_code=200)
-@limiter.limit('200/minute')
+@limiter.limit('100/minute')
 async def query_records(request: Request, swapRecordIn: SwapRecordIn = None):
     if not swapRecordIn or not swapRecordIn.address or len(swapRecordIn.address) == 0:
         return errorByInTract("lack address/illegal address")
@@ -127,5 +132,18 @@ async def query_records(request: Request, swapRecordIn: SwapRecordIn = None):
         tokenOutAddress = "token_out_address", tokenOutVolume = "token_out_volume", tokenOutUsdAmount = "token_out_usd_amount",
     )
     return successByInTract(result)
+
+
+@router.get('/pair', tags=['uniswap'])
+@limiter.limit('100/minute')
+async def get_route_pair(request: Request, chain_id: int, token: str):
+    token = token.lower()
+    data = await RoutePair.filter(Q(status=0, chain_id=chain_id) & (Q(token0=token) | Q(token1=token)))
+    if not data:
+        return success()
+    tokens = list()
+    for pair in data:
+        tokens.append(pair.token1 if pair.token0 == token else pair.token0)
+    return success(tokens)
 
 
