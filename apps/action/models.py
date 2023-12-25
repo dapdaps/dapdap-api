@@ -21,6 +21,8 @@ class Action(Model):
     action_network_id = fields.CharField(max_length=255, null=True, index=True)
     timestamp = fields.BigIntField(index=True)
     create_time = fields.DatetimeField()
+    token_in_currency = fields.CharField(max_length=255, null=True)
+    token_out_currency = fields.CharField(max_length=255, null=True)
 
     def __str__(self):
         return self.id
@@ -49,6 +51,8 @@ class ActionRecord(BaseDBModel):
     dapp_id = fields.IntField(null=True)
     chain_id = fields.IntField(null=True)
     to_chain_id = fields.IntField(null=True)
+    token_in_currency = fields.CharField(max_length=255, null=True)
+    token_out_currency = fields.CharField(max_length=255, null=True)
 
     def __str__(self):
         return self.action_id
