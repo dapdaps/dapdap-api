@@ -23,6 +23,19 @@ class BaseProperties(BaseModel):
     def create_update_dict_superuser(self):
         return self.model_dump(exclude_unset=True, exclude={"id"})
 
+
+class TokenCurrency(BaseModel):
+    address: Optional[str] = ""
+    symbol: Optional[str] = ""
+    decimals: Optional[int] = 0
+
+    def to_dict(self):
+        return {
+            "address": self.address,
+            "symbol": self.symbol,
+            "decimals": self.decimals,
+        }
+
 class ActionIn(BaseModel):
    action_status: Optional[str] = ""
    tx_id: Optional[str] = ""
@@ -38,6 +51,8 @@ class ActionIn(BaseModel):
    source: Optional[str] = ""
    chain_id: Optional[int] = 0
    to_chain_id: Optional[int] = 0
+   token_in_currency: Optional[TokenCurrency]
+   token_out_currency: Optional[TokenCurrency]
 
    
 class DeleteActionIn(BaseModel):

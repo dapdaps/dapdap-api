@@ -2,6 +2,8 @@
 # @Author : ZQ
 # @Email : zq@ref.finance
 # @File : routes.py
+import json
+
 import math
 from fastapi import APIRouter, Depends
 from starlette.requests import Request
@@ -32,6 +34,13 @@ router = APIRouter(prefix="/api/action")
 async def add_action(request: Request, action_in: ActionIn):
     now_time = datetime.datetime.utcnow()
     timestamp = int(now_time.timestamp())
+    tokenInCurrency = None
+    tokenOutCurrecny = None
+    if action_in.token_in_currency:
+        tokenInCurrency = json.dumps(action_in.token_in_currency.to_dict())
+    if action_in.token_out_currency:
+        tokenOutCurrecny = json.dumps(action_in.token_out_currency.to_dict())
+
 
     if is_w3_address(action_in.account_id):
         action_in.account_id = Web3.to_checksum_address(action_in.account_id)
@@ -63,24 +72,17 @@ async def add_action(request: Request, action_in: ActionIn):
     )
     if action_in.action_amount:
         filter_q = filter_q & Q(action_amount=action_in.action_amount)
-    filter_q_next = Q(account_id=action_in.account_id if action_in.account_id else "") | Q(
-        account_info=action_in.account_info if action_in.account_info else "")
-    action_obj = await Action.filter(filter_q & filter_q_next).first()
-    # if action_in.action_amount != "":
-    #     action_obj = await Action.filter( Q(action_type=action_in.action_type) &
-    #                                       Q(action_tokens=action_in.action_tokens) &
-    #                                       Q(template=action_in.template) &
-    #                                       Q(action_network_id=action_in.action_network_id) &
-    #                                       Q(action_amount=action_in.action_amount) &
-    #                                       (Q(account_id=action_in.account_id if action_in.account_id else "") | Q(account_info=action_in.account_info if action_in.account_info else ""))
-    #                                     )
-    # else:
-    #     action_obj = await Action.filter( Q(action_type=action_in.action_type) &
-    #                                       Q(action_tokens=action_in.action_tokens) &
-    #                                       Q(template=action_in.template) &
-    #                                       Q(action_network_id=action_in.action_network_id) &
-    #                                       (Q(account_id=action_in.account_id if action_in.account_id else "") | Q(account_info=action_in.account_info if action_in.account_info else ""))
-    #                                     )
+    if action_in.account_id and action_in.account_info:
+        filter_q = filter_q & (Q(account_id=action_in.account_id) | Q(account_info=action_in.account_info))
+    elif action_in.account_id:
+        filter_q = filter_q & Q(account_id=action_in.account_id)
+    if action_in.account_info:
+        filter_q = filter_q & Q(account_info=action_in.account_info)
+    else:
+        filter_q = filter_q & Q(account_id="") & Q(account_info="")
+    # filter_q_next = Q(account_id=action_in.account_id if action_in.account_id else "") | Q(
+    #     account_info=action_in.account_info if action_in.account_info else "")
+    action_obj = await Action.filter(filter_q).first()
     if action_obj:
         action_obj.count_number = action_obj.count_number + 1
         if action_in.action_switch == 1 or action_in.action_switch == "1":
@@ -103,6 +105,8 @@ async def add_action(request: Request, action_in: ActionIn):
         action_obj.action_network_id = action_in.action_network_id
         action_obj.timestamp = timestamp
         action_obj.create_time = now_time
+        action_obj.token_in_currency = tokenInCurrency
+        action_obj.token_out_currency = tokenOutCurrecny
         await action_obj.save()
 
         action_obj = await Action.all().order_by("-timestamp").first()
@@ -129,6 +133,8 @@ async def add_action(request: Request, action_in: ActionIn):
     action_record.chain_id = action_in.chain_id
     action_record.to_chain_id = action_in.to_chain_id
     action_record.dapp_id = dappId
+    action_record.token_in_currency = tokenInCurrency
+    action_record.token_out_currency = tokenOutCurrecny
 
     await action_record.save()
 
@@ -143,7 +149,7 @@ async def get_action_by_account(account_id: str = "", account_info: str = "", ac
         account_id = Web3.to_checksum_address(account_id)
     else:
         account_id = account_id.lower()
-    sql = "select (ARRAY_AGG(action_id))[1] as action_id, (ARRAY_AGG(account_id))[1] as account_id,action_title," \
+    sql = "select (ARRAY_AGG(action_id))[1] as action_id, (ARRAY_AGG(account_id))[1] as account_id, action_title," \
           "(ARRAY_AGG(timestamp))[1] as timestamp,(ARRAY_AGG(template))[1] as template, " \
           "(ARRAY_AGG(account_info))[1] as account_info, sum(count_number) as count_number from t_action " \
           "where status = '1' and action_network_id = '%s' and (account_id = '%s' or account_info = '%s') " \
