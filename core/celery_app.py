@@ -59,6 +59,6 @@ celery_app.conf.beat_schedule = {
     },
     'uniswap_pair_task': {
         'task': 'uniswap_pair_task',
-        'schedule': 3600,
+        'schedule': 20,
     }
 }
