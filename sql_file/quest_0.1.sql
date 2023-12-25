@@ -65,7 +65,7 @@ CREATE INDEX "idx_quest_status_campaign_id" ON "quest" ("status","quest_campaign
 CREATE TABLE "quest_action" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "name" VARCHAR(100) NOT NULL,
-    "description" VARCHAR(200) NULL,
+    "description" VARCHAR(1000) NULL,
     "quest_campaign_id" INT NOT NULL,
     "category" VARCHAR(100) NULL,
     "quest_id" INT NOT NULL,
@@ -78,7 +78,7 @@ CREATE TABLE "quest_action" (
     "created_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
-COMMENT ON COLUMN "quest_action"."category" IS 'dapp,twitter_follow,twitter_like,twitter_retweet,twitter_quote,twitter_create,tg_join,tg_role';
+COMMENT ON COLUMN "quest_action"."category" IS 'dapp,page,twitter_follow,twitter_like,twitter_retweet,twitter_quote,twitter_create,telegram_join,discord_role';
 COMMENT ON COLUMN "quest_action"."source" IS '从哪里进入';
 COMMENT ON COLUMN "quest_action"."dapps" IS '指定dapp上操作';
 COMMENT ON COLUMN "quest_action"."networks" IS '指定链上操作';
