@@ -43,7 +43,7 @@ class Quest(BaseDBModel, BaseCreatedUpdatedAtModel):
     start_time = fields.BigIntField(null=False)
     end_time = fields.BigIntField(null=False)
     is_period = fields.BooleanField()
-    difficulty = fields.IntField(null=False)
+    difficulty = fields.CharField(max_length=30, null=False)
     reward = fields.IntField(null=False)
     priority = fields.IntField(null=False)
     favorite = fields.IntField(null=False)
