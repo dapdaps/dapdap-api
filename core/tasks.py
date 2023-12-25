@@ -6,13 +6,9 @@ import time
 
 import redis
 from celery.utils.log import get_logger
-
-from apps.uniswap_rpc.constant import GraphApi
-from apps.uniswap_rpc.tasks.pair_task import update_pairs
 from core.celery_app import celery_app
 from tortoise import run_async
 
-from core.utils.redis_provider import pool
 
 logger = get_logger(__name__)
 
@@ -41,6 +37,7 @@ logger = get_logger(__name__)
 @celery_app.task(name="uniswap_mint_task")
 def uniswap_mint_task():
     from apps.uniswap_rpc.tasks.mint_task import update_mints
+    from apps.uniswap_rpc.constant import GraphApi
     logger.info("*********** START uniswap_mint_task **********")
     start_time = time.time()
     run_async(update_mints(GraphApi['linea_mainnet'], 59144))
@@ -53,6 +50,8 @@ def uniswap_mint_task():
 
 @celery_app.task(name="uniswap_pair_task")
 def uniswap_pair_task():
+    from apps.uniswap_rpc.tasks.pair_task import update_pairs
+    from core.utils.redis_provider import pool
     lock_id = "uniswap_pair_task-lock"
     have_lock = False
     lock_redis = redis.StrictRedis(connection_pool=pool)
