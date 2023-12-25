@@ -65,7 +65,7 @@ CREATE INDEX "idx_quest_status_campaign_id" ON "quest" ("status","quest_campaign
 CREATE TABLE "quest_action" (
     "id" SERIAL NOT NULL PRIMARY KEY,
     "name" VARCHAR(100) NOT NULL,
-    "description" VARCHAR(200) NULL,
+    "description" VARCHAR(1000) NULL,
     "quest_campaign_id" INT NOT NULL,
     "category" VARCHAR(100) NULL,
     "quest_id" INT NOT NULL,
