@@ -39,7 +39,7 @@ CREATE TABLE "quest" (
     "quest_category_id" INT NOT NULL,
     "name" VARCHAR(100) NOT NULL,
     "logo" VARCHAR(100) NULL,
-    "description" VARCHAR(200) NULL,
+    "description" VARCHAR(1000) NULL,
     "is_period" boolean DEFAULT TRUE,
     "start_time" BIGINT NOT NULL,
     "end_time" BIGINT NOT NULL,
