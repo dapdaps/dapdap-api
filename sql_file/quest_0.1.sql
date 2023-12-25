@@ -44,7 +44,7 @@ CREATE TABLE "quest" (
     "is_period" boolean DEFAULT TRUE,
     "start_time" BIGINT NOT NULL,
     "end_time" BIGINT NOT NULL,
-    "difficulty" INT NOT NULL,
+    "difficulty" VARCHAR(30) NOT NULL,
     "gas_required" VARCHAR(20) NULL,
     "time_required" VARCHAR(20) NULL,
     "total_action" INT NOT NULL DEFAULT 0,
