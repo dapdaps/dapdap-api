@@ -13,6 +13,7 @@ CREATE TABLE "quest_campaign" (
     "updated_at" TIMESTAMP with time zone NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 COMMENT ON COLUMN "quest_campaign"."status" IS 'un_start,ongoing,ended';
+CREATE INDEX "idx_quest_campaign_status_start_time" ON "quest_campaign" ("status","start_time");
 
 
 CREATE TABLE "quest_campaign_info" (

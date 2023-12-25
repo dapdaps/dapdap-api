@@ -32,7 +32,7 @@ AWS_PATH = os.getenv('AWS_PATH') or ""
 INVITE_LOGO = os.getenv('INVITE_LOGO') or ""
 INVITE_TITLE = os.getenv('INVITE_TITLE') or "Invite Friends"
 DAILY_CHECK_IN_LOGO = os.getenv('DAILY_CHECK_IN_LOGO') or ""
-DAILY_CHECK_IN_TITLE = os.getenv('DAILY_CHECK_IN_TITLE') or "Daily Check In"
+DAILY_CHECK_IN_TITLE = os.getenv('DAILY_CHECK_IN_TITLE') or "Daily Connect"
 
 
 class Settings:

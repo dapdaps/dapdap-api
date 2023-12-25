@@ -15,7 +15,7 @@ from apps.quest.schemas import ClaimIn, SourceIn
 from apps.quest.service import checkTwitterCreate, checkTwitterQuote, checkTwitterLike, checkTwitterRetweet, \
     checkTwitterFollow
 from apps.user.models import UserInfo, UserFavorite
-from core.common.constants import STATUS_COMPLETED, STATUS_ENDED, STATUS_ONGOING, STATUS_EXPIRED
+from core.common.constants import STATUS_COMPLETED, STATUS_ENDED, STATUS_ONGOING, STATUS_EXPIRED, STATUS_UNSTART
 from core.utils.base_util import get_limiter
 from fastapi import APIRouter, Depends
 from core.auth.utils import get_current_user, get_current_user_optional
@@ -31,7 +31,7 @@ router = APIRouter(prefix="/api/quest")
 @router.get('/campaign_list', tags=['quest'])
 @limiter.limit('60/minute')
 async def campaign_list(request: Request):
-    campaigns = await QuestCampaign.all().order_by('-created_at').values()
+    campaigns = await QuestCampaign.filter(status__not=STATUS_ENDED).all().order_by('start_time').values()
     if len(campaigns) == 0:
         return success()
     for campaign in campaigns:
