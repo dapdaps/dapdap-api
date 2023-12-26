@@ -59,9 +59,9 @@ jobs:
           port: 60022
           script: |
             sh /data/web/dapdap-api/boot.sh restart
-            sh /data/web/dapdap-api/run_celery.sh worker restart
-            sh /data/web/dapdap-api/run_celery.sh beat restart
-            sh /data/web/dapdap-api/run_celery.sh flower restart
+            # sh /data/web/dapdap-api/run_celery.sh worker restart
+            # sh /data/web/dapdap-api/run_celery.sh beat restart
+            # sh /data/web/dapdap-api/run_celery.sh flower restart
             
       - name: deploy to remote server [18.207.83.196]
         uses: easingthemes/ssh-deploy@v2.2.11
