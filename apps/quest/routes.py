@@ -313,12 +313,14 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
     if total_user and total_user['total_user']:
         quest['total_user'] = total_user['total_user']
     quest['action_completed'] = 0
+    quest['is_claimed'] = False
 
     userQuestActions = list()
     if user:
         userQuest = await UserQuest.filter(account_id=user.id, quest_id=quest['id']).first().values()
         if userQuest:
             quest['action_completed'] = userQuest['action_completed']
+            quest['is_claimed'] = userQuest['is_claimed']
         userQuestActions = await UserQuestAction.filter(account_id=user.id, quest_id=quest['id']).all()
 
     actions = await QuestAction.filter(quest_id=quest['id']).order_by("id").all().values()
