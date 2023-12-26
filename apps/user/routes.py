@@ -118,7 +118,7 @@ async def bind_twitter(request: Request, param: BindTwitterIn, user: UserInfo = 
     data = {
         'code': param.code,
         'grant_type': "authorization_code",
-        'redirect_uri': settings.TWITTER_REDIRECT_URL,
+        'redirect_uri': param.redirect_uri,
         'code_verifier': "challenge",
     }
     rep = requests.post("https://api.twitter.com/2/oauth2/token", data=data, headers=headers, verify=False)
@@ -208,7 +208,7 @@ async def bind_discord(request: Request, param: BindDiscordIn, user: UserInfo = 
     data = {
         'code': param.code,
         'grant_type': "authorization_code",
-        'redirect_uri': settings.DISCORD_REDIRECT_URL,
+        'redirect_uri': param.redirect_uri,
         'client_id': settings.DISCORD_CLIENT_ID,
         'client_secret': settings.DISCORD_CLIENT_SECRET,
     }

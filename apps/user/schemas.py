@@ -9,6 +9,7 @@ class FavoriteIn(BaseModel):
 
 class BindTwitterIn(BaseModel):
     code: str
+    redirect_uri: str
 
 
 class BindTelegramIn(BaseModel):
@@ -23,3 +24,4 @@ class BindTelegramIn(BaseModel):
 
 class BindDiscordIn(BaseModel):
     code: str
+    redirect_uri: str
