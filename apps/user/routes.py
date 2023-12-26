@@ -13,10 +13,12 @@ from tortoise.functions import Count
 
 from apps.dapp.models import Dapp
 from apps.invite.models import InviteCodePool
-from apps.quest.models import QuestCampaign, Quest, UserQuest, UserRewardRank
+from apps.quest.dao import actionCompleted
+from apps.quest.models import QuestCampaign, Quest, UserQuest, UserRewardRank, QuestAction, UserQuestAction
 from apps.user.dao import updateUserFavorite
 from apps.user.models import UserInfo, UserFavorite, UserInfoExt
 from apps.user.schemas import FavoriteIn, BindTwitterIn, BindTelegramIn, BindDiscordIn
+from core.common.constants import STATUS_ONGOING
 from core.utils.base_util import get_limiter
 from fastapi import APIRouter, Depends
 from core.auth.utils import get_current_user
@@ -85,6 +87,22 @@ async def favorite(request: Request, param: FavoriteIn, user: UserInfo = Depends
             return error(msg="quest not find")
     else:
         return error(msg="illegal category")
+
+    if param.favorite:
+        questActions = None
+        if param.category == "dapp":
+            questActions = await QuestAction.filter(category='favorite_dapp').all()
+        elif param.category == "quest":
+            questActions = await QuestAction.filter(category='favorite_quest').all()
+        if questActions and len(questActions) > 0:
+            for questAction in questActions:
+                userQuestAction = await UserQuestAction.filter(account_id=user.id, quest_action_id=questAction.id).first()
+                if userQuestAction:
+                    continue
+                quest = await Quest.filter(id=questAction.quest_id, status=STATUS_ONGOING).first()
+                if not quest:
+                    continue
+                await actionCompleted(user.id, questAction, quest)
 
     userFavorite = await UserFavorite.filter(account_id=user.id, relate_id=param.id, category=param.category).first().values("is_favorite")
     if param.favorite and userFavorite and userFavorite["is_favorite"]:
