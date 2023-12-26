@@ -40,7 +40,7 @@ async def check_code(request: Request, code: str):
 async def check_address(request: Request, address: str):
     if not is_w3_address(address):
         return error("address is not web3")
-    w3_address = Web3.to_checksum_address(address)
+    w3_address = address.lower()
     current_user = await InviteCodePool.filter(used_user__address=w3_address).first().values("is_used")
     return success({
         "is_activated": current_user['is_used'] if current_user and current_user['is_used'] else False
@@ -51,7 +51,7 @@ async def check_address(request: Request, address: str):
 async def activate(request: Request, active_in: ActivateCodeIn):
     if not is_w3_address(active_in.address):
         return error("address is not web3")
-    w3_address = Web3.to_checksum_address(active_in.address)
+    w3_address = active_in.address.lower()
     pre_address_obj = await UserInfo.get_or_create(address=w3_address)
     pre_address_obj = pre_address_obj[0]
     code_obj = await InviteCodePool.filter(code=active_in.code, is_used=False).select_related("creator_user").first()
@@ -62,7 +62,7 @@ async def activate(request: Request, active_in: ActivateCodeIn):
     if already_invited:
         return error("This address already invited!")
 
-    creator_w3_address = Web3.to_checksum_address(code_obj.creator_user.address)
+    creator_w3_address = code_obj.creator_user.address.lower()
     if creator_w3_address == w3_address:
         return error("creator user cannot invite self!")
     code_obj.used_user = pre_address_obj
@@ -106,9 +106,8 @@ async def activate(request: Request, active_in: ActivateCodeIn):
 async def generate_code(request: Request, generate_in: GenerateCodeIn):
     create_address_obj = None
     if generate_in.address:
-        create_address_obj = await UserInfo.get_or_create(address=generate_in.address)
+        create_address_obj = await UserInfo.get_or_create(address=generate_in.address.lower())
         create_address_obj = create_address_obj[0]
-        # create_address_obj = await UserAddress.get(address=generate_in.address)
     code_list = generate_invite_code(generate_in.code_number)
     create_list = [
         InviteCodePool(
@@ -119,7 +118,7 @@ async def generate_code(request: Request, generate_in: GenerateCodeIn):
         for code in code_list
     ]
 
-    result =  await InviteCodePool.bulk_create(create_list)
+    result = await InviteCodePool.bulk_create(create_list)
     return [
         {
             "address": item.creator_user.address,
@@ -136,7 +135,7 @@ async def generate_code(request: Request, generate_in: GenerateCodeIn):
 async def get_address_code(request: Request, address: str):
     if not is_w3_address(address):
         return error("address is not web3")
-    web3_address = Web3.to_checksum_address(address)
+    web3_address = address.lower()
     result = await InviteCodePool.filter(creator_user__address=web3_address).all()
     return success(result)
 
@@ -153,9 +152,9 @@ async def get_code_detail(request: Request, code: str):
 async def get_invited_info(request: Request, address: str):
     if not Web3.is_address(address):
         return error("address is not web3")
-    web3_address = Web3.to_checksum_address(address)
+    web3_address = address.lower()
     result = await InviteCodePool.filter(creator_user__address=web3_address, is_used=True).values(
-        "code","created_at", "updated_at", used_user_address="used_user__address",
+        "code", "created_at", "updated_at", used_user_address="used_user__address",
     )
     return success(result)
 
