@@ -54,3 +54,18 @@ class SwapRecord(BaseDBModel):
     class Meta:
         table = 'swap_record'
         indexes = ("sender", "timestamp")
+
+
+class RoutePair(BaseDBModel, BaseCreatedUpdatedAtModel):
+    token0 = fields.CharField(max_length=66, null=False)
+    token1 = fields.CharField(max_length=66, null=False)
+    token0_decimals = fields.IntField(null=False)
+    token1_decimals = fields.IntField(null=False)
+    chain_id = fields.IntField(null=False)
+    status = fields.IntField(null=False, default=0)
+
+    def __str__(self):
+        return self.id
+
+    class Meta:
+        table = 'route_pair'

@@ -4,7 +4,6 @@
 # @File : celery_app.py
 from celery import Celery
 from settings.config import settings
-from apps.uniswap_rpc.constant import ChainEnum
 broker_url = f'redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/0'
 backend_url = f'redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/1'
 
@@ -56,6 +55,10 @@ celery_app.conf.beat_schedule = {
     # },
     'uniswap_beat_mint': {
         'task': 'uniswap_mint_task',
+        'schedule': 20,
+    },
+    'uniswap_pair_task': {
+        'task': 'uniswap_pair_task',
         'schedule': 20,
     }
 }
