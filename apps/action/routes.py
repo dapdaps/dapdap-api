@@ -152,8 +152,9 @@ async def get_action_by_account(account_id: str = "", account_info: str = "", ch
     else:
         account_id = account_id.lower()
     sql = "select (ARRAY_AGG(action_id))[1] as action_id, (ARRAY_AGG(account_id))[1] as account_id, action_title," \
-          "(ARRAY_AGG(timestamp))[1] as timestamp,(ARRAY_AGG(template))[1] as template, " \
-          "(ARRAY_AGG(account_info))[1] as account_info, sum(count_number) as count_number from t_action " \
+          "(ARRAY_AGG(timestamp))[1] as timestamp,(ARRAY_AGG(template))[1] as template, (ARRAY_AGG(action_tokens))[1] as action_tokens, " \
+          "(ARRAY_AGG(account_info))[1] as account_info, (ARRAY_AGG(token_in_currency))[1] as token_in_currency,(ARRAY_AGG(token_out_currency))[1] as token_out_currency, " \
+          "sum(count_number) as count_number from t_action " \
           "where status = '1' and chain_id = '%s' and (account_id = '%s' or account_info = '%s') " \
           "group by action_title order by count_number desc" % (chain_id, account_id, account_info)
     result_data = await Action.raw(sql)
