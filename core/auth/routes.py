@@ -27,7 +27,7 @@ router = APIRouter(prefix="/api/auth")
 async def login_access_token(credentials: CredentialsSchema):
     if not is_w3_address(credentials.address):
         raise HTTPException(status_code=400, detail="Incorrect address")
-    w3_address = Web3.to_checksum_address(credentials.address)
+    w3_address = credentials.address.lower()
     try:
         user = await authenticate(w3_address)
     except ValidationError as e:

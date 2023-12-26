@@ -8,13 +8,11 @@ import math
 from fastapi import APIRouter, Depends
 from starlette.requests import Request
 from tortoise.functions import Count
-from web3 import Web3
 
 from apps.action.models import Action, ActionRecord, ActionChain
 from fastapi_pagination import Page
 from apps.action.schemas import ActionIn, DeleteActionIn, UpdateActionRecordIn, ActionRecordResultOut
 from apps.dapp.models import Dapp
-from apps.invite.utils import is_w3_address
 from core.auth.utils import get_current_user
 from core.utils.base_util import get_limiter
 import logging
@@ -41,10 +39,7 @@ async def add_action(request: Request, action_in: ActionIn):
     if action_in.token_out_currency:
         tokenOutCurrecny = json.dumps(action_in.token_out_currency.to_dict())
 
-
-    if is_w3_address(action_in.account_id):
-        action_in.account_id = Web3.to_checksum_address(action_in.account_id)
-    else:
+    if action_in.account_id:
         action_in.account_id = action_in.account_id.lower()
 
     dappId = 0
@@ -147,9 +142,7 @@ async def add_action(request: Request, action_in: ActionIn):
 async def get_action_by_account(account_id: str = "", account_info: str = "", chain_id: int = 0):
     if account_id == "" and account_info == "":
         return success()
-    if is_w3_address(account_id):
-        account_id = Web3.to_checksum_address(account_id)
-    else:
+    if account_id:
         account_id = account_id.lower()
     sql = "select (ARRAY_AGG(action_id))[1] as action_id, (ARRAY_AGG(account_id))[1] as account_id, action_title," \
           "(ARRAY_AGG(timestamp))[1] as timestamp,(ARRAY_AGG(template))[1] as template, (ARRAY_AGG(action_tokens))[1] as action_tokens, " \
@@ -199,9 +192,7 @@ async def update_action_by_id(update_action_record: UpdateActionRecordIn):
 
 @router.get('/get-action-records-by-account', tags=['action'], response_model=Page[ActionRecordResultOut])
 async def get_action_records_by_account(chain_id: int = 0, account_id: str = "", account_info: str = "", action_type: str = "", template: str = "", action_status: str = ""):
-    if is_w3_address(account_id):
-        account_id = Web3.to_checksum_address(account_id)
-    else:
+    if account_id:
         account_id = account_id.lower()
     account_q = Q(account_id=account_id) | Q(account_info=account_info)
     chain_id_q = Q(chain_id=chain_id)
