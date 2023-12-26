@@ -1,0 +1,95 @@
+name: deploy-aws-us
+
+on:
+  push:
+    branches: [ upgrade-servers ]
+#  pull_request:
+#    types:
+#      closed
+#    branches: 
+#      - 'main'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/upload-artifact@v3
+        with:
+          name: mydist
+          path: './*'
+
+  deploy-aws-us:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: download artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: mydist
+          path: mydist
+
+      - name: deploy to remote server [54.84.46.117]
+        uses: easingthemes/ssh-deploy@v2.2.11
+        with:
+          # 服务器私钥
+          SSH_PRIVATE_KEY:  ${{ secrets.SSH_PRIVATE_KEY_PROD_01 }}
+          # Server IP
+          REMOTE_HOST:  54.84.46.117
+          # Username
+          REMOTE_USER:  root
+          # Port
+          REMOTE_PORT: 60022
+          # Source Path
+          SOURCE: "mydist/"
+          # Target Path
+          TARGET: "/data/web/dapdap-api"
+          #  rsync
+          ARGS: "-rltgoDzvO"
+          # An array of folder to exclude
+          EXCLUDE: ".git, .github"
+
+
+      - name: Execute SSH commmands on remote server[54.84.46.117]
+        uses: appleboy/ssh-action@master
+        with:
+          host: 54.84.46.117
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY_PROD_01 }}
+          port: 60022
+          script: |
+            sh /data/web/dapdap-api/boot.sh restart
+            sh /data/web/dapdap-api/run_celery.sh worker restart
+            sh /data/web/dapdap-api/run_celery.sh beat restart
+            sh /data/web/dapdap-api/run_celery.sh flower restart
+            
+      - name: deploy to remote server [18.207.83.196]
+        uses: easingthemes/ssh-deploy@v2.2.11
+        with:
+          # Private Key
+          SSH_PRIVATE_KEY:  ${{ secrets.SSH_PRIVATE_KEY_PROD_02 }}
+          # Server IP
+          REMOTE_HOST:  18.207.83.196
+          # Useranme
+          REMOTE_USER:  root
+          # Port
+          REMOTE_PORT: 60022
+          # Source Path
+          SOURCE: "mydist/"
+          # Target Path
+          TARGET: "/data/web/dapdap-api"
+          #  rsync
+          ARGS: "-rltgoDzvO"
+          # An array of folder to exclude
+          EXCLUDE: ".git, .github"
+
+
+      - name: Execute SSH commmands on remote server [18.207.83.196]
+        uses: appleboy/ssh-action@master
+        with:
+          host: 18.207.83.196
+          username: root
+          key: ${{ secrets.SSH_PRIVATE_KEY_PROD_02 }}
+          port: 60022
+          script: |
+            sh /data/web/dapdap-api/boot.sh restart
