@@ -51,8 +51,8 @@ class ActionIn(BaseModel):
    source: Optional[str] = ""
    chain_id: Optional[int] = 0
    to_chain_id: Optional[int] = 0
-   token_in_currency: Optional[TokenCurrency]
-   token_out_currency: Optional[TokenCurrency]
+   token_in_currency: Optional[TokenCurrency] = None
+   token_out_currency: Optional[TokenCurrency] = None
 
    
 class DeleteActionIn(BaseModel):
