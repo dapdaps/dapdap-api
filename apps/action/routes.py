@@ -29,17 +29,6 @@ limiter = get_limiter()
 # router = APIRouter(prefix="/api/action", dependencies=[Depends(get_current_user)],)
 router = APIRouter(prefix="/api/action")
 
-# t_action_record
-# account_id   chain_id action_type template action_status
-# account_info chain_id action_type template action_status
-# dapp_id id
-
-# t_action
-# account_id    action_title  chain_id   action_amount
-# account_info  action_title  chain_id   action_amount
-# account_id    chain_id      status     count_number
-# account_info  chain_id      status     count_number
-# action_title  chain_id      count_number
 
 @router.post('/add', tags=['action'])
 async def add_action(request: Request, action_in: ActionIn):
