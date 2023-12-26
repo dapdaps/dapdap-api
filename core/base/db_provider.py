@@ -35,14 +35,14 @@ def get_db_connect():
 def query_special_action():
     db_conn = get_db_connect()
     sql = "select * from (select action_title, sum(count_number) as count_number from t_action where " \
-          "action_network_id = 'zkEVM'  and template = 'native bridge' group by action_title order by " \
+          "chain_id = 1101  and template = 'native bridge' group by action_title order by " \
           "count_number desc limit 1) t1 union all  select * from (select action_title, sum(count_number) " \
-          "as count_number from t_action where action_network_id = 'zkEVM'  and template in ('Balancer', " \
+          "as count_number from t_action where chain_id = 1101  and template in ('Balancer', " \
           "'QuickSwap', 'Pancake Swap') group by action_title order by count_number  desc limit 1) t2 union all " \
           "select * from (select action_title, sum(count_number) as count_number from t_action  where " \
-          "action_network_id = 'zkEVM' and template = '0vix' and action_type = 'Supply' group by " \
+          "chain_id = 1101 and template = '0vix' and action_type = 'Supply' group by " \
           "action_title order by count_number desc limit 1) t3 union all select * from (select action_title, " \
-          "sum(count_number) as count_number from t_action where action_network_id = 'zkEVM' and " \
+          "sum(count_number) as count_number from t_action where chain_id = 1101 and " \
           "template = 'Gamma' and action_type = 'Deposit' group by action_title order by count_number desc limit 1) t4"
 
     cursor = db_conn.cursor(cursor_factory=RealDictCursor)
