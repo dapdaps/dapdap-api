@@ -236,6 +236,7 @@ alter table t_action_record add column "token_in_currency" VARCHAR(255) NULL;
 alter table t_action_record add column "token_out_currency" VARCHAR(255) NULL;
 alter table t_action add column "token_in_currency" VARCHAR(255) NULL;
 alter table t_action add column "token_out_currency" VARCHAR(255) NULL;
+alter table t_action add column "chain_id" INT NULL;
 alter table invite_code_pool add column "is_claimed" BOOL DEFAULT false;
 alter table invite_code_pool add column "status" VARCHAR(20) NULL DEFAULT '';
 alter table invite_code_pool add column "reward" INT NULL DEFAULT 0;

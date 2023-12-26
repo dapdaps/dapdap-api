@@ -56,7 +56,7 @@ def uniswap_pair_task():
     have_lock = False
     lock_redis = redis.StrictRedis(connection_pool=pool)
     try:
-        have_lock = lock_redis.set(lock_id, "true", nx=True, ex=60 * 60)  # lock expires in 5 minutes
+        have_lock = lock_redis.set(lock_id, "true", nx=True, ex=60 * 10)  # lock expires in 5 minutes
         if have_lock:
             logger.info("*********** START uniswap_pair_task **********")
             start_time = time.time()

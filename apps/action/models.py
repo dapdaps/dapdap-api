@@ -23,6 +23,7 @@ class Action(Model):
     create_time = fields.DatetimeField()
     token_in_currency = fields.CharField(max_length=255, null=True)
     token_out_currency = fields.CharField(max_length=255, null=True)
+    chain_id = fields.IntField(null=True)
 
     def __str__(self):
         return self.id

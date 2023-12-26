@@ -29,6 +29,17 @@ limiter = get_limiter()
 # router = APIRouter(prefix="/api/action", dependencies=[Depends(get_current_user)],)
 router = APIRouter(prefix="/api/action")
 
+# t_action_record
+# account_id   chain_id action_type template action_status
+# account_info chain_id action_type template action_status
+# dapp_id id
+
+# t_action
+# account_id    action_title  chain_id   action_amount
+# account_info  action_title  chain_id   action_amount
+# account_id    chain_id      status     count_number
+# account_info  chain_id      status     count_number
+# action_title  chain_id      count_number
 
 @router.post('/add', tags=['action'])
 async def add_action(request: Request, action_in: ActionIn):
@@ -65,10 +76,11 @@ async def add_action(request: Request, action_in: ActionIn):
 
     # search Action
     filter_q = Q(
-        action_type=action_in.action_type,
-        action_tokens=action_in.action_tokens,
-        template=action_in.template,
-        action_network_id=action_in.action_network_id,
+        # action_type=action_in.action_type,
+        # action_tokens=action_in.action_tokens,
+        # template=action_in.template,
+        action_title=action_in.action_title,
+        chain_id=action_in.chain_id,
     )
     if action_in.action_amount:
         filter_q = filter_q & Q(action_amount=action_in.action_amount)
@@ -107,6 +119,7 @@ async def add_action(request: Request, action_in: ActionIn):
         action_obj.create_time = now_time
         action_obj.token_in_currency = tokenInCurrency
         action_obj.token_out_currency = tokenOutCurrecny
+        action_obj.chain_id = action_in.chain_id
         await action_obj.save()
 
         action_obj = await Action.all().order_by("-timestamp").first()
@@ -123,7 +136,7 @@ async def add_action(request: Request, action_in: ActionIn):
     action_record.account_info = action_in.account_info
     action_record.template = action_in.template
     action_record.status = action_data_status
-    action_record.action_status = action_in.action_status
+    action_record.action_status = "1"
     action_record.tx_id = action_in.tx_id
     action_record.action_network_id = action_in.action_network_id
     action_record.gas = ""
@@ -142,7 +155,7 @@ async def add_action(request: Request, action_in: ActionIn):
 
 
 @router.get('/get-action-by-account', tags=['action'])
-async def get_action_by_account(account_id: str = "", account_info: str = "", action_network_id: str = ""):
+async def get_action_by_account(account_id: str = "", account_info: str = "", chain_id: int = 0):
     if account_id == "" and account_info == "":
         return success()
     if is_w3_address(account_id):
@@ -152,28 +165,28 @@ async def get_action_by_account(account_id: str = "", account_info: str = "", ac
     sql = "select (ARRAY_AGG(action_id))[1] as action_id, (ARRAY_AGG(account_id))[1] as account_id, action_title," \
           "(ARRAY_AGG(timestamp))[1] as timestamp,(ARRAY_AGG(template))[1] as template, (ARRAY_AGG(action_tokens))[1] as action_tokens, " \
           "(ARRAY_AGG(account_info))[1] as account_info, sum(count_number) as count_number from t_action " \
-          "where status = '1' and action_network_id = '%s' and (account_id = '%s' or account_info = '%s') " \
-          "group by action_title order by count_number desc" % (action_network_id, account_id, account_info)
+          "where status = '1' and chain_id = '%s' and (account_id = '%s' or account_info = '%s') " \
+          "group by action_title order by count_number desc" % (chain_id, account_id, account_info)
     result_data = await Action.raw(sql)
     return success(result_data)
 
 
 @router.get('/get-hot-action', tags=['action'])
-async def get_hot_action(action_title: str = "", hot_number: int = 4, action_network_id: str = ""):
+async def get_hot_action(action_title: str = "", hot_number: int = 4, chain_id: int = 0):
     sql = "select (ARRAY_AGG(account_id))[1] as account_id,action_title, (ARRAY_AGG(action_type))[1] as action_type," \
           "(ARRAY_AGG(action_tokens))[1] as action_tokens,(ARRAY_AGG(action_amount))[1] as action_amount," \
           "(ARRAY_AGG(account_info))[1] as account_info,(ARRAY_AGG(timestamp))[1] as timestamp," \
           "(ARRAY_AGG(template))[1] as template,sum(count_number) as count_number from t_action " \
-          "where action_title like '%%%s%%' and action_network_id = '%s' group by action_title " \
-          "order by count_number desc limit %s" % (action_title, action_network_id, hot_number)
+          "where action_title like '%%%s%%' and chain_id = '%s' group by action_title " \
+          "order by count_number desc limit %s" % (action_title, chain_id, hot_number)
     result_data = await Action.raw(sql)
     return success(result_data)
 
 
 @router.delete('/delete-action-by-id', tags=['action'])
 async def delete_action_by_id(delete_action: DeleteActionIn):
-    action_data = await Action.filter(action_id=delete_action.action_id).first().values("action_title", "account_id", "action_network_id")
-    update_data = {"action_title": action_data["action_title"], "account_id": action_data["account_id"], "action_network_id": action_data["action_network_id"]}
+    action_data = await Action.filter(action_id=delete_action.action_id).first().values("action_title", "account_id", "chain_id")
+    update_data = {"action_title": action_data["action_title"], "account_id": action_data["account_id"], "chain_id": action_data["chain_id"]}
     await Action.filter(**update_data).update(status='0')
     return success(delete_action.action_id)
 
@@ -181,8 +194,8 @@ async def delete_action_by_id(delete_action: DeleteActionIn):
 @router.delete('/batch-delete-action', tags=['action'])
 async def batch_delete_action(delete_action: DeleteActionIn):
     for action_id in delete_action.action_id_list:
-        action_data = await Action.filter(action_id=action_id).first().values("action_title", "account_id", "action_network_id")
-        update_data = {"action_title": action_data["action_title"], "account_id": action_data["account_id"], "action_network_id": action_data["action_network_id"]}
+        action_data = await Action.filter(action_id=action_id).first().values("action_title", "account_id", "chain_id")
+        update_data = {"account_id": action_data["account_id"], "action_title": action_data["action_title"], "chain_id": action_data["chain_id"]}
         await Action.filter(**update_data).update(status='0')
     return success(delete_action.action_id_list)
 
@@ -195,13 +208,13 @@ async def update_action_by_id(update_action_record: UpdateActionRecordIn):
 
 
 @router.get('/get-action-records-by-account', tags=['action'], response_model=Page[ActionRecordResultOut])
-async def get_action_records_by_account(action_network_id: str = "", account_id: str = "", account_info: str = "", action_type: str = "", template: str = "", action_status: str = ""):
+async def get_action_records_by_account(chain_id: int = 0, account_id: str = "", account_info: str = "", action_type: str = "", template: str = "", action_status: str = ""):
     if is_w3_address(account_id):
         account_id = Web3.to_checksum_address(account_id)
     else:
         account_id = account_id.lower()
     account_q = Q(account_id=account_id) | Q(account_info=account_info)
-    action_network_id_q = Q(action_network_id=action_network_id)
+    chain_id_q = Q(chain_id=chain_id)
     action_type_q = Q()
     if action_type != "":
         if action_type == "Lending":
@@ -218,7 +231,7 @@ async def get_action_records_by_account(action_network_id: str = "", account_id:
     action_status_q = Q()
     if action_status != "":
         action_status_q = Q(action_status=action_status)
-    return await paginate(ActionRecord.filter(account_q & action_network_id_q & action_type_q & template_q & action_status_q).order_by("-id"))
+    return await paginate(ActionRecord.filter(account_q & chain_id_q & action_type_q & template_q & action_status_q).order_by("-id"))
 
 
 @router.get('/get-special-action', tags=['action'])
