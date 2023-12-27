@@ -131,6 +131,7 @@ async def hot_list(request: Request, network_id: int, size: int = 100):
             'description': dappNetwork.dapp.description,
             'logo': dappNetwork.dapp.logo,
             'src': dappNetwork.dapp_src,
+            'theme': dappNetwork.dapp.theme,
         }
         dappCategoryIds = set()
         for dappCategory in dappCategorys:

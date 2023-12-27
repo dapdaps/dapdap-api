@@ -325,55 +325,91 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
 
     actions = await QuestAction.filter(quest_id=quest['id']).order_by("id").all().values()
 
-    networks = []
-    dapps = []
     if actions:
+        dappIds = []
+        networkIds = []
+        allDapp = False
+        allNetwork = False
         for action in actions:
-            if len(userQuestActions) > 0:
-                for userQuestAction in userQuestActions:
-                    if userQuestAction.quest_action_id == action['id']:
-                        action['status'] = userQuestAction.status
-                        break
-            if action['category'] != "dapp":
+            if action['category'] != "dapp":#or action['source']:
                 continue
-            if not networks or len(networks) == 0:
-                networks = await Network.all().values()
-            if not dapps or len(dapps) == 0:
+            if not action['dapps']:
+                allDapp = True
+            else:
+                actionDappIds = action['dapps'].split(',')
+                for actionDappId in actionDappIds:
+                    dappIds.append(int(actionDappId))
+            if not action['networks']:
+                allNetwork = True
+            else:
+                actionNetworkIds = action['networks'].split(',')
+                for actionNetworkId in actionNetworkIds:
+                    networkIds.append(int(actionNetworkId))
+        if allDapp or len(dappIds) > 0:
+            if allDapp:
                 dapps = await Dapp.all().values()
-            operators = list()
-            action['operators'] = operators
-            if len(action['dapps']) == 0 or len(action['networks']) == 0:
-                continue
-            actionDappIds = action['dapps'].split(',')
-            actionNetworkIds = action['networks'].split(',')
-            dappNetworks = await DappNetwork.filter(dapp_id__in=actionDappIds, network_id__in=actionNetworkIds).all().values()
-            if len(dappNetworks) == 0:
-                continue
-            for dappNetwork in dappNetworks:
-                dappRoute = ""
-                dappName = ""
-                dappLogo = ""
-                networkName = ""
-                for dapp in dapps:
-                    if dapp['id'] == dappNetwork['dapp_id']:
+            else:
+                dapps = await Dapp.filter(id__in=dappIds).values()
+            if allNetwork:
+                networks = await Network.all().values()
+            else:
+                networks = await Network.filter(id__in=networkIds).values()
+            if allDapp and allNetwork:
+                dappNetworks = await DappNetwork.filter().all().values()
+            elif allDapp:
+                dappNetworks = await DappNetwork.filter(network_id__in=networkIds).all().values()
+            elif allNetwork:
+                dappNetworks = await DappNetwork.filter(dapp_id__in=dappIds).all().values()
+            else:
+                dappNetworks = await DappNetwork.filter(dapp_id__in=dappIds, network_id__in=networkIds).all().values()
+            for action in actions:
+                if len(userQuestActions) > 0:
+                    for userQuestAction in userQuestActions:
+                        if userQuestAction.quest_action_id == action['id']:
+                            action['status'] = userQuestAction.status
+                            break
+                if action['category'] != "dapp":#or action['source']:
+                    continue
+                operators = list()
+                action['operators'] = operators
+                actionDapps = []
+                actionNetworkIds = []
+                if action['dapps']:
+                    actionDappIds = action['dapps'].split(',')
+                    for actionDappId in actionDappIds:
+                        for dapp in dapps:
+                            if dapp['id'] == int(actionDappId):
+                                actionDapps.append(dapp)
+                                break
+                else:
+                    actionDapps = dapps
+                if action['networks']:
+                    actionNetworkIds = action['networks'].split(',')
+                for dapp in actionDapps:
+                    for dappNetwork in dappNetworks:
+                        if dapp['id'] != dappNetwork['dapp_id']:
+                            continue
+                        if len(actionNetworkIds) > 0 and str(dappNetwork['network_id']) not in actionNetworkIds:
+                            continue
                         dappRoute = dapp['route']
                         dappName = dapp['name']
                         dappLogo = dapp['logo']
-                        break
-                for network in networks:
-                    if network['id'] == dappNetwork['network_id']:
-                        networkName = network['name']
-                        break
-                operators.append({
-                    'dapp_id': dappNetwork['dapp_id'],
-                    'network_id': dappNetwork['network_id'],
-                    'dapp_name': dappName,
-                    'dapp_src': dappNetwork['dapp_src'],
-                    'network_name': networkName,
-                    'dapp_logo': dappLogo,
-                    'route': dappRoute,
-                })
-
+                        dappTheme = dapp['theme']
+                        networkName = ""
+                        for network in networks:
+                            if network['id'] == dappNetwork['network_id']:
+                                networkName = network['name']
+                                break
+                        operators.append({
+                            'dapp_id': dappNetwork['dapp_id'],
+                            'network_id': dappNetwork['network_id'],
+                            'dapp_name': dappName,
+                            'dapp_src': dappNetwork['dapp_src'],
+                            'dapp_logo': dappLogo,
+                            'route': dappRoute,
+                            'theme': dappTheme,
+                            'network_name': networkName,
+                        })
         for action in actions:
             del action['dapps']
             del action['networks']
