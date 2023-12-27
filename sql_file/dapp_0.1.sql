@@ -36,6 +36,7 @@ CREATE TABLE "dapp" (
     "category_ids" VARCHAR(100) NULL,
     "network_ids" VARCHAR(100) NULL,
     "tag" VARCHAR(200) NULL,
+    "theme" VARCHAR(300) NULL,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
