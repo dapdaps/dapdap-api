@@ -404,8 +404,8 @@ async def leaderboard(request: Request, page: int = 1, page_size: int = 10):
         })
     return success({
         'total_reward': campaign['total_reward'] if campaign and campaign['total_reward'] else 0,
-        'total_users': campaign['total_users'] if campaign and campaign['total_reward'] else 0,
-        'total_quest_execution': campaign['total_quest_execution'] if campaign and campaign['total_reward'] else 0,
+        'total_users': campaign['total_users'] if campaign and campaign['total_users'] else 0,
+        'total_quest_execution': campaign['total_quest_execution'] if campaign and campaign['total_quest_execution'] else 0,
         'data': data,
         'total_page': math.ceil(total['count']/page_size),
     })
