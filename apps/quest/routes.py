@@ -331,6 +331,11 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
         allDapp = False
         allNetwork = False
         for action in actions:
+            if len(userQuestActions) > 0:
+                for userQuestAction in userQuestActions:
+                    if userQuestAction.quest_action_id == action['id']:
+                        action['status'] = userQuestAction.status
+                        break
             if action['category'] != "dapp":#or action['source']:
                 continue
             if not action['dapps']:
@@ -363,11 +368,6 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
             else:
                 dappNetworks = await DappNetwork.filter(dapp_id__in=dappIds, network_id__in=networkIds).all().values()
             for action in actions:
-                if len(userQuestActions) > 0:
-                    for userQuestAction in userQuestActions:
-                        if userQuestAction.quest_action_id == action['id']:
-                            action['status'] = userQuestAction.status
-                            break
                 if action['category'] != "dapp":#or action['source']:
                     continue
                 operators = list()
