@@ -28,7 +28,7 @@ def update_gas():
             else:
                 status_data = get_status(tx_data["tx_id"], url, apikey)
                 if status_data["status"] != "":
-                    update_action_status_by_tx(tx_data["tx_id"], status_data["status"])
+                    update_gas_by_tx(tx_data["tx_id"], status_data["gas"], status_data["status"])
         else:
             update_status_fail_by_tx(tx_data["tx_id"])
 
