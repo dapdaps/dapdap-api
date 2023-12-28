@@ -24,6 +24,7 @@ class Action(Model):
     token_in_currency = fields.CharField(max_length=255, null=True)
     token_out_currency = fields.CharField(max_length=255, null=True)
     chain_id = fields.IntField(null=True)
+    extra_data = fields.TextField(null=True)
 
     def __str__(self):
         return self.id
@@ -54,6 +55,7 @@ class ActionRecord(BaseDBModel):
     to_chain_id = fields.IntField(null=True)
     token_in_currency = fields.CharField(max_length=255, null=True)
     token_out_currency = fields.CharField(max_length=255, null=True)
+    extra_data = fields.TextField(null=True)
 
     def __str__(self):
         return self.action_id
