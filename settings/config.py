@@ -44,6 +44,7 @@ OPTIMISM_KEY = os.getenv('OPTIMISM_KEY') or ""
 LINEA_KEY = os.getenv('LINEA_KEY') or ""
 POLYGON_KEY = os.getenv('POLYGON_KEY') or ""
 POLYGON_ZKEVM_KEY = os.getenv('POLYGON_ZKEVM_KEY') or ""
+BASE_KEY = os.getenv('BASE_KEY') or ""
 
 class Settings:
     VERSION = '0.1.0'
@@ -171,7 +172,7 @@ class Settings:
             "APIKEY": GNOSIS_KEY,
         },
         59144: {
-            "URL": "https://api.lineascan.build/api?module=transaction&action=gettxreceiptstatus&txhash=",
+            "URL": "https://api.lineascan.build/api?module=proxy&action=eth_getTransactionReceipt&txhash=",
             "APIKEY": LINEA_KEY,
         },
         5000: {
@@ -194,6 +195,10 @@ class Settings:
             "URL": "https://api-zkevm.polygonscan.com/api?module=proxy&action=eth_getTransactionReceipt&txhash=",
             "SPARE_URL": "https://api-zkevm.polygonscan.com/api?module=proxy&action=eth_getTransactionByHash&txhash=",
             "APIKEY": POLYGON_ZKEVM_KEY,
+        },
+        8453: {
+            "URL": "https://api.basescan.org/api?module=proxy&action=eth_getTransactionByHash&txhash=",
+            "APIKEY": BASE_KEY,
         }
     }
 
