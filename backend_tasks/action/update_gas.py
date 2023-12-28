@@ -1,5 +1,7 @@
+import sys
 from db_provider import update_gas_by_tx, update_status_fail_by_tx, update_action_status_by_tx, query_action_records
 from third_party_utils import get_gas, get_status, get_gas_by_zkevm
+sys.path.append('../../')
 from settings.config import settings
 
 

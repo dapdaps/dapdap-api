@@ -15,6 +15,6 @@ else
         kill -s 9 ${pid}
         echo "Warning: clean backend process of last round." >> boot_update_gas.log
 fi
-. ../venv/bin/activate
+. ../../venv/bin/activate
 python update_gas.py >> boot_update_gas.log
 echo 'OK'
