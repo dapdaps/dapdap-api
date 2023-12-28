@@ -74,7 +74,7 @@ async def uniswap_api_check(request: Request, response: Response):
 async def search(request: Request, content: str, user: UserInfo = Depends(get_current_user_optional)):
     if len(content) == 0:
         return success()
-
+    content = content.lower()
     if user:
         questActions = await QuestAction.filter(source='search', category__not='dapp').all()
         if len(questActions) > 0:
