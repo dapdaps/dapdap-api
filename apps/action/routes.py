@@ -120,11 +120,11 @@ async def add_action(request: Request, action_in: ActionIn):
     action_record.account_id = action_in.account_id
     action_record.account_info = action_in.account_info
     action_record.template = action_in.template
-    action_record.status = action_data_status
+    action_record.status = "1"
     action_record.action_status = "Success"
     action_record.tx_id = action_in.tx_id
     action_record.action_network_id = action_in.action_network_id
-    action_record.gas = ""
+    action_record.gas = "0"
     action_record.timestamp = timestamp
     action_record.create_time = now_time
     action_record.source = action_in.source
