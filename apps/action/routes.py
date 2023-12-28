@@ -144,7 +144,7 @@ async def get_action_by_account(account_id: str = "", account_info: str = "", ch
         return success()
     if account_id:
         account_id = account_id.lower()
-    sql = "select (ARRAY_AGG(action_id))[1] as action_id, (ARRAY_AGG(account_id))[1] as account_id, action_title, action_type, action_amount, " \
+    sql = "select (ARRAY_AGG(action_id))[1] as action_id, (ARRAY_AGG(account_id))[1] as account_id, action_title, (ARRAY_AGG(action_type))[1] as action_type, (ARRAY_AGG(action_amount))[1] as action_amount, " \
           "(ARRAY_AGG(timestamp))[1] as timestamp,(ARRAY_AGG(template))[1] as template, (ARRAY_AGG(action_tokens))[1] as action_tokens, " \
           "(ARRAY_AGG(account_info))[1] as account_info, (ARRAY_AGG(token_in_currency))[1] as token_in_currency,(ARRAY_AGG(token_out_currency))[1] as token_out_currency, " \
           "sum(count_number) as count_number from t_action " \
