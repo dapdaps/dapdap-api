@@ -248,6 +248,7 @@ CREATE INDEX "idx_t_action_record_dapp_id" ON "t_action_record" ("dapp_id", "id"
 CREATE INDEX "idx_t_action_record_account_id_chain_type_status" ON "t_action_record" ("account_id","chain_id","action_type","template","action_status");
 CREATE INDEX "idx_t_action_record_account_info_chain_type_status" ON "t_action_record" ("account_info","chain_id","action_type","template","action_status");
 CREATE INDEX "idx_t_action_record_status_id" ON "t_action_record" ("status","id");
+CREATE INDEX "idx_t_action_record_tx_id" ON "t_action_record" ("tx_id");
 CREATE INDEX "idx_t_action_account_id_chain_title_amount" ON "t_action" ("account_id","chain_id","action_title","action_amount");
 CREATE INDEX "idx_t_action_account_info_chain_title_amount" ON "t_action" ("account_info","chain_id","action_title","action_amount");
 CREATE INDEX "idx_t_action_account_id_chain_status_count" ON "t_action" ("account_id","chain_id","status","count_number");
