@@ -309,9 +309,9 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
     quest['total_user'] = 0
     quest['action_completed'] = 0
 
-    total_user = await UserQuest.filter(quest_id=quest['id']).all().annotate(total_user=Count("id")).first().values("total_user")
-    if total_user and total_user['total_user']:
-        quest['total_user'] = total_user['total_user']
+    # total_user = await UserQuest.filter(quest_id=quest['id']).all().annotate(total_user=Count("id")).first().values("total_user")
+    # if total_user and total_user['total_user']:
+    #     quest['total_user'] = total_user['total_user']
     quest['action_completed'] = 0
     quest['is_claimed'] = False
 
