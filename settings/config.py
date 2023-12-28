@@ -197,7 +197,7 @@ class Settings:
             "APIKEY": POLYGON_ZKEVM_KEY,
         },
         8453: {
-            "URL": "https://api.basescan.org/api?module=proxy&action=eth_getTransactionByHash&txhash=",
+            "URL": "https://api.basescan.org/api?module=proxy&action=eth_getTransactionReceipt&txhash=",
             "APIKEY": BASE_KEY,
         }
     }
