@@ -34,6 +34,16 @@ INVITE_TITLE = os.getenv('INVITE_TITLE') or "Invite Friends"
 DAILY_CHECK_IN_LOGO = os.getenv('DAILY_CHECK_IN_LOGO') or ""
 DAILY_CHECK_IN_TITLE = os.getenv('DAILY_CHECK_IN_TITLE') or "Daily Connect"
 
+ETHERSCAN_API_KEY_TOKEN = os.getenv('ETHERSCAN_API_KEY_TOKEN') or ""
+ZKEVM_API_KEY_TOKEN = os.getenv('ZKEVM_API_KEY_TOKEN') or ""
+AVALANCHE_KEY = os.getenv('AVALANCHE_KEY') or ""
+ARBITRUM_KEY = os.getenv('ARBITRUM_KEY') or ""
+BSC_KEY = os.getenv('BSC_KEY') or ""
+GNOSIS_KEY = os.getenv('GNOSIS_KEY') or ""
+OPTIMISM_KEY = os.getenv('OPTIMISM_KEY') or ""
+LINEA_KEY = os.getenv('LINEA_KEY') or ""
+POLYGON_KEY = os.getenv('POLYGON_KEY') or ""
+POLYGON_ZKEVM_KEY = os.getenv('POLYGON_ZKEVM_KEY') or ""
 
 class Settings:
     VERSION = '0.1.0'
@@ -143,6 +153,48 @@ class Settings:
     DAILY_CHECK_IN_LOGO = DAILY_CHECK_IN_LOGO
     DAILY_CHECK_IN_TITLE = DAILY_CHECK_IN_TITLE
 
-
+    DAPDAP_COFING = {
+        43114: {
+            "URL": "https://api.snowtrace.io/api?module=transaction&action=gettxreceiptstatus&txhash=",
+            "APIKEY": AVALANCHE_KEY,
+        },
+        42161: {
+            "URL": "https://api.arbiscan.io/api?module=proxy&action=eth_getTransactionReceipt&txhash=",
+            "APIKEY": ARBITRUM_KEY,
+        },
+        56: {
+            "URL": "https://api.bscscan.com/api?module=transaction&action=gettxreceiptstatus&txhash=",
+            "APIKEY": BSC_KEY,
+        },
+        100: {
+            "URL": "https://api.gnosisscan.io/api?module=transaction&action=gettxreceiptstatus&txhash=",
+            "APIKEY": GNOSIS_KEY,
+        },
+        59144: {
+            "URL": "https://api.lineascan.build/api?module=transaction&action=gettxreceiptstatus&txhash=",
+            "APIKEY": LINEA_KEY,
+        },
+        5000: {
+            "URL": "https://explorer.mantle.xyz/api?module=transaction&action=gettxreceiptstatus&txhash=",
+            "APIKEY": "",
+        },
+        1088: {
+            "URL": "https://andromeda-explorer.metis.io/api?module=transaction&action=gettxreceiptstatus&txhash=",
+            "APIKEY": "",
+        },
+        10: {
+            "URL": "https://api-optimistic.etherscan.io/api?module=transaction&action=gettxreceiptstatus&txhash=",
+            "APIKEY": OPTIMISM_KEY,
+        },
+        137: {
+            "URL": "https://api.polygonscan.com/api?module=transaction&action=gettxreceiptstatus&txhash=",
+            "APIKEY": POLYGON_KEY,
+        },
+        1101: {
+            "URL": "https://api-zkevm.polygonscan.com/api?module=proxy&action=eth_getTransactionReceipt&txhash=",
+            "SPARE_URL": "https://api-zkevm.polygonscan.com/api?module=proxy&action=eth_getTransactionByHash&txhash=",
+            "APIKEY": POLYGON_ZKEVM_KEY,
+        }
+    }
 
 settings = Settings()
