@@ -46,9 +46,12 @@ def get_status(tx, url, apikey):
             if result is None:
                 return ret_data
             if "gasUsed" in result and "effectiveGasPrice" in result:
+                l1Fee = 0
                 gas_data = int(result["gasUsed"], base=16)
                 gas_price_data = int(result["effectiveGasPrice"], base=16) / 1000000000000000000
-                ret_data["gas"] = "{:.10f}".format(gas_data * gas_price_data)
+                if "l1Fee" in result:
+                    l1Fee = int(result["l1Fee"], base=16) / 1000000000000000000
+                ret_data["gas"] = "{:.10f}".format(gas_data * gas_price_data + l1Fee)
             if "status" in result and result["status"] != "":
                 status_data = int(result["status"], base=16)
                 if status_data == 1:
