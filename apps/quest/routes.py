@@ -363,10 +363,6 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
                 dapps = await Dapp.filter(id__in=dappIds, category_ids__in=categoryIds).values()
             else:
                 dapps = await Dapp.filter(id__in=dappIds).values()
-            if allNetwork:
-                networks = await Network.all().values()
-            else:
-                networks = await Network.filter(id__in=networkIds).values()
             if allDapp and allNetwork:
                 dappNetworks = await DappNetwork.filter().all().values()
             elif allDapp:
@@ -400,10 +396,6 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
                             continue
                         if len(actionNetworkIds) > 0 and str(dappNetwork['network_id']) not in actionNetworkIds:
                             continue
-                        # for network in networks:
-                        #     if network['id'] == dappNetwork['network_id']:
-                        #         networkName = network['name']
-                        #         break
                         dappOperatorNetworks.append({
                             'dapp_id': dappNetwork['dapp_id'],
                             'network_id': dappNetwork['network_id'],
@@ -414,6 +406,7 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
                             'dapp_id': dapp['id'],
                             'dapp_name': dapp['name'],
                             'dapp_logo': dapp['logo'],
+                            'default_chain_id': dapp['default_chain_id'],
                             'route': dapp['route'],
                             'theme': dapp['theme'],
                             'dapp_network': dappOperatorNetworks,
