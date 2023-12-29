@@ -337,7 +337,7 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
                     if userQuestAction.quest_action_id == action['id']:
                         action['status'] = userQuestAction.status
                         break
-            if action['category'] != "dapp":#or action['source']:
+            if action['category'] != "dapp":
                 continue
             if not action['dapps']:
                 allDapp = True
@@ -376,7 +376,7 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
             else:
                 dappNetworks = await DappNetwork.filter(dapp_id__in=dappIds, network_id__in=networkIds).all().values()
             for action in actions:
-                if action['category'] != "dapp":#or action['source']:
+                if action['category'] != "dapp":
                     continue
                 operators = list()
                 action['operators'] = operators
@@ -394,29 +394,29 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
                 if action['networks']:
                     actionNetworkIds = action['networks'].split(',')
                 for dapp in actionDapps:
+                    dappOperatorNetworks = list()
                     for dappNetwork in dappNetworks:
                         if dapp['id'] != dappNetwork['dapp_id']:
                             continue
                         if len(actionNetworkIds) > 0 and str(dappNetwork['network_id']) not in actionNetworkIds:
                             continue
-                        dappRoute = dapp['route']
-                        dappName = dapp['name']
-                        dappLogo = dapp['logo']
-                        dappTheme = dapp['theme']
-                        networkName = ""
-                        for network in networks:
-                            if network['id'] == dappNetwork['network_id']:
-                                networkName = network['name']
-                                break
-                        operators.append({
+                        # for network in networks:
+                        #     if network['id'] == dappNetwork['network_id']:
+                        #         networkName = network['name']
+                        #         break
+                        dappOperatorNetworks.append({
                             'dapp_id': dappNetwork['dapp_id'],
                             'network_id': dappNetwork['network_id'],
-                            'dapp_name': dappName,
                             'dapp_src': dappNetwork['dapp_src'],
-                            'dapp_logo': dappLogo,
-                            'route': dappRoute,
-                            'theme': dappTheme,
-                            'network_name': networkName,
+                        })
+                    if len(dappOperatorNetworks) > 0:
+                        operators.append({
+                            'dapp_id': dapp['id'],
+                            'dapp_name': dapp['name'],
+                            'dapp_logo': dapp['logo'],
+                            'route': dapp['route'],
+                            'theme': dapp['theme'],
+                            'dapp_network': dappOperatorNetworks,
                         })
         for action in actions:
             del action['dapps']
