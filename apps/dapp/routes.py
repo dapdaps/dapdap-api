@@ -1,9 +1,7 @@
 import logging
 
-import math
 from starlette.requests import Request
 from tortoise.expressions import Q
-from tortoise.functions import Count
 
 from apps.dapp.models import DappNetwork, DappCategory, Dapp, DappRelate, Category
 from apps.dapp.service import filterDapps
