@@ -43,6 +43,7 @@ CREATE TABLE "dapp" (
 CREATE INDEX "idx_dapp_create" ON "dapp" ("created_at");
 CREATE INDEX "idx_dapp_update" ON "dapp" ("updated_at");
 CREATE unique INDEX "idx_dapp_name" ON "dapp" ("name");
+CREATE INDEX "idx_dapp_category_ids" ON "dapp" ("category_ids");
 
 
 CREATE TABLE "ad" (

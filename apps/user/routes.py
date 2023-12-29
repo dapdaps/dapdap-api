@@ -236,7 +236,6 @@ async def bind_discord(request: Request, param: BindDiscordIn, user: UserInfo = 
         return error('bind failed')
     response = json.loads(rep.text)
     accessToken = response['access_token']
-    refreshToken = response['refresh_token']
     tokenType = response['token_type']
     expiresIn = response['expires_in']
     if len(accessToken) <= 0 or len(tokenType) <= 0 or expiresIn <= 0:

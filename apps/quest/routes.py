@@ -328,6 +328,7 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
     if actions:
         dappIds = []
         networkIds = []
+        categoryIds = []
         allDapp = False
         allNetwork = False
         for action in actions:
@@ -350,9 +351,16 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
                 actionNetworkIds = action['networks'].split(',')
                 for actionNetworkId in actionNetworkIds:
                     networkIds.append(int(actionNetworkId))
+            if action['category_id'] > 0:
+                categoryIds.append(action['category_id'])
         if allDapp or len(dappIds) > 0:
             if allDapp:
-                dapps = await Dapp.all().values()
+                if len(categoryIds) > 0:
+                    dapps = await Dapp.filter(category_ids__in=categoryIds).values()
+                else:
+                    dapps = await Dapp.all().values()
+            elif len(categoryIds) > 0:
+                dapps = await Dapp.filter(id__in=dappIds, category_ids__in=categoryIds).values()
             else:
                 dapps = await Dapp.filter(id__in=dappIds).values()
             if allNetwork:
