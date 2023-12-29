@@ -1,6 +1,6 @@
 import math
 
-from apps.dapp.models import Dapp
+from apps.dapp.models import Dapp, DappNetwork
 from apps.quest.models import QuestAction
 from apps.user.models import UserFavorite
 
@@ -10,7 +10,7 @@ async def filterDapps(user_id: int, tbd_token: bool, is_favorite: bool, network_
         "data": [],
         "total_page": 0,
     }
-    dapps = await Dapp.all().order_by("-created_at")
+    dapps = await Dapp.all().order_by("-created_at").values()
     if len(dapps) == 0:
         return data
 
@@ -23,7 +23,7 @@ async def filterDapps(user_id: int, tbd_token: bool, is_favorite: bool, network_
         dappFavorites = list()
         for userFavorite in userFavorites:
             for dapp in dapps:
-                if userFavorite.dapp_id == dapp.id:
+                if userFavorite.dapp_id == dapp['id']:
                     dappFavorites.append(dapp)
                     break
         dapps = dappFavorites
@@ -51,29 +51,60 @@ async def filterDapps(user_id: int, tbd_token: bool, is_favorite: bool, network_
     dappsData = list()
     for dapp in dapps:
         if not is_favorite:
-            if tbd_token and dapp.tbd_token != "Y":
+            if tbd_token and dapp['tbd_token'] != "Y":
                 continue
-            if not tbd_token and dapp.tbd_token != "N":
+            if not tbd_token and dapp['tbd_token'] != "N":
                 continue
         if len(filterNetworkIds) > 0:
-            if len(dapp.network_ids) == 0:
+            if len(dapp['network_ids']) == 0:
                 continue
-            dappNetworkIds = dapp.network_ids.split(",")
+            dappNetworkIds = dapp['network_ids'].split(",")
             match = any(elem in filterNetworkIds for elem in dappNetworkIds)
             if not match:
                 continue
         if len(filterCategoryIds) > 0:
-            if len(dapp.category_ids) == 0:
+            if len(dapp['category_ids']) == 0:
                 continue
-            dappCategoryIds = dapp.category_ids.split(",")
+            dappCategoryIds = dapp['category_ids'].split(",")
             match = any(elem in filterCategoryIds for elem in dappCategoryIds)
             if not match:
                 continue
-        if quest == 1 and str(dapp.id) not in questDappIds:
+        if quest == 1 and str(dapp['id']) not in questDappIds:
             continue
-        elif quest == 2 and str(dapp.id) in questDappIds:
+        elif quest == 2 and str(dapp['id']) in questDappIds:
             continue
         dappsData.append(dapp)
+
+    if len(dappsData) > 0:
+        dappIds = list()
+        for dapp in dappsData:
+            dappIds.append(dapp['id'])
+        dappNetworks = await DappNetwork.filter(dapp_id__in=dappIds).all()
+        for dapp in dappsData:
+            # if len(dapp['category_ids']) > 0:
+            #     dappCategoryList = list()
+            #     categoryIds = dapp['category_ids'].split(",")
+            #     for id in categoryIds:
+            #             dappCategoryList.append({
+            #                 'dapp_id': dapp['id'],
+            #                 'category_id': int(id),
+            #             })
+            #     dapp['dapp_category'] = dappCategoryList
+            if len(dapp['network_ids']) > 0:
+                dappNetworkList = list()
+                networkIds = dapp['network_ids'].split(",")
+                for id in networkIds:
+                    dappSrc = ""
+                    for dappNetwork in dappNetworks:
+                        if dappNetwork.dapp_id == dapp['id'] and dappNetwork.network_id == int(id):
+                            dappSrc = dappNetwork.dapp_src
+                            break
+                    dappNetworkList.append({
+                        'dapp_id': dapp['id'],
+                        'network_id': int(id),
+                        'dapp_src': dappSrc,
+                    })
+                dapp['dapp_network'] = dappNetworkList
 
     data['total_page'] = math.ceil(len(dappsData)/page_size)
     offset = (page - 1) * page_size
@@ -85,20 +116,20 @@ async def filterDapps(user_id: int, tbd_token: bool, is_favorite: bool, network_
 
     dappsResponseData = dappsData[offset:to]
     for dapp in dappsResponseData:
-        if dapp.category_ids:
-            categoryIds = dapp.category_ids.split(',')
-            dapp.category_ids = []
+        if dapp['category_ids']:
+            categoryIds = dapp['category_ids'].split(',')
+            dapp['category_ids'] = []
             for categoryId in categoryIds:
-                dapp.category_ids.append(int(categoryId))
+                dapp['category_ids'].append(int(categoryId))
         else:
-            dapp.category_ids = []
-        if dapp.network_ids:
-            networkIds = dapp.network_ids.split(',')
-            dapp.network_ids = []
+            dapp['category_ids'] = []
+        if dapp['network_ids']:
+            networkIds = dapp['network_ids'].split(',')
+            dapp['network_ids'] = []
             for networkId in networkIds:
-                dapp.network_ids.append(int(networkId))
+                dapp['network_ids'].append(int(networkId))
         else:
-            dapp.network_ids = []
+            dapp['network_ids'] = []
 
     data['data'] = dappsResponseData
     return data
