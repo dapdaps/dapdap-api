@@ -2,6 +2,7 @@ import logging
 
 import math
 from starlette.requests import Request
+from tortoise.expressions import Q
 from tortoise.functions import Count
 
 from apps.dapp.models import DappNetwork, DappCategory, Dapp, DappRelate, Category
@@ -26,10 +27,13 @@ async def category_list(request: Request):
 
 @router.get('/list', tags=['dapp'])
 @limiter.limit('60/minute')
-async def dapp_list(request: Request, page: int = 0, page_size: int = 20):
-    offset = (page - 1) * page_size
-    total = await Dapp.all().annotate(count=Count('id')).first().values('count')
-    data = await Dapp.all().order_by('-created_at').offset(offset).limit(page_size).values()
+async def dapp_list(request: Request, tbd_token: str = "", is_recommend: bool = False, size: int = 100):
+    filter_q = Q()
+    if tbd_token:
+        filter_q = filter_q & Q(tbd_token=tbd_token)
+    if is_recommend:
+        filter_q = filter_q & Q(recommend=is_recommend)
+    data = await Dapp.filter(filter_q).all().order_by('-created_at').limit(size).values()
     if len(data) > 0:
         dappIds = list()
         for dapp in data:
@@ -64,8 +68,6 @@ async def dapp_list(request: Request, page: int = 0, page_size: int = 20):
             del dapp['network_ids']
     return success({
         'data': data,
-        'total': total['count'],
-        'total_page':  math.ceil(total['count']/page_size)
     })
 
 
