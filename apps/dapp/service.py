@@ -79,7 +79,7 @@ async def filterDapps(user_id: int, tbd_token: bool, is_favorite: bool, network_
         dappIds = list()
         for dapp in dappsData:
             dappIds.append(dapp['id'])
-        dappNetworks = await DappNetwork.filter(dapp_id__in=dappIds).all()
+        dappNetworks = await DappNetwork.filter(dapp_id__in=dappIds).select_related("network").all()
         for dapp in dappsData:
             # if len(dapp['category_ids']) > 0:
             #     dappCategoryList = list()
@@ -95,13 +95,16 @@ async def filterDapps(user_id: int, tbd_token: bool, is_favorite: bool, network_
                 networkIds = dapp['network_ids'].split(",")
                 for id in networkIds:
                     dappSrc = ""
+                    chain_id = None
                     for dappNetwork in dappNetworks:
                         if dappNetwork.dapp_id == dapp['id'] and dappNetwork.network_id == int(id):
                             dappSrc = dappNetwork.dapp_src
+                            chain_id = dappNetwork.network.chain_id
                             break
                     dappNetworkList.append({
                         'dapp_id': dapp['id'],
                         'network_id': int(id),
+                        'chain_id': chain_id,
                         'dapp_src': dappSrc,
                     })
                 dapp['dapp_network'] = dappNetworkList

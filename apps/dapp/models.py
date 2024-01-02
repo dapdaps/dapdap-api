@@ -29,11 +29,14 @@ class Dapp(BaseDBModel, BaseCreatedUpdatedAtModel):
 
 
 class DappNetwork(BaseDBModel, BaseCreatedAtModel):
-    network_id = fields.IntField(null=False)
     dapp_src = fields.CharField(max_length=200)
     dapp = fields.ForeignKeyField(
         'models.Dapp', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True, related_name="dapp",
     )
+    network = fields.ForeignKeyField(
+        'models.Network', db_constraint=False, on_delete=CASCADE.SET_NULL, null=True, related_name="network",
+    )
+
 
     def __str__(self):
         return self.id

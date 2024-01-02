@@ -6,7 +6,6 @@ import math
 from tortoise.functions import Count
 from starlette.requests import Request
 
-from apps.network.models import Network
 from apps.dapp.models import Dapp, DappNetwork
 from apps.quest.dao import claimReward, claimDailyCheckIn, actionCompleted
 from apps.quest.models import QuestCampaign, Quest, UserQuest, QuestCategory, QuestAction, \
@@ -337,7 +336,7 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
                     if userQuestAction.quest_action_id == action['id']:
                         action['status'] = userQuestAction.status
                         break
-            if action['category'] != "dapp":
+            if action['category'] != "dapp" or action['source']:
                 continue
             if not action['dapps']:
                 allDapp = True
@@ -364,15 +363,15 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
             else:
                 dapps = await Dapp.filter(id__in=dappIds).values()
             if allDapp and allNetwork:
-                dappNetworks = await DappNetwork.filter().all().values()
+                dappNetworks = await DappNetwork.all().select_related("network")
             elif allDapp:
-                dappNetworks = await DappNetwork.filter(network_id__in=networkIds).all().values()
+                dappNetworks = await DappNetwork.filter(network_id__in=networkIds).select_related("network").all()
             elif allNetwork:
-                dappNetworks = await DappNetwork.filter(dapp_id__in=dappIds).all().values()
+                dappNetworks = await DappNetwork.filter(dapp_id__in=dappIds).select_related("network").all()
             else:
-                dappNetworks = await DappNetwork.filter(dapp_id__in=dappIds, network_id__in=networkIds).all().values()
+                dappNetworks = await DappNetwork.filter(dapp_id__in=dappIds, network_id__in=networkIds).select_related("network").all()
             for action in actions:
-                if action['category'] != "dapp":
+                if action['category'] != "dapp" or action['source']:
                     continue
                 operators = list()
                 action['operators'] = operators
@@ -392,14 +391,15 @@ async def quest(request: Request, id: int = None, source: str = None, user: User
                 for dapp in actionDapps:
                     dappOperatorNetworks = list()
                     for dappNetwork in dappNetworks:
-                        if dapp['id'] != dappNetwork['dapp_id']:
+                        if dapp['id'] != dappNetwork.dapp_id:
                             continue
-                        if len(actionNetworkIds) > 0 and str(dappNetwork['network_id']) not in actionNetworkIds:
+                        if len(actionNetworkIds) > 0 and str(dappNetwork.network_id) not in actionNetworkIds:
                             continue
                         dappOperatorNetworks.append({
-                            'dapp_id': dappNetwork['dapp_id'],
-                            'network_id': dappNetwork['network_id'],
-                            'dapp_src': dappNetwork['dapp_src'],
+                            'dapp_id': dappNetwork.dapp_id,
+                            'network_id': dappNetwork.network_id,
+                            'chain_id': dappNetwork.network.chain_id,
+                            'dapp_src': dappNetwork.dapp_src,
                         })
                     if len(dappOperatorNetworks) > 0:
                         operators.append({
