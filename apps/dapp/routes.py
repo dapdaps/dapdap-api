@@ -36,7 +36,7 @@ async def dapp_list(request: Request, tbd_token: str = "", is_recommend: bool = 
         dappIds = list()
         for dapp in data:
             dappIds.append(dapp['id'])
-        dappNetworks = await DappNetwork.filter(dapp_id__in=dappIds).all()
+        dappNetworks = await DappNetwork.filter(dapp_id__in=dappIds).select_related("network").all()
         for dapp in data:
             if len(dapp['category_ids']) > 0:
                 dappCategoryList = list()
@@ -52,13 +52,16 @@ async def dapp_list(request: Request, tbd_token: str = "", is_recommend: bool = 
                 networkIds = dapp['network_ids'].split(",")
                 for id in networkIds:
                     dappSrc = ""
+                    chain_id = None
                     for dappNetwork in dappNetworks:
                         if dappNetwork.dapp_id == dapp['id'] and dappNetwork.network_id == int(id):
                             dappSrc = dappNetwork.dapp_src
+                            chain_id = dappNetwork.network.chain_id
                             break
                     dappNetworkList.append({
                         'dapp_id': dapp['id'],
                         'network_id': int(id),
+                        'chain_id': chain_id,
                         'dapp_src': dappSrc,
                     })
                 dapp['dapp_network'] = dappNetworkList
@@ -76,7 +79,7 @@ async def get_one(request: Request, id: int):
     if not dapp:
         return error("not find")
 
-    dappNetworks = await DappNetwork.filter(dapp_id=dapp['id']).all()
+    dappNetworks = await DappNetwork.filter(dapp_id=dapp['id']).select_related("network").all()
     if len(dapp['category_ids']) > 0:
         dappCategoryList = list()
         categoryIds = dapp['category_ids'].split(",")
@@ -91,13 +94,16 @@ async def get_one(request: Request, id: int):
         networkIds = dapp['network_ids'].split(",")
         for id in networkIds:
             dappSrc = ""
+            chain_id = None
             for dappNetwork in dappNetworks:
                 if dappNetwork.network_id == int(id):
                     dappSrc = dappNetwork.dapp_src
+                    chain_id = dappNetwork.network.chain_id
                     break
             dappNetworkList.append({
                 'dapp_id': dapp['id'],
                 'network_id': int(id),
+                'chain_id': chain_id,
                 'dapp_src': dappSrc,
             })
         dapp['dapp_network'] = dappNetworkList
@@ -109,7 +115,7 @@ async def get_one(request: Request, id: int):
 @router.get('/hot_list', tags=['dapp'])
 @limiter.limit('60/minute')
 async def hot_list(request: Request, network_id: int, size: int = 100):
-    dappNetworks = await DappNetwork.filter(network_id=network_id).select_related("dapp")
+    dappNetworks = await DappNetwork.filter(network_id=network_id).select_related("dapp", "network")
     for index, dappNetwork in enumerate(dappNetworks):
         if dappNetwork.dapp.priority <= 0:
             del dappNetworks[index]
@@ -131,6 +137,7 @@ async def hot_list(request: Request, network_id: int, size: int = 100):
             'description': dappNetwork.dapp.description,
             'logo': dappNetwork.dapp.logo,
             'src': dappNetwork.dapp_src,
+            'chain_id': dappNetwork.network.chain_id,
             'theme': dappNetwork.dapp.theme,
         }
         dappCategoryIds = set()
@@ -152,14 +159,34 @@ async def relate_list(request: Request, dapp_id: int):
     dappIds = set()
     for dappRelate in dappRelates:
         dappIds.add(dappRelate['dapp_id_relate'])
+
     dapps = await Dapp.filter(id__in=dappIds)
     dappCategorys = await DappCategory.filter(dapp_id__in=dappIds)
+    dappNetworks = await DappNetwork.filter(dapp_id__in=dappIds).select_related("network").all()
     for dapp in dapps:
         dappCategoryIds = set()
         for dappCategory in dappCategorys:
             if dappCategory.dapp_id == dapp.id:
                 dappCategoryIds.add(dappCategory.category_id)
         dapp.category_ids = dappCategoryIds
+        if len(dapp['network_ids']) > 0:
+            dappNetworkList = list()
+            networkIds = dapp['network_ids'].split(",")
+            for id in networkIds:
+                dappSrc = ""
+                chain_id = None
+                for dappNetwork in dappNetworks:
+                    if dappNetwork.dapp_id == dapp['id'] and dappNetwork.network_id == int(id):
+                        dappSrc = dappNetwork.dapp_src
+                        chain_id = dappNetwork.network.chain_id
+                        break
+                dappNetworkList.append({
+                    'dapp_id': dapp['id'],
+                    'network_id': int(id),
+                    'chain_id': chain_id,
+                    'dapp_src': dappSrc,
+                })
+            dapp['dapp_network'] = dappNetworkList
     return success(dapps)
 
 
@@ -182,11 +209,27 @@ async def favorite_list(request: Request, user: UserInfo = Depends(get_current_u
     favoriteDapps = await Dapp.filter(id__in=dappIds).all().values()
     if len(favoriteDapps) == 0:
         return success([])
+    dappNetworks = await DappNetwork.filter(dapp_id__in=dappIds).select_related("network").all()
     for favoriteDapp in favoriteDapps:
         if len(favoriteDapp['category_ids']) > 0:
             dappIds = favoriteDapp['category_ids'].split(",")
             favoriteDapp['category_ids'] = [int(item) for item in dappIds]
         if len(favoriteDapp['network_ids']) > 0:
             networkIds = favoriteDapp['network_ids'].split(",")
-            favoriteDapp['network_ids'] = [int(item) for item in networkIds]
+            dappNetworkList = list()
+            for id in networkIds:
+                dappSrc = ""
+                chain_id = None
+                for dappNetwork in dappNetworks:
+                    if dappNetwork.dapp_id == favoriteDapp['id'] and dappNetwork.network_id == int(id):
+                        dappSrc = dappNetwork.dapp_src
+                        chain_id = dappNetwork.network.chain_id
+                        break
+                dappNetworkList.append({
+                    'dapp_id': favoriteDapp['id'],
+                    'network_id': int(id),
+                    'chain_id': chain_id,
+                    'dapp_src': dappSrc,
+                })
+            favoriteDapp['dapp_network'] = dappNetworkList
     return success(favoriteDapps)

@@ -41,3 +41,7 @@ def errorByInTract(msg=None, code=1):
         },
     }
     return ret
+
+
+def find_all_indices(s, char):
+    return [index for index, c in enumerate(s) if c == char]
