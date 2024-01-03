@@ -16,6 +16,7 @@ class Network(BaseDBModel, BaseCreatedUpdatedAtModel):
     milestones = fields.TextField(null=True)
     tag = fields.CharField(max_length=200, null=True)
     deepdive = fields.BooleanField(null=True)
+    show = fields.BooleanField(null=True)
 
     def __str__(self):
         return self.id
