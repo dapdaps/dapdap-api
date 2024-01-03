@@ -15,7 +15,7 @@ router = APIRouter(prefix="/api/network")
 @router.get('/list', tags=['network'])
 @limiter.limit('60/minute')
 async def list(request: Request):
-    networks = await Network.all().order_by('-priority')
+    networks = await Network.filter(show=True).order_by('-priority')
     return success(networks)
 
 

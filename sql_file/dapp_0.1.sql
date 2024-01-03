@@ -13,11 +13,13 @@ CREATE TABLE "network" (
     "milestones" TEXT NULL,
     "tag" VARCHAR(200) NULL,
     "deepdive" BOOL NULL DEFAULT False,
+    "show" BOOL NULL DEFAULT True,
     "created_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE unique INDEX "idx_network_chain_id" ON "network" ("chain_id");
 CREATE INDEX "idx_network_priority" ON "network" ("priority");
+CREATE INDEX "idx_network_show_priority" ON "network" ("show","priority");
 
 
 CREATE TABLE "dapp" (
